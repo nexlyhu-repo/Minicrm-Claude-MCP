@@ -1,0 +1,11 @@
+name = "minicrm-license"
+main = "src/index.ts"
+compatibility_date = "2024-12-01"
+
+[[kv_namespaces]]
+binding = "LICENSES"
+id = "96a860a9b6e24aca977bcc9a6cfa5d39"
+
+[vars]
+# Set the actual admin secret via:
+#   npx wrangler secret put ADMIN_SECRET
