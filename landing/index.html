@@ -3,193 +3,138 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MiniCRM MCP - Claude Desktop Integracio</title>
+    <title>MiniCRM MCP - Claude AI Integráció</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-deep: #0a0c10;
-            --bg-card: #12151c;
-            --bg-card-hover: #181c26;
+            --bg: #0a0c10;
+            --card: #12151c;
             --border: #1e2330;
-            --border-bright: #2a3040;
-            --text-primary: #e8eaf0;
-            --text-secondary: #8890a4;
-            --text-dim: #555d74;
+            --text: #e8eaf0;
+            --text2: #8890a4;
+            --dim: #555d74;
             --accent: #4f7df5;
-            --accent-glow: #4f7df540;
             --accent-bright: #6b93ff;
+            --accent-glow: #4f7df540;
             --green: #3dd68c;
-            --orange: #f0a050;
-            --red: #f06060;
         }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'DM Sans', sans-serif;
-            background: var(--bg-deep);
-            color: var(--text-primary);
-            line-height: 1.6;
+            background: var(--bg);
+            color: var(--text);
             min-height: 100vh;
-            overflow-x: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
         }
-
-        /* Background grid effect */
         body::before {
             content: '';
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background:
-                linear-gradient(180deg, transparent 0%, var(--bg-deep) 70%),
-                radial-gradient(ellipse 60% 40% at 50% 0%, #4f7df518 0%, transparent 100%);
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(ellipse 60% 40% at 50% 0%, #4f7df510 0%, transparent 100%);
             pointer-events: none;
-            z-index: 0;
         }
-
-        .container {
-            max-width: 720px;
-            margin: 0 auto;
-            padding: 0 24px;
+        .wrap {
+            max-width: 440px;
+            width: 100%;
             position: relative;
             z-index: 1;
+            animation: fadeUp 0.6s ease;
         }
-
-        /* Nav */
-        nav {
-            padding: 24px 0;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            animation: fadeDown 0.6s ease;
-        }
-
         .logo {
-            font-weight: 700;
-            font-size: 15px;
-            letter-spacing: -0.02em;
-            color: var(--text-secondary);
-        }
-
-        .logo span {
-            color: var(--accent);
-        }
-
-        nav a {
-            font-size: 13px;
-            color: var(--text-dim);
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-        nav a:hover { color: var(--text-secondary); }
-
-        /* Hero */
-        .hero {
-            padding: 80px 0 60px;
             text-align: center;
-            animation: fadeUp 0.7s ease;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 6px 14px;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 100px;
-            font-size: 12px;
-            font-weight: 500;
-            color: var(--accent-bright);
-            letter-spacing: 0.04em;
-            margin-bottom: 28px;
-        }
-
-        h1 {
-            font-size: clamp(40px, 7vw, 56px);
+            font-size: 28px;
             font-weight: 700;
-            letter-spacing: -0.035em;
-            line-height: 1.1;
-            margin-bottom: 20px;
+            letter-spacing: -0.03em;
+            margin-bottom: 8px;
         }
-
-        h1 .accent {
-            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-bright) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+        .logo span { color: var(--accent); }
+        .sub {
+            text-align: center;
+            font-size: 15px;
+            color: var(--text2);
+            margin-bottom: 36px;
         }
-
-        .hero p {
-            font-size: 17px;
-            color: var(--text-secondary);
-            max-width: 480px;
-            margin: 0 auto;
-            line-height: 1.7;
-        }
-
-        /* Section */
-        section {
-            padding: 40px 0;
-        }
-
-        .section-label {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 11px;
-            font-weight: 500;
-            color: var(--accent);
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 32px;
             margin-bottom: 16px;
         }
-
-        h2 {
-            font-size: 24px;
-            font-weight: 700;
-            letter-spacing: -0.025em;
-            margin-bottom: 12px;
-        }
-
-        section > .container > p {
-            color: var(--text-secondary);
-            font-size: 15px;
-            margin-bottom: 24px;
-        }
-
-        /* Download Card */
-        .download-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 36px;
-            text-align: center;
-            animation: fadeUp 0.8s ease;
-            animation-delay: 0.1s;
-            animation-fill-mode: both;
-        }
-
-        .os-detected {
-            font-size: 13px;
-            color: var(--text-dim);
-            margin-bottom: 20px;
-        }
-
-        .os-detected strong {
-            color: var(--text-secondary);
-            font-weight: 500;
-        }
-
-        .download-btn {
+        .step-num {
             display: inline-flex;
             align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border-radius: 7px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--accent);
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+        .step {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 24px;
+        }
+        .step:last-child { margin-bottom: 0; }
+        .step-content h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .step-content p {
+            font-size: 13px;
+            color: var(--dim);
+            line-height: 1.5;
+        }
+        .url-box {
+            display: flex;
+            align-items: center;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 12px;
+            margin-top: 10px;
             gap: 10px;
-            padding: 14px 32px;
+        }
+        .url-box code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--text2);
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .copy-btn {
+            padding: 6px 12px;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text2);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+        .copy-btn.copied { border-color: var(--green); color: var(--green); }
+        .main-btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
             background: var(--accent);
             color: #fff;
             border: none;
@@ -199,440 +144,85 @@
             font-weight: 600;
             cursor: pointer;
             text-decoration: none;
+            text-align: center;
             transition: all 0.2s;
             box-shadow: 0 0 20px var(--accent-glow);
         }
-
-        .download-btn:hover {
+        .main-btn:hover {
             background: var(--accent-bright);
             transform: translateY(-1px);
             box-shadow: 0 0 30px var(--accent-glow);
         }
-
-        .download-btn svg {
-            width: 18px;
-            height: 18px;
-        }
-
-        .other-platforms {
-            margin-top: 20px;
-            display: flex;
-            justify-content: center;
-            gap: 24px;
-            font-size: 13px;
-        }
-
-        .other-platforms a {
-            color: var(--text-dim);
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-
-        .other-platforms a:hover {
-            color: var(--accent-bright);
-        }
-
-        /* Prereq */
-        .prereq-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 20px 24px;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            margin-bottom: 16px;
-            transition: border-color 0.2s;
-            animation: fadeUp 0.7s ease;
-            animation-fill-mode: both;
-        }
-
-        .prereq-card:nth-child(1) { animation-delay: 0.15s; }
-        .prereq-card:nth-child(2) { animation-delay: 0.25s; }
-        .prereq-card:nth-child(3) { animation-delay: 0.35s; }
-
-        .prereq-card:hover {
-            border-color: var(--border-bright);
-        }
-
-        .prereq-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            font-size: 18px;
-        }
-
-        .prereq-icon.key { background: #4f7df515; color: var(--accent); }
-        .prereq-icon.id { background: #3dd68c15; color: var(--green); }
-        .prereq-icon.api { background: #f0a05015; color: var(--orange); }
-
-        .prereq-text h3 {
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 2px;
-        }
-
-        .prereq-text p {
-            font-size: 13px;
-            color: var(--text-dim);
-            line-height: 1.5;
-        }
-
-        .prereq-text code {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 11.5px;
-            background: #1a1e2a;
-            padding: 2px 6px;
-            border-radius: 4px;
-            color: var(--text-secondary);
-        }
-
-        /* Node.js notice */
-        .node-notice {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 20px 24px;
-            display: flex;
-            align-items: flex-start;
-            gap: 14px;
-            animation: fadeUp 0.7s ease;
-            animation-delay: 0.2s;
-            animation-fill-mode: both;
-        }
-
-        .node-notice .icon {
-            font-size: 20px;
-            flex-shrink: 0;
-            margin-top: 1px;
-        }
-
-        .node-notice p {
-            font-size: 14px;
-            color: var(--text-secondary);
-            line-height: 1.6;
-        }
-
-        .node-notice a {
-            color: var(--accent-bright);
-            text-decoration: none;
-            font-weight: 500;
-        }
-
-        .node-notice a:hover {
-            text-decoration: underline;
-        }
-
-        /* Steps */
-        .steps {
-            display: flex;
-            flex-direction: column;
-            gap: 0;
-            margin-top: 8px;
-        }
-
-        .step {
-            display: flex;
-            gap: 16px;
-            padding: 18px 0;
-            border-bottom: 1px solid var(--border);
-            animation: fadeUp 0.6s ease;
-            animation-fill-mode: both;
-        }
-
-        .step:last-child { border-bottom: none; }
-        .step:nth-child(1) { animation-delay: 0.1s; }
-        .step:nth-child(2) { animation-delay: 0.2s; }
-        .step:nth-child(3) { animation-delay: 0.3s; }
-        .step:nth-child(4) { animation-delay: 0.4s; }
-
-        .step-num {
-            width: 28px;
-            height: 28px;
-            border-radius: 8px;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 12px;
-            font-weight: 500;
-            color: var(--accent);
-            flex-shrink: 0;
-        }
-
-        .step-content h3 {
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 3px;
-        }
-
-        .step-content p {
-            font-size: 13px;
-            color: var(--text-dim);
-        }
-
-        /* Divider */
-        .divider {
-            height: 1px;
-            background: var(--border);
-            margin: 20px 0;
-        }
-
-        /* Footer */
-        footer {
-            padding: 40px 0;
+        .footer {
             text-align: center;
-            font-size: 13px;
-            color: var(--text-dim);
-            animation: fadeUp 0.6s ease;
-            animation-delay: 0.5s;
-            animation-fill-mode: both;
+            font-size: 12px;
+            color: var(--dim);
+            margin-top: 24px;
         }
-
-        footer a {
-            color: var(--text-secondary);
-            text-decoration: none;
-        }
-
-        footer a:hover {
-            color: var(--accent-bright);
-        }
-
-        /* Animations */
+        .footer a { color: var(--text2); text-decoration: none; }
         @keyframes fadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(16px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes fadeDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Responsive */
-        @media (max-width: 540px) {
-            .hero { padding: 50px 0 40px; }
-            .download-card { padding: 28px 20px; }
-            .other-platforms { flex-direction: column; gap: 10px; }
-            .prereq-card { padding: 16px; }
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
 <body>
-
-<div class="container">
-    <nav>
+    <div class="wrap">
         <div class="logo">Mini<span>CRM</span> MCP</div>
-        <a href="https://nodejs.org" target="_blank">Node.js &darr;</a>
-    </nav>
-</div>
+        <div class="sub">Kezelje MiniCRM rendszerét a Claude AI-ból</div>
 
-<div class="container">
-    <div class="hero">
-        <div class="badge">Claude Desktop Integracio</div>
-        <h1>MiniCRM <span class="accent">MCP</span></h1>
-        <p>Kezelje MiniCRM rendszeret kozvetlenul a Claude AI-bol. Kontaktok, adatlapok, teendok, szamlak &mdash; 54 eszkoz, egyetlen telepitessel.</p>
-    </div>
-</div>
-
-<!-- Prereqs -->
-<section>
-    <div class="container">
-        <div class="section-label">Elokeszites</div>
-        <h2>Amire szuksege lesz</h2>
-        <p>A telepites soran az alabbi 3 adatot kell megadnia:</p>
-
-        <div class="prereq-card">
-            <div class="prereq-icon key">
-                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="m21 2-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.78 7.78 5.5 5.5 0 0 1 7.78-7.78m0 0L12 14l-1.5-1.5L15 8l2.5 2.5L21 7l-3-3"/></svg>
-            </div>
-            <div class="prereq-text">
-                <h3>Licenckulcs</h3>
-                <p>A vasarlaskor kapott kulcs, <code>lic_</code> elotaggal kezdodik.</p>
-            </div>
-        </div>
-
-        <div class="prereq-card">
-            <div class="prereq-icon id">
-                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-            </div>
-            <div class="prereq-text">
-                <h3>MiniCRM System ID</h3>
-                <p>A bongeszo cimsoraban talalhato: <code>r3.minicrm.hu/<strong>XXXXX</strong>/...</code></p>
-            </div>
-        </div>
-
-        <div class="prereq-card">
-            <div class="prereq-icon api">
-                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/></svg>
-            </div>
-            <div class="prereq-text">
-                <h3>MiniCRM API kulcs</h3>
-                <p>MiniCRM &rarr; Beallitasok &rarr; Rendszer &rarr; API kulcs generalasa</p>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Download -->
-<section>
-    <div class="container">
-        <div class="section-label">Telepites</div>
-        <h2>Telepito letoltese</h2>
-
-        <div class="download-card">
-            <div class="os-detected" id="os-detected">Operacios rendszer felismerese...</div>
-            <a id="download-btn" class="download-btn" href="#">
-                <svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                Telepito letoltese
-            </a>
-            <div class="other-platforms" id="other-platforms"></div>
-            <div id="mac-tip" style="display:none;margin-top:18px;font-size:12px;color:#8890a4;background:#1a1e2a;padding:10px 14px;border-radius:8px;text-align:left;">
-                <strong style="color:#f0a050;">macOS tipp:</strong> Ha a "Nem nyithato meg" uzenetet latja, kattintson <strong>jobb egergombbal</strong> a fajlra, valassza a <strong>Megnyitas</strong> lehetoseget, majd kattintson ujra a <strong>Megnyitas</strong> gombra.
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Steps -->
-<section>
-    <div class="container">
-        <div class="section-label">Hogyan mukodik</div>
-        <h2>Telepites 4 lepesben</h2>
-        <div class="steps">
+        <div class="card">
             <div class="step">
                 <div class="step-num">1</div>
                 <div class="step-content">
-                    <h3>Telepito letoltese es futtatasa</h3>
-                    <p>Toltse le fentrol, majd <strong>jobb klikk &rarr; Megnyitas</strong> (macOS). Windows-on dupla kattintas elegendo.</p>
+                    <h3>Szerver URL másolása</h3>
+                    <p>Kattintson a Másolás gombra:</p>
+                    <div class="url-box">
+                        <code id="mcpUrl">https://minicrmmcp.netlify.app/mcp</code>
+                        <button class="copy-btn" id="copyBtn" onclick="copyUrl()">Másolás</button>
+                    </div>
                 </div>
             </div>
+
             <div class="step">
                 <div class="step-num">2</div>
                 <div class="step-content">
-                    <h3>Adatok megadasa</h3>
-                    <p>A telepito keri a licenckulcsot, a System ID-t es az API kulcsot.</p>
+                    <h3>Connector hozzáadása a Claude-ban</h3>
+                    <p>Kattintson az alábbi gombra, illessze be a másolt URL-t, majd adja meg a nevét (pl. "MiniCRM").</p>
                 </div>
             </div>
+
             <div class="step">
                 <div class="step-num">3</div>
                 <div class="step-content">
-                    <h3>Claude Desktop ujrainditasa</h3>
-                    <p>Zarja be es nyissa ujra a Claude Desktop alkalmazast.</p>
-                </div>
-            </div>
-            <div class="step">
-                <div class="step-num">4</div>
-                <div class="step-content">
-                    <h3>Hasznalat</h3>
-                    <p>A + gombbal erheti el a MiniCRM eszkozoket a Claude chatben.</p>
+                    <h3>Bejelentkezés</h3>
+                    <p>Adja meg a licenckulcsát, MiniCRM System ID-ját és API kulcsát a megjelenő oldalon.</p>
                 </div>
             </div>
         </div>
-    </div>
-</section>
 
-<!-- Node.js -->
-<section>
-    <div class="container">
-        <div class="section-label">Elofeltetel</div>
-        <h2>Nincs Node.js?</h2>
-        <div class="node-notice">
-            <div class="icon">&#9888;&#65039;</div>
-            <p>
-                A MiniCRM MCP mukodesehez <strong>Node.js</strong> szukseges a szamitogepen.
-                Ha meg nincs telepitve, toltse le innen:
-                <a href="https://nodejs.org" target="_blank">nodejs.org</a>
-                &mdash; valassza az <strong>LTS</strong> (ajanlott) verziot, majd futtassa a telepitot.
-                Ezutan probalja ujra a MiniCRM MCP telepiteset.
-            </p>
+        <a href="https://claude.ai/settings/connectors?modal=add-custom-connector" target="_blank" class="main-btn">
+            Megnyitás a Claude-ban
+        </a>
+
+        <div class="footer">
+            <a href="https://nexly.ai" target="_blank">Nexly AI</a>
         </div>
     </div>
-</section>
 
-<footer>
-    <div class="container">
-        <a href="https://nexly.ai" target="_blank">Nexly AI</a> &middot; MiniCRM MCP
-    </div>
-</footer>
-
-<script>
-    (function() {
-        const ua = navigator.userAgent.toLowerCase();
-        let os = 'unknown';
-        let osLabel = '';
-        let file = '';
-
-        if (ua.includes('mac')) {
-            os = 'mac';
-            osLabel = 'macOS';
-            file = 'installers/install-minicrm-mcp.command';
-        } else if (ua.includes('win')) {
-            os = 'win';
-            osLabel = 'Windows';
-            file = 'installers/install-minicrm-mcp.bat';
-        } else if (ua.includes('linux')) {
-            os = 'linux';
-            osLabel = 'Linux';
-            file = 'installers/install-minicrm-mcp.sh';
+    <script>
+        function copyUrl() {
+            const url = document.getElementById('mcpUrl').textContent;
+            navigator.clipboard.writeText(url).then(() => {
+                const btn = document.getElementById('copyBtn');
+                btn.textContent = 'Másolva!';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.textContent = 'Másolás';
+                    btn.classList.remove('copied');
+                }, 2000);
+            });
         }
-
-        const detected = document.getElementById('os-detected');
-        const btn = document.getElementById('download-btn');
-        const others = document.getElementById('other-platforms');
-
-        if (os !== 'unknown') {
-            detected.innerHTML = 'Eszlelt rendszer: <strong>' + osLabel + '</strong>';
-            btn.href = file;
-            btn.download = '';
-        } else {
-            detected.textContent = 'Valassza ki az operacios rendszeret:';
-            btn.style.display = 'none';
-        }
-
-        const platforms = [
-            { id: 'mac', label: 'macOS', file: 'installers/install-minicrm-mcp.command' },
-            { id: 'win', label: 'Windows', file: 'installers/install-minicrm-mcp.bat' },
-            { id: 'linux', label: 'Linux', file: 'installers/install-minicrm-mcp.sh' },
-        ];
-
-        const otherLinks = platforms
-            .filter(p => p.id !== os)
-            .map(p => '<a href="' + p.file + '" download>' + p.label + '</a>')
-            .join('');
-
-        if (os === 'mac') {
-            document.getElementById('mac-tip').style.display = 'block';
-        }
-
-        if (os !== 'unknown') {
-            others.innerHTML = 'Mas platform: ' + otherLinks;
-        } else {
-            others.innerHTML = platforms
-                .map(p => '<a href="' + p.file + '" download class="download-btn" style="font-size:14px;padding:10px 20px">' + p.label + '</a>')
-                .join('');
-            others.style.gap = '12px';
-        }
-    })();
-</script>
-
+    </script>
 </body>
 </html>

@@ -1,6 +1,6 @@
 [build]
   publish = "public"
-  command = "mkdir -p public && echo '' > public/index.html"
+  command = "mkdir -p public && cp landing/index.html public/index.html"
 
 [[headers]]
   for = "/*"
