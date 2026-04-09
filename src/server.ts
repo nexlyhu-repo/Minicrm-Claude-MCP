@@ -35,8 +35,13 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Request logging
-app.use((req: Request, _res: Response, next) => {
-  console.log(`${req.method} ${req.path} ${req.headers['content-type'] || ''}`);
+app.use((req: Request, res: Response, next) => {
+  const start = Date.now();
+  const origEnd = res.end.bind(res);
+  res.end = function (...args: Parameters<typeof origEnd>) {
+    console.log(`${req.method} ${req.path} ${res.statusCode} ${Date.now() - start}ms`);
+    return origEnd(...args);
+  } as typeof res.end;
   next();
 });
 
@@ -206,13 +211,6 @@ app.post("/mcp", async (req: Request, res: Response) => {
     return;
   }
 
-  // Re-validate license periodically (token may be old)
-  const valid = await validateLicense(credentials.licenseKey);
-  if (!valid) {
-    res.status(403).json({ error: "A licenc lejart vagy visszavonasra kerult." });
-    return;
-  }
-
   // Create per-request MCP server + client
   const client = new MiniCrmClient({
     systemId: credentials.systemId,
@@ -237,7 +235,14 @@ app.post("/mcp", async (req: Request, res: Response) => {
   });
 
   await mcpServer.connect(transport);
-  await transport.handleRequest(req, res);
+  try {
+    await transport.handleRequest(req, res);
+  } catch (error) {
+    console.error("MCP handleRequest hiba:", error);
+    if (!res.headersSent) {
+      res.status(500).json({ error: "Belso szerver hiba." });
+    }
+  }
 });
 
 // Handle GET /mcp - required for SSE stream initialization
