@@ -5,30 +5,30 @@
 # Proxy MCP server requests to Hetzner
 [[redirects]]
   from = "/.well-known/oauth-authorization-server"
-  to = "http://49.12.196.186:4001/.well-known/oauth-authorization-server"
+  to = "http://49.12.196.186:4002/.well-known/oauth-authorization-server"
   status = 200
   force = true
 
 [[redirects]]
   from = "/authorize"
-  to = "http://49.12.196.186:4001/authorize"
+  to = "http://49.12.196.186:4002/authorize"
   status = 200
   force = true
 
 [[redirects]]
   from = "/token"
-  to = "http://49.12.196.186:4001/token"
+  to = "http://49.12.196.186:4002/token"
   status = 200
   force = true
 
 [[redirects]]
   from = "/mcp"
-  to = "http://49.12.196.186:4001/mcp"
+  to = "http://49.12.196.186:4002/mcp"
   status = 200
   force = true
 
 [[redirects]]
   from = "/health"
-  to = "http://49.12.196.186:4001/health"
+  to = "http://49.12.196.186:4002/health"
   status = 200
   force = true
