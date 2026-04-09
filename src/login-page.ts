@@ -15,7 +15,7 @@ export function getLoginPageHtml(
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MiniCRM MCP - Bejelentkezes</title>
+    <title>MiniCRM MCP - Bejelentkezés</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -114,7 +114,7 @@ export function getLoginPageHtml(
 <body>
     <div class="card">
         <h1>Mini<span>CRM</span> MCP</h1>
-        <div class="subtitle">Claude AI integracio bejelentkezes</div>
+        <div class="subtitle">Claude AI integráció bejelentkezés</div>
         ${errorHtml}
         <form method="POST" action="/authorize" id="loginForm">
             <input type="hidden" name="client_id" value="${clientId}">
@@ -128,20 +128,20 @@ export function getLoginPageHtml(
 
             <label for="system_id">MiniCRM System ID</label>
             <input type="text" id="system_id" name="system_id" placeholder="pl. 53832" required>
-            <div class="hint">A bongeszo cimsoraban: r3.minicrm.hu/<strong>XXXXX</strong>/...</div>
+            <div class="hint">A böngésző címsorában: r3.minicrm.hu/<strong>XXXXX</strong>/...</div>
 
             <label for="api_key">MiniCRM API kulcs</label>
             <input type="password" id="api_key" name="api_key" placeholder="API kulcs" required>
-            <div class="hint">Beallitasok &rarr; Rendszer &rarr; API kulcs</div>
+            <div class="hint">Beállítások &rarr; Rendszer &rarr; API kulcs</div>
 
-            <button type="submit" id="submitBtn">Csatlakozas</button>
+            <button type="submit" id="submitBtn">Csatlakozás</button>
         </form>
         <div class="footer">Nexly AI &middot; MiniCRM MCP</div>
     </div>
     <script>
         document.getElementById('loginForm').addEventListener('submit', function() {
             document.getElementById('submitBtn').disabled = true;
-            document.getElementById('submitBtn').textContent = 'Ellenorzes...';
+            document.getElementById('submitBtn').textContent = 'Ellenőrzés...';
         });
     </script>
 </body>

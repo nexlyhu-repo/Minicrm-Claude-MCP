@@ -127,7 +127,7 @@ app.post("/authorize", async (req: Request, res: Response) => {
         state,
         code_challenge,
         code_challenge_method,
-        "Ervenytelen licenckulcs."
+        "Érvénytelen licenckulcs."
       )
     );
     return;
@@ -149,7 +149,7 @@ app.post("/authorize", async (req: Request, res: Response) => {
         state,
         code_challenge,
         code_challenge_method,
-        "Hibas MiniCRM System ID vagy API kulcs."
+        "Hibás MiniCRM System ID vagy API kulcs."
       )
     );
     return;
