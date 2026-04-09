@@ -1,0 +1,3 @@
+[build]
+  publish = "public"
+  command = "mkdir -p public/installers && cp landing/index.html public/ && cp installers/* public/installers/"
