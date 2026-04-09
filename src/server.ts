@@ -34,6 +34,12 @@ app.use((_req: Request, res: Response, next) => {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Request logging
+app.use((req: Request, _res: Response, next) => {
+  console.log(`${req.method} ${req.path} ${req.headers['content-type'] || ''}`);
+  next();
+});
+
 // --- OAuth 2.1 Discovery ---
 
 app.get("/.well-known/oauth-authorization-server", (_req: Request, res: Response) => {
