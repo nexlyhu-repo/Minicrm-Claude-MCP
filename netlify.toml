@@ -1,3 +1,34 @@
 [build]
   publish = "public"
   command = "mkdir -p public/installers && cp landing/index.html public/ && cp installers/* public/installers/"
+
+# Proxy MCP server requests to Hetzner
+[[redirects]]
+  from = "/.well-known/oauth-authorization-server"
+  to = "http://49.12.196.186:4001/.well-known/oauth-authorization-server"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/authorize"
+  to = "http://49.12.196.186:4001/authorize"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/token"
+  to = "http://49.12.196.186:4001/token"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/mcp"
+  to = "http://49.12.196.186:4001/mcp"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/health"
+  to = "http://49.12.196.186:4001/health"
+  status = 200
+  force = true

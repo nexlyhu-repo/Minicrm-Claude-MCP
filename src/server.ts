@@ -14,7 +14,7 @@ import {
 import { getLoginPageHtml } from "./login-page.js";
 
 const PORT = parseInt(process.env.MCP_PORT || "4001", 10);
-const BASE_URL = process.env.MCP_BASE_URL || `http://localhost:${PORT}`;
+const BASE_URL = process.env.MCP_BASE_URL || "https://minicrmmcp.netlify.app";
 
 const app = express();
 app.use(express.json());
