@@ -505,6 +505,9 @@
                 Telepito letoltese
             </a>
             <div class="other-platforms" id="other-platforms"></div>
+            <div id="mac-tip" style="display:none;margin-top:18px;font-size:12px;color:#8890a4;background:#1a1e2a;padding:10px 14px;border-radius:8px;text-align:left;">
+                <strong style="color:#f0a050;">macOS tipp:</strong> Ha a "Nem nyithato meg" uzenetet latja, kattintson <strong>jobb egergombbal</strong> a fajlra, valassza a <strong>Megnyitas</strong> lehetoseget, majd kattintson ujra a <strong>Megnyitas</strong> gombra.
+            </div>
         </div>
     </div>
 </section>
@@ -519,7 +522,7 @@
                 <div class="step-num">1</div>
                 <div class="step-content">
                     <h3>Telepito letoltese es futtatasa</h3>
-                    <p>Toltse le fentrol, majd dupla kattintassal inditsa el.</p>
+                    <p>Toltse le fentrol, majd <strong>jobb klikk &rarr; Megnyitas</strong> (macOS). Windows-on dupla kattintas elegendo.</p>
                 </div>
             </div>
             <div class="step">
@@ -615,6 +618,10 @@
             .filter(p => p.id !== os)
             .map(p => '<a href="' + p.file + '" download>' + p.label + '</a>')
             .join('');
+
+        if (os === 'mac') {
+            document.getElementById('mac-tip').style.display = 'block';
+        }
 
         if (os !== 'unknown') {
             others.innerHTML = 'Mas platform: ' + otherLinks;
