@@ -236,7 +236,8 @@ app.post("/mcp", async (req: Request, res: Response) => {
 
   await mcpServer.connect(transport);
   try {
-    await transport.handleRequest(req, res);
+    console.log("MCP request body:", JSON.stringify(req.body));
+    await transport.handleRequest(req, res, req.body);
   } catch (error) {
     console.error("MCP handleRequest hiba:", error);
     if (!res.headersSent) {
