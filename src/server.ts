@@ -41,10 +41,32 @@ app.get("/.well-known/oauth-authorization-server", (_req: Request, res: Response
     issuer: BASE_URL,
     authorization_endpoint: `${BASE_URL}/authorize`,
     token_endpoint: `${BASE_URL}/token`,
+    registration_endpoint: `${BASE_URL}/register`,
     response_types_supported: ["code"],
     grant_types_supported: ["authorization_code"],
-    code_challenge_methods_supported: ["S256", "plain"],
+    code_challenge_methods_supported: ["S256"],
     token_endpoint_auth_methods_supported: ["none"],
+    scopes_supported: ["mcp"],
+  });
+});
+
+app.get("/.well-known/oauth-protected-resource", (_req: Request, res: Response) => {
+  res.json({
+    resource: `${BASE_URL}/mcp`,
+    authorization_servers: [BASE_URL],
+    scopes_supported: ["mcp"],
+  });
+});
+
+// Dynamic client registration (required by MCP OAuth spec)
+app.post("/register", (_req: Request, res: Response) => {
+  res.status(201).json({
+    client_id: "minicrm-mcp-client",
+    client_name: "MiniCRM MCP",
+    redirect_uris: _req.body.redirect_uris || [],
+    grant_types: ["authorization_code"],
+    response_types: ["code"],
+    token_endpoint_auth_method: "none",
   });
 });
 

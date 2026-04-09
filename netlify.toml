@@ -12,8 +12,14 @@
 
 # Proxy MCP server requests to Hetzner
 [[redirects]]
-  from = "/.well-known/oauth-authorization-server"
-  to = "http://49.12.196.186:4002/.well-known/oauth-authorization-server"
+  from = "/.well-known/*"
+  to = "http://49.12.196.186:4002/.well-known/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/register"
+  to = "http://49.12.196.186:4002/register"
   status = 200
   force = true
 
