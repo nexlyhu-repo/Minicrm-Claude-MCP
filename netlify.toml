@@ -2,6 +2,14 @@
   publish = "public"
   command = "mkdir -p public/installers && cp landing/index.html public/ && cp installers/* public/installers/"
 
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "GET, POST, OPTIONS, DELETE"
+    Access-Control-Allow-Headers = "Content-Type, Authorization, Mcp-Session-Id"
+    Access-Control-Expose-Headers = "Mcp-Session-Id"
+
 # Proxy MCP server requests to Hetzner
 [[redirects]]
   from = "/.well-known/oauth-authorization-server"

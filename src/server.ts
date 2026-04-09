@@ -17,6 +17,20 @@ const PORT = parseInt(process.env.MCP_PORT || "4001", 10);
 const BASE_URL = process.env.MCP_BASE_URL || "https://minicrmmcp.netlify.app";
 
 const app = express();
+
+// CORS - required for Claude's browser-based connector
+app.use((_req: Request, res: Response, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, DELETE");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization, Mcp-Session-Id");
+  res.header("Access-Control-Expose-Headers", "Mcp-Session-Id");
+  if (_req.method === "OPTIONS") {
+    res.sendStatus(204);
+    return;
+  }
+  next();
+});
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -198,9 +212,20 @@ app.post("/mcp", async (req: Request, res: Response) => {
   await transport.handleRequest(req, res);
 });
 
-// Handle GET /mcp for SSE stream (some clients use this)
+// Handle GET /mcp - required for SSE stream initialization
 app.get("/mcp", (_req: Request, res: Response) => {
-  res.status(405).json({ error: "Hasznaljon POST kerest." });
+  res.status(405).set("Allow", "POST").json({
+    jsonrpc: "2.0",
+    error: { code: -32000, message: "Method not allowed. Use POST." },
+  });
+});
+
+// Handle DELETE /mcp - session cleanup
+app.delete("/mcp", (_req: Request, res: Response) => {
+  res.status(405).set("Allow", "POST").json({
+    jsonrpc: "2.0",
+    error: { code: -32000, message: "Sessions not supported." },
+  });
 });
 
 // --- Health check ---
