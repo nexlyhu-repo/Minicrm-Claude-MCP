@@ -1,6 +1,6 @@
 [build]
   publish = "public"
-  command = "mkdir -p public && echo '<html><head><meta http-equiv=\"refresh\" content=\"0;url=https://nexly.ai\"></head></html>' > public/index.html"
+  command = "mkdir -p public && echo '' > public/index.html"
 
 [[headers]]
   for = "/*"
