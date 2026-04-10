@@ -46,7 +46,11 @@ export class MiniCrmClient {
       "Content-Type": "application/json",
     };
 
-    const options: RequestInit = { method, headers };
+    const options: RequestInit = {
+      method,
+      headers,
+      signal: AbortSignal.timeout(30_000),
+    };
     if (body && (method === "PUT" || method === "POST")) {
       options.body = JSON.stringify(body);
     }
@@ -102,7 +106,8 @@ export class MiniCrmClient {
       return first;
     }
 
-    const totalPages = Math.ceil(first.Count / 100);
+    const MAX_PAGES = 10; // Cap at 1000 results to avoid timeouts
+    const totalPages = Math.min(Math.ceil(first.Count / 100), MAX_PAGES);
     const allResults = { ...first.Results };
 
     for (let page = 1; page < totalPages; page++) {
@@ -113,7 +118,12 @@ export class MiniCrmClient {
       Object.assign(allResults, pageData.Results);
     }
 
-    return { Count: first.Count, Results: allResults };
+    const result = { Count: first.Count, Results: allResults } as SearchResponse & { truncated?: boolean; fetchedCount?: number };
+    if (first.Count > MAX_PAGES * 100) {
+      result.truncated = true;
+      result.fetchedCount = MAX_PAGES * 100;
+    }
+    return result;
   }
 
   get voipApiKey(): string | undefined {
