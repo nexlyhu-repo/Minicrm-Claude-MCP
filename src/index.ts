@@ -39,7 +39,7 @@ const server = new McpServer(
 registerAllTools(server, client);
 
 async function main() {
-  const valid = await validateLicense(licenseKey!);
+  const valid = await validateLicense(licenseKey!, systemId);
   if (!valid) {
     console.error("Ervenytelen licenckulcs. Licencet a https://minicrmai.com oldalon vasarolhat.");
     process.exit(1);

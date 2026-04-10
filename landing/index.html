@@ -88,6 +88,9 @@
             margin-bottom: 24px;
         }
         .step:last-child { margin-bottom: 0; }
+        .step-content {
+            min-width: 0;
+        }
         .step-content h3 {
             font-size: 14px;
             font-weight: 600;
@@ -113,6 +116,7 @@
             font-size: 12px;
             color: var(--text2);
             flex: 1;
+            min-width: 0;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -169,6 +173,20 @@
             transition: all 0.2s;
         }
         .footer a:hover { background: linear-gradient(135deg, #d47e34, #f0b050, #dc9444); transform: translateY(-1px); }
+        @media (max-width: 480px) {
+            .card { padding: 20px; }
+            .url-box {
+                flex-wrap: wrap;
+            }
+            .url-box code {
+                flex-basis: 100%;
+                font-size: 11px;
+            }
+            .copy-btn {
+                width: 100%;
+                text-align: center;
+            }
+        }
         @keyframes fadeUp {
             from { opacity: 0; transform: translateY(16px); }
             to { opacity: 1; transform: translateY(0); }

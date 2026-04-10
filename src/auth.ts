@@ -31,12 +31,12 @@ setInterval(() => {
   }
 }, 5 * 60_000);
 
-export async function validateLicense(licenseKey: string): Promise<boolean> {
+export async function validateLicense(licenseKey: string, systemId?: string): Promise<boolean> {
   try {
     const res = await fetch(`${LICENSE_API_URL}/validate`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ key: licenseKey }),
+      body: JSON.stringify({ key: licenseKey, systemId }),
     });
     const data = (await res.json()) as { valid?: boolean };
     return !!data.valid;

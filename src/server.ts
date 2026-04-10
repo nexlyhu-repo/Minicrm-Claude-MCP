@@ -117,8 +117,8 @@ app.post("/authorize", async (req: Request, res: Response) => {
     api_key,
   } = req.body;
 
-  // Validate license
-  const valid = await validateLicense(license_key);
+  // Validate license (bound to this systemId)
+  const valid = await validateLicense(license_key, system_id);
   if (!valid) {
     res.type("html").send(
       getLoginPageHtml(
@@ -127,7 +127,7 @@ app.post("/authorize", async (req: Request, res: Response) => {
         state,
         code_challenge,
         code_challenge_method,
-        "Érvénytelen licenckulcs."
+        "Érvénytelen licenckulcs, vagy már egy másik MiniCRM rendszerhez van rendelve."
       )
     );
     return;

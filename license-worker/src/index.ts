@@ -9,6 +9,7 @@ interface LicenseData {
   createdAt: string;
   expiresAt: string | null;
   note?: string;
+  boundSystemId?: string;
 }
 
 function json(data: unknown, status = 200): Response {
@@ -55,7 +56,7 @@ export default {
     // POST /validate — public, MCP server calls this on startup
     if (method === "POST" && url.pathname === "/validate") {
       try {
-        const body = (await request.json()) as { key?: string };
+        const body = (await request.json()) as { key?: string; systemId?: string };
         if (!body.key) {
           return json({ valid: false, message: "Licenckulcs megadasa kotelezo." }, 400);
         }
@@ -71,6 +72,17 @@ export default {
 
         if (data.expiresAt && new Date(data.expiresAt) < new Date()) {
           return json({ valid: false, message: "A licenc lejart." });
+        }
+
+        // Enforce one license = one tenant (systemId)
+        if (body.systemId) {
+          if (data.boundSystemId && data.boundSystemId !== body.systemId) {
+            return json({ valid: false, message: "Ez a licenckulcs mar egy masik MiniCRM rendszerhez van rendelve." });
+          }
+          if (!data.boundSystemId) {
+            data.boundSystemId = body.systemId;
+            await env.LICENSES.put(body.key, JSON.stringify(data));
+          }
         }
 
         return json({ valid: true, email: data.email });
