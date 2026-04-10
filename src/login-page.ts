@@ -105,10 +105,20 @@ export function getLoginPageHtml(
         }
         .footer {
             text-align: center;
-            font-size: 12px;
-            color: #555d74;
             margin-top: 20px;
         }
+        .footer a {
+            display: inline-block;
+            padding: 10px 24px;
+            background: linear-gradient(135deg, #c8702a, #e8a040, #d4883a);
+            color: #0a0c10;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        .footer a:hover { background: linear-gradient(135deg, #d47e34, #f0b050, #dc9444); transform: translateY(-1px); }
     </style>
 </head>
 <body>
@@ -136,7 +146,7 @@ export function getLoginPageHtml(
 
             <button type="submit" id="submitBtn">Csatlakozás</button>
         </form>
-        <div class="footer">Nexly AI &middot; MiniCRM MCP</div>
+        <div class="footer"><a href="https://www.nexly.hu" target="_blank">www.nexly.hu</a></div>
     </div>
     <script>
         document.getElementById('loginForm').addEventListener('submit', function() {
