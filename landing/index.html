@@ -3,253 +3,1176 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MiniCRM MCP - Claude AI Integráció</title>
+    <title>MiniCRM MCP - Kezelje CRM rendszeret mesterseges intelligenciaval</title>
+    <meta name="description" content="Kapcsolja ossze MiniCRM rendszeret a Claude AI-val. Termeszetes nyelven kezelheti ugyfeleit, projektjeit es feladatait.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #0a0c10;
-            --card: #12151c;
+            --bg: #0a0e17;
+            --bg2: #0d1220;
+            --card: #111827;
+            --card-hover: #161d2e;
             --border: #1e2330;
-            --text: #e8eaf0;
-            --text2: #8890a4;
-            --dim: #555d74;
+            --border-light: #2a3040;
+            --text: #e2e8f0;
+            --text2: #8892a8;
+            --dim: #5a6478;
             --accent: #4f7df5;
             --accent-bright: #6b93ff;
-            --accent-glow: #4f7df540;
+            --accent-glow: #4f7df530;
+            --accent-subtle: #4f7df510;
             --green: #3dd68c;
+            --amber: #e8a040;
+            --amber-dark: #c8702a;
         }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
         body {
-            font-family: 'DM Sans', sans-serif;
+            font-family: 'Manrope', sans-serif;
             background: var(--bg);
             color: var(--text);
-            min-height: 100vh;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Sora', sans-serif;
+            line-height: 1.2;
+            letter-spacing: -0.02em;
+        }
+
+        a { color: var(--accent); text-decoration: none; }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* === NAV === */
+        nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            background: #0a0e17e6;
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+        .nav-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 64px;
+        }
+        .nav-logo {
+            font-family: 'Sora', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: -0.03em;
+        }
+        .nav-logo span { color: var(--accent); }
+        .nav-links { display: flex; gap: 28px; align-items: center; }
+        .nav-links a {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text2);
+            transition: color 0.2s;
+        }
+        .nav-links a:hover { color: var(--text); }
+        .nav-cta {
+            padding: 8px 20px !important;
+            background: var(--accent) !important;
+            color: #fff !important;
+            border-radius: 8px;
+            font-weight: 600 !important;
+            transition: all 0.2s !important;
+        }
+        .nav-cta:hover { background: var(--accent-bright) !important; transform: translateY(-1px); }
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 24px;
+            cursor: pointer;
+            padding: 4px;
+        }
+        .mobile-menu {
+            display: none;
+            position: fixed;
+            top: 64px; left: 0; right: 0;
+            background: var(--bg);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 24px;
+            z-index: 99;
+        }
+        .mobile-menu.open { display: block; }
+        .mobile-menu a {
+            display: block;
+            padding: 12px 0;
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text2);
+            border-bottom: 1px solid var(--border);
+        }
+        .mobile-menu a:last-child { border-bottom: none; }
+
+        /* === HERO === */
+        .hero {
+            padding: 140px 0 80px;
+            position: relative;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 600px;
+            background:
+                radial-gradient(ellipse 50% 50% at 20% 20%, #4f7df508 0%, transparent 100%),
+                radial-gradient(ellipse 40% 40% at 80% 30%, #e8a04006 0%, transparent 100%);
+            pointer-events: none;
+        }
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            background: var(--accent-subtle);
+            border: 1px solid #4f7df520;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--accent-bright);
+            margin-bottom: 24px;
+        }
+        .hero-badge::before {
+            content: '';
+            width: 6px; height: 6px;
+            background: var(--green);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        .hero h1 {
+            font-size: 44px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--text) 0%, var(--text2) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero h1 em {
+            font-style: normal;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-bright) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero-text {
+            font-size: 17px;
+            color: var(--text2);
+            margin-bottom: 32px;
+            line-height: 1.7;
+        }
+        .hero-stats {
+            display: flex;
+            gap: 32px;
+        }
+        .hero-stat-num {
+            font-family: 'Sora', sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        .hero-stat-label {
+            font-size: 13px;
+            color: var(--dim);
+            margin-top: 2px;
+        }
+
+        /* === DEMO FORM === */
+        .demo-form-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 36px;
+            position: relative;
+            overflow: hidden;
+        }
+        .demo-form-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--amber), var(--accent));
+        }
+        .demo-form-card h3 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+        .demo-form-card .form-sub {
+            font-size: 14px;
+            color: var(--text2);
+            margin-bottom: 24px;
+        }
+        .form-group {
+            margin-bottom: 14px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text2);
+            margin-bottom: 6px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px 14px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-family: 'Manrope', sans-serif;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .form-group input:focus { border-color: var(--accent); }
+        .form-group input::placeholder { color: var(--dim); }
+        .form-submit {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--amber-dark), var(--amber));
+            color: #0a0e17;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Sora', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 6px;
+        }
+        .form-submit:hover { transform: translateY(-1px); box-shadow: 0 8px 24px #e8a04030; }
+        .form-note {
+            text-align: center;
+            font-size: 12px;
+            color: var(--dim);
+            margin-top: 12px;
+        }
+        .form-success {
+            display: none;
+            text-align: center;
+            padding: 32px 16px;
+        }
+        .form-success .check-icon {
+            width: 56px; height: 56px;
+            background: #3dd68c18;
+            border: 2px solid var(--green);
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 24px;
+            margin: 0 auto 16px;
+            font-size: 24px;
+            color: var(--green);
         }
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: radial-gradient(ellipse 60% 40% at 50% 0%, #4f7df510 0%, transparent 100%);
-            pointer-events: none;
-        }
-        .wrap {
-            max-width: 440px;
-            width: 100%;
-            position: relative;
-            z-index: 1;
-            animation: fadeUp 0.6s ease;
-        }
-        .logo {
-            text-align: center;
-            font-size: 28px;
-            font-weight: 700;
-            letter-spacing: -0.03em;
+        .form-success h4 {
+            font-size: 18px;
             margin-bottom: 8px;
         }
-        .logo span { color: var(--accent); }
-        .sub {
-            text-align: center;
-            font-size: 15px;
+        .form-success p {
+            font-size: 14px;
             color: var(--text2);
-            margin-bottom: 36px;
         }
-        .card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 32px;
-            margin-bottom: 16px;
-        }
-        .step-num {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 24px;
-            height: 24px;
-            border-radius: 7px;
-            background: var(--bg);
-            border: 1px solid var(--border);
+
+        /* === SECTION === */
+        section { padding: 80px 0; }
+        .section-label {
+            display: inline-block;
             font-family: 'JetBrains Mono', monospace;
             font-size: 12px;
             font-weight: 500;
             color: var(--accent);
-            margin-right: 10px;
-            flex-shrink: 0;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 12px;
         }
-        .step {
-            display: flex;
-            align-items: flex-start;
-            margin-bottom: 24px;
+        .section-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 16px;
         }
-        .step:last-child { margin-bottom: 0; }
-        .step-content {
-            min-width: 0;
+        .section-desc {
+            font-size: 16px;
+            color: var(--text2);
+            max-width: 600px;
+            line-height: 1.7;
         }
-        .step-content h3 {
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 4px;
+        .section-header { margin-bottom: 48px; }
+        .section-header-center { text-align: center; }
+        .section-header-center .section-desc { margin: 0 auto; }
+
+        /* === FEATURES === */
+        #features { background: var(--bg2); }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
         }
-        .step-content p {
-            font-size: 13px;
-            color: var(--dim);
-            line-height: 1.5;
+        .feature-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 28px;
+            transition: all 0.3s;
         }
-        .url-box {
+        .feature-card:hover {
+            border-color: var(--border-light);
+            background: var(--card-hover);
+            transform: translateY(-2px);
+        }
+        .feature-icon {
+            width: 44px; height: 44px;
+            background: var(--accent-subtle);
+            border: 1px solid #4f7df520;
+            border-radius: 10px;
             display: flex;
             align-items: center;
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 10px 12px;
-            margin-top: 10px;
-            gap: 10px;
+            justify-content: center;
+            font-size: 20px;
+            margin-bottom: 16px;
         }
-        .url-box code {
+        .feature-card h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .feature-card p {
+            font-size: 14px;
+            color: var(--text2);
+            line-height: 1.6;
+        }
+
+        /* === HOW IT WORKS === */
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            position: relative;
+        }
+        .steps-grid::before {
+            content: '';
+            position: absolute;
+            top: 36px;
+            left: calc(16.66% + 12px);
+            right: calc(16.66% + 12px);
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent), var(--border), var(--accent));
+            opacity: 0.3;
+        }
+        .step-card { text-align: center; position: relative; }
+        .step-number {
+            width: 48px; height: 48px;
+            border-radius: 50%;
+            background: var(--card);
+            border: 2px solid var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Sora', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--accent);
+            margin: 0 auto 20px;
+            position: relative;
+            z-index: 1;
+        }
+        .step-card h3 {
+            font-size: 17px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .step-card p {
+            font-size: 14px;
+            color: var(--text2);
+            line-height: 1.6;
+        }
+
+        /* === DEMO SHOWCASE === */
+        #demo { background: var(--bg2); }
+        .demo-showcase {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        .demo-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 20px;
+            background: #0d1118;
+            border-bottom: 1px solid var(--border);
+        }
+        .demo-dot { width: 10px; height: 10px; border-radius: 50%; }
+        .demo-dot:nth-child(1) { background: #f06060; }
+        .demo-dot:nth-child(2) { background: #e8a040; }
+        .demo-dot:nth-child(3) { background: #3dd68c; }
+        .demo-title {
             font-family: 'JetBrains Mono', monospace;
             font-size: 12px;
-            color: var(--text2);
-            flex: 1;
-            min-width: 0;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            color: var(--dim);
+            margin-left: 8px;
         }
-        .copy-btn {
-            padding: 6px 12px;
-            background: transparent;
+        .demo-body { padding: 28px; }
+        .demo-conversation {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .demo-msg {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+        .demo-avatar {
+            width: 32px; height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        .demo-avatar.user { background: #e8a04020; color: var(--amber); }
+        .demo-avatar.ai { background: var(--accent-subtle); color: var(--accent); }
+        .demo-bubble {
+            background: var(--bg);
             border: 1px solid var(--border);
-            border-radius: 6px;
-            color: var(--text2);
-            font-family: 'DM Sans', sans-serif;
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.2s;
-            white-space: nowrap;
-        }
-        .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
-        .copy-btn.copied { border-color: var(--green); color: var(--green); }
-        .main-btn {
-            display: block;
-            width: 100%;
-            padding: 14px;
-            background: var(--accent);
-            color: #fff;
-            border: none;
             border-radius: 10px;
-            font-family: 'DM Sans', sans-serif;
+            padding: 12px 16px;
+            font-size: 14px;
+            line-height: 1.6;
+            color: var(--text2);
+            max-width: 80%;
+        }
+        .demo-bubble strong { color: var(--text); font-weight: 600; }
+        .demo-bubble code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            background: #4f7df510;
+            color: var(--accent-bright);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        /* === SECURITY === */
+        .security-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        .security-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 28px;
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+        }
+        .security-icon {
+            width: 40px; height: 40px;
+            background: #3dd68c10;
+            border: 1px solid #3dd68c20;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        .security-card h3 {
             font-size: 15px;
             font-weight: 600;
-            cursor: pointer;
-            text-decoration: none;
+            margin-bottom: 6px;
+        }
+        .security-card p {
+            font-size: 13px;
+            color: var(--text2);
+            line-height: 1.6;
+        }
+
+        /* === SUPPORT === */
+        #support { background: var(--bg2); }
+        .support-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        .support-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 28px;
             text-align: center;
+            transition: all 0.3s;
+        }
+        .support-card:hover {
+            border-color: var(--border-light);
+            transform: translateY(-2px);
+        }
+        .support-icon { font-size: 32px; margin-bottom: 16px; }
+        .support-card h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .support-card p {
+            font-size: 14px;
+            color: var(--text2);
+            line-height: 1.6;
+        }
+
+        /* === REFERENCES === */
+        .ref-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        .ref-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 28px;
+        }
+        .ref-quote {
+            font-size: 14px;
+            color: var(--text2);
+            line-height: 1.7;
+            font-style: italic;
+            margin-bottom: 20px;
+            padding-left: 16px;
+            border-left: 2px solid var(--accent);
+        }
+        .ref-author {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .ref-avatar {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent-bright));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Sora', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            color: #fff;
+        }
+        .ref-name { font-size: 14px; font-weight: 600; }
+        .ref-role { font-size: 12px; color: var(--dim); }
+
+        /* === CTA === */
+        .cta-section {
+            padding: 80px 0;
+            text-align: center;
+            position: relative;
+        }
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(ellipse 60% 60% at 50% 50%, #4f7df508 0%, transparent 100%);
+            pointer-events: none;
+        }
+        .cta-box {
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+        }
+        .cta-box h2 {
+            font-size: 30px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+        .cta-box p {
+            font-size: 16px;
+            color: var(--text2);
+            margin-bottom: 28px;
+        }
+        .cta-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            padding: 14px 28px;
+            background: var(--accent);
+            color: #fff;
+            border-radius: 10px;
+            font-family: 'Sora', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
             transition: all 0.2s;
             box-shadow: 0 0 20px var(--accent-glow);
         }
-        .main-btn:hover {
-            background: var(--accent-bright);
-            transform: translateY(-1px);
-            box-shadow: 0 0 30px var(--accent-glow);
-        }
-        .footer {
-            text-align: center;
-            margin-top: 24px;
-        }
-        .footer a {
-            display: inline-block;
-            padding: 10px 24px;
-            background: linear-gradient(135deg, #c8702a, #e8a040, #d4883a);
-            color: #0a0c10;
-            font-size: 13px;
+        .btn-primary:hover { background: var(--accent-bright); transform: translateY(-1px); }
+        .btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            padding: 14px 28px;
+            background: transparent;
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-family: 'Sora', sans-serif;
+            font-size: 15px;
             font-weight: 600;
-            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .btn-secondary:hover { border-color: var(--border-light); background: var(--card); }
+
+        /* === FOOTER === */
+        footer {
+            background: var(--bg2);
+            border-top: 1px solid var(--border);
+            padding: 48px 0 32px;
+        }
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        .footer-brand p {
+            font-size: 14px;
+            color: var(--text2);
+            line-height: 1.6;
+            margin: 12px 0 16px;
+        }
+        .footer-nexly {
+            display: inline-block;
+            padding: 8px 20px;
+            background: linear-gradient(135deg, #c8702a, #e8a040, #d4883a);
+            color: #0a0e17;
+            font-size: 13px;
+            font-weight: 700;
             border-radius: 8px;
             transition: all 0.2s;
         }
-        .footer a:hover { background: linear-gradient(135deg, #d47e34, #f0b050, #dc9444); transform: translateY(-1px); }
-        @media (max-width: 480px) {
-            .card { padding: 20px; }
-            .url-box {
-                flex-wrap: wrap;
-            }
-            .url-box code {
-                flex-basis: 100%;
-                font-size: 11px;
-            }
-            .copy-btn {
-                width: 100%;
-                text-align: center;
-            }
+        .footer-nexly:hover { background: linear-gradient(135deg, #d47e34, #f0b050, #dc9444); transform: translateY(-1px); }
+        .footer-col h4 {
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text);
+            margin-bottom: 16px;
         }
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(16px); }
-            to { opacity: 1; transform: translateY(0); }
+        .footer-col a {
+            display: block;
+            font-size: 14px;
+            color: var(--text2);
+            padding: 4px 0;
+            transition: color 0.2s;
+        }
+        .footer-col a:hover { color: var(--text); }
+        .footer-bottom {
+            border-top: 1px solid var(--border);
+            padding-top: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            color: var(--dim);
+        }
+        .footer-legal { display: flex; gap: 20px; }
+        .footer-legal a { color: var(--dim); transition: color 0.2s; }
+        .footer-legal a:hover { color: var(--text2); }
+
+        /* === ANIMATIONS === */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+        .reveal {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .reveal-delay-1 { transition-delay: 0.1s; }
+        .reveal-delay-2 { transition-delay: 0.2s; }
+        .reveal-delay-3 { transition-delay: 0.3s; }
+        .reveal-delay-4 { transition-delay: 0.4s; }
+
+        /* === RESPONSIVE === */
+        @media (max-width: 900px) {
+            .hero-grid { grid-template-columns: 1fr; gap: 40px; }
+            .hero { padding: 120px 0 60px; }
+            .hero h1 { font-size: 34px; }
+            .features-grid { grid-template-columns: 1fr 1fr; }
+            .steps-grid { grid-template-columns: 1fr; gap: 32px; }
+            .steps-grid::before { display: none; }
+            .security-grid { grid-template-columns: 1fr; }
+            .support-grid { grid-template-columns: 1fr; }
+            .ref-grid { grid-template-columns: 1fr; }
+            .footer-grid { grid-template-columns: 1fr 1fr; gap: 24px; }
+        }
+        @media (max-width: 600px) {
+            .hero h1 { font-size: 28px; }
+            .hero-stats { flex-direction: column; gap: 16px; }
+            .features-grid { grid-template-columns: 1fr; }
+            .nav-links { display: none; }
+            .mobile-menu-btn { display: block; }
+            .demo-form-card { padding: 24px; }
+            .section-title { font-size: 26px; }
+            .footer-grid { grid-template-columns: 1fr; }
+            .footer-bottom { flex-direction: column; gap: 12px; text-align: center; }
+            .cta-buttons { flex-direction: column; align-items: center; }
         }
     </style>
 </head>
 <body>
-    <div class="wrap">
-        <div class="logo">Mini<span>CRM</span> MCP</div>
-        <div class="sub">Kezelje MiniCRM rendszerét a Claude AI-ból</div>
 
-        <div class="card">
-            <div class="step">
-                <div class="step-num">1</div>
-                <div class="step-content">
-                    <h3>Szerver URL másolása</h3>
-                    <p>Kattintson a Másolás gombra:</p>
-                    <div class="url-box">
-                        <code id="mcpUrl">https://minicrmmcp.netlify.app/mcp</code>
-                        <button class="copy-btn" id="copyBtn" onclick="copyUrl()">Másolás</button>
+<!-- NAV -->
+<nav>
+    <div class="nav-inner">
+        <div class="nav-logo">Mini<span>CRM</span> MCP</div>
+        <div class="nav-links">
+            <a href="#features">Funkciok</a>
+            <a href="#how-it-works">Hogyan mukodik</a>
+            <a href="#security">Biztonsag</a>
+            <a href="#support">Tamogatas</a>
+            <a href="#references">Referenciak</a>
+            <a href="#demo-form" class="nav-cta">Ingyenes bemutato</a>
+        </div>
+        <button class="mobile-menu-btn" onclick="toggleMenu()" aria-label="Menu">&#9776;</button>
+    </div>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+    <a href="#features" onclick="closeMenu()">Funkciok</a>
+    <a href="#how-it-works" onclick="closeMenu()">Hogyan mukodik</a>
+    <a href="#security" onclick="closeMenu()">Biztonsag</a>
+    <a href="#support" onclick="closeMenu()">Tamogatas</a>
+    <a href="#references" onclick="closeMenu()">Referenciak</a>
+    <a href="#demo-form" onclick="closeMenu()">Ingyenes bemutato</a>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+    <div class="container">
+        <div class="hero-grid">
+            <div>
+                <div class="hero-badge">Elerheto Claude AI-ban</div>
+                <h1>Kezelje MiniCRM rendszeret <em>mesterseges intelligenciaval</em></h1>
+                <p class="hero-text">
+                    Kapcsolja ossze MiniCRM fiogjat a Claude AI-val. Keressen ugyfelet, frissitsen adatlapokat, hozzon letre feladatokat - mindezt termeszetes nyelven, egyetlen mondattal.
+                </p>
+                <div class="hero-stats">
+                    <div class="hero-stat">
+                        <div class="hero-stat-num">54</div>
+                        <div class="hero-stat-label">CRM eszkoz</div>
+                    </div>
+                    <div class="hero-stat">
+                        <div class="hero-stat-num">30 mp</div>
+                        <div class="hero-stat-label">Beallitas</div>
+                    </div>
+                    <div class="hero-stat">
+                        <div class="hero-stat-num">0 Ft</div>
+                        <div class="hero-stat-label">Bemutato</div>
                     </div>
                 </div>
             </div>
-
-            <div class="step">
-                <div class="step-num">2</div>
-                <div class="step-content">
-                    <h3>Connector hozzáadása a Claude-ban</h3>
-                    <p>Kattintson az alábbi gombra, illessze be a másolt URL-t, majd adja meg a nevét (pl. "MiniCRM").</p>
+            <div id="demo-form">
+                <div class="demo-form-card">
+                    <div id="formContent">
+                        <h3>Ingyenes bemutato</h3>
+                        <p class="form-sub">Probaja ki 14 napig ingyen. Felvesszuk Onnel a kapcsolatot es bemutatjuk a mukodest.</p>
+                        <form name="demo-request" method="POST" data-netlify="true" id="demoForm">
+                            <div class="form-group">
+                                <label for="name">Nev</label>
+                                <input type="text" id="name" name="name" placeholder="Teljes nev" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="email">E-mail</label>
+                                <input type="email" id="email" name="email" placeholder="email@ceg.hu" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="phone">Telefonszam</label>
+                                <input type="tel" id="phone" name="phone" placeholder="+36 ..." required>
+                            </div>
+                            <div class="form-group">
+                                <label for="company">Cegnev</label>
+                                <input type="text" id="company" name="company" placeholder="Ceg neve">
+                            </div>
+                            <button type="submit" class="form-submit">Bemutato kerese</button>
+                        </form>
+                        <p class="form-note">Adatait bizalmasan kezeljuk. Nincs elkotelezodes.</p>
+                    </div>
+                    <div class="form-success" id="formSuccess">
+                        <div class="check-icon">&#10003;</div>
+                        <h4>Koszonjuk!</h4>
+                        <p>Hamarosan felvesszuk Onnel a kapcsolatot es bemutatjuk a MiniCRM MCP mukodeset.</p>
+                    </div>
                 </div>
             </div>
-
-            <div class="step">
-                <div class="step-num">3</div>
-                <div class="step-content">
-                    <h3>Bejelentkezés</h3>
-                    <p>Adja meg a licenckulcsát, MiniCRM System ID-ját és API kulcsát a megjelenő oldalon.</p>
-                </div>
-            </div>
-        </div>
-
-        <a href="https://claude.ai/settings/connectors?modal=add-custom-connector" target="_blank" class="main-btn">
-            Megnyitás a Claude-ban
-        </a>
-
-        <div class="footer">
-            <a href="https://www.nexly.hu" target="_blank">www.nexly.hu</a>
         </div>
     </div>
+</section>
 
-    <script>
-        function copyUrl() {
-            const url = document.getElementById('mcpUrl').textContent;
-            navigator.clipboard.writeText(url).then(() => {
-                const btn = document.getElementById('copyBtn');
-                btn.textContent = 'Másolva!';
-                btn.classList.add('copied');
-                setTimeout(() => {
-                    btn.textContent = 'Másolás';
-                    btn.classList.remove('copied');
-                }, 2000);
+<!-- FEATURES -->
+<section id="features">
+    <div class="container">
+        <div class="section-header section-header-center reveal">
+            <div class="section-label">Funkciok</div>
+            <h2 class="section-title">Minden CRM-muvelet, egyetlen mondattal</h2>
+            <p class="section-desc">A MiniCRM MCP 54 eszkozzel kapcsolja ossze CRM rendszeret a Claude AI-val. Nem kell menuket bogesznie - egyszeruen mondja el, mit szeretne.</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card reveal reveal-delay-1">
+                <div class="feature-icon">&#128269;</div>
+                <h3>Ugyfelek keresese</h3>
+                <p>Keressen nev, e-mail, telefon vagy barmilyen egyedi mezo alapjan. Az AI azonnal megtalalja a megfelelo adatlapot.</p>
+            </div>
+            <div class="feature-card reveal reveal-delay-2">
+                <div class="feature-icon">&#128221;</div>
+                <h3>Adatlapok kezelese</h3>
+                <p>Hozzon letre uj projektet, modositson statuszokat, frissitsen mezoket - mindezt termeszetes nyelven.</p>
+            </div>
+            <div class="feature-card reveal reveal-delay-3">
+                <div class="feature-icon">&#128203;</div>
+                <h3>Feladatok es teendok</h3>
+                <p>Listazza, hozza letre es zarje le a teendoket. Kerdezze meg az AI-t, mi a kovetkezo lepes egy projekten.</p>
+            </div>
+            <div class="feature-card reveal reveal-delay-1">
+                <div class="feature-icon">&#128200;</div>
+                <h3>Riportok es osszesitesek</h3>
+                <p>Kerjen osszefoglalot a nyitott projektekrol, statisztikakat egy modulbol, vagy idoszaki ertekesitesi adatokat.</p>
+            </div>
+            <div class="feature-card reveal reveal-delay-2">
+                <div class="feature-icon">&#128231;</div>
+                <h3>Kommunikacio</h3>
+                <p>Tekintse meg az adatlapokhoz tartozo e-maileket, megjegyzeseket es az elozmenyeket egy helyen.</p>
+            </div>
+            <div class="feature-card reveal reveal-delay-3">
+                <div class="feature-icon">&#9889;</div>
+                <h3>Azonnali valaszok</h3>
+                <p>Nem kell varakoznia. A Claude AI masodpercek alatt valaszol a CRM-mel kapcsolatos kerdeseire.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how-it-works">
+    <div class="container">
+        <div class="section-header section-header-center reveal">
+            <div class="section-label">Hogyan mukodik</div>
+            <h2 class="section-title">3 lepes es mar hasznalhatja</h2>
+            <p class="section-desc">A beallitas alig 30 masodpercet vesz igenybe. Semmilyen technikai tudas nem szukseges.</p>
+        </div>
+        <div class="steps-grid">
+            <div class="step-card reveal reveal-delay-1">
+                <div class="step-number">1</div>
+                <h3>Csatlakoztatas</h3>
+                <p>Masolja be a szerver URL-t a Claude AI beallitasaiba. Egyetlen kattintas az egesz.</p>
+            </div>
+            <div class="step-card reveal reveal-delay-2">
+                <div class="step-number">2</div>
+                <h3>Bejelentkezes</h3>
+                <p>Adja meg licenckulcsat es MiniCRM hozzaferesi adatait. A rendszer ellenorzi a kapcsolatot.</p>
+            </div>
+            <div class="step-card reveal reveal-delay-3">
+                <div class="step-number">3</div>
+                <h3>Hasznalat</h3>
+                <p>Nyisson egy beszelgetest Claude-ban es kezdje el hasznalni. Peldaul: "Mutasd a mai teendoimet!"</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- DEMO SHOWCASE -->
+<section id="demo">
+    <div class="container">
+        <div class="section-header section-header-center reveal">
+            <div class="section-label">Elo pelda</div>
+            <h2 class="section-title">Igy nez ki a gyakorlatban</h2>
+            <p class="section-desc">Egy valodi parbeszed a Claude AI-val, MiniCRM MCP hasznalataval.</p>
+        </div>
+        <div class="demo-showcase reveal">
+            <div class="demo-header">
+                <div class="demo-dot"></div>
+                <div class="demo-dot"></div>
+                <div class="demo-dot"></div>
+                <span class="demo-title">claude.ai</span>
+            </div>
+            <div class="demo-body">
+                <div class="demo-conversation">
+                    <div class="demo-msg">
+                        <div class="demo-avatar user">Te</div>
+                        <div class="demo-bubble">Keress ra a "Kovacs" nevhez tartozo nyitott projektekre.</div>
+                    </div>
+                    <div class="demo-msg">
+                        <div class="demo-avatar ai">AI</div>
+                        <div class="demo-bubble">
+                            <strong>3 nyitott projektet talaltam "Kovacs" nevvel:</strong><br><br>
+                            1. <strong>Kovacs Kft. - Weboldal fejlesztes</strong> - Statusz: <code>Folyamatban</code><br>
+                            2. <strong>Kovacs Peter - Marketing tanacsdas</strong> - Statusz: <code>Ajanlatadas</code><br>
+                            3. <strong>Kovacs es Tarsa Bt. - SEO audit</strong> - Statusz: <code>Uj</code><br><br>
+                            Melyikkel kapcsolatban szeretne reszleteket?
+                        </div>
+                    </div>
+                    <div class="demo-msg">
+                        <div class="demo-avatar user">Te</div>
+                        <div class="demo-bubble">Allitsd a masodik statuszt "Elfogadva"-ra es irj hozza megjegyzest: "Alairt szerzodes megerkezett."</div>
+                    </div>
+                    <div class="demo-msg">
+                        <div class="demo-avatar ai">AI</div>
+                        <div class="demo-bubble">
+                            Kesz! A <strong>Kovacs Peter - Marketing tanacsdas</strong> projekt statuszat <code>Elfogadva</code>-ra allitottam es hozzaadtam a megjegyzest.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SECURITY -->
+<section id="security">
+    <div class="container">
+        <div class="section-header reveal">
+            <div class="section-label">Biztonsag</div>
+            <h2 class="section-title">Az On adatai biztonsagban vannak</h2>
+            <p class="section-desc">Az adatbiztonsag es az atlathatosag kiemelt prioritas. Az alabbiakban reszletezzuk, hogyan veduk az On adatait.</p>
+        </div>
+        <div class="security-grid">
+            <div class="security-card reveal reveal-delay-1">
+                <div class="security-icon">&#128274;</div>
+                <div>
+                    <h3>Titkositott kommunikacio</h3>
+                    <p>Minden adatforgalom HTTPS titkositassal tortenik. A szerver es a MiniCRM API kozotti kapcsolat vegig vedett.</p>
+                </div>
+            </div>
+            <div class="security-card reveal reveal-delay-2">
+                <div class="security-icon">&#128230;</div>
+                <div>
+                    <h3>Nem taroljuk az On CRM adatait</h3>
+                    <p>A rendszer kozvetitokent mukodik. Az On CRM adatai nem kerulnek tarolasra a mi szervereinkre - azok kizarolag a MiniCRM rendszerben maradnak.</p>
+                </div>
+            </div>
+            <div class="security-card reveal reveal-delay-3">
+                <div class="security-icon">&#128272;</div>
+                <div>
+                    <h3>Licenc-alapu hozzaferes</h3>
+                    <p>Minden felhasznalo egyedi licenckulccsal fer hozza a szolgaltatashoz. A kulcsok egy MiniCRM rendszerhez vannak kotve.</p>
+                </div>
+            </div>
+            <div class="security-card reveal reveal-delay-4">
+                <div class="security-icon">&#127466;&#127482;</div>
+                <div>
+                    <h3>EU szerveren fut</h3>
+                    <p>A szolgaltatas europai (nemetorszagi) szerveren uzemel, a GDPR eloirasoknak megfeleloen. Reszleteket az adatkezelesi szabalyzatban talal.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SUPPORT -->
+<section id="support">
+    <div class="container">
+        <div class="section-header section-header-center reveal">
+            <div class="section-label">Tamogatas</div>
+            <h2 class="section-title">Tamogatas a teljes uton</h2>
+            <p class="section-desc">Az elofizetesben nem csak a szoftvert kapja, hanem a teljes koru tamogatast is.</p>
+        </div>
+        <div class="support-grid">
+            <div class="support-card reveal reveal-delay-1">
+                <div class="support-icon">&#127909;</div>
+                <h3>Ingyenes bemutato</h3>
+                <p>A vasarlas elott ingyenesen bemutatjuk a rendszer mukodeset egy szemelyes konzultacion. Nem kell semmit sem telepitenie.</p>
+            </div>
+            <div class="support-card reveal reveal-delay-2">
+                <div class="support-icon">&#128736;</div>
+                <h3>Folyamatos uzemeltetes</h3>
+                <p>A rendszert folyamatosan monitorozzuk es karbantartjuk. Frissitesek es fejlesztesek automatikusan elerhetok.</p>
+            </div>
+            <div class="support-card reveal reveal-delay-3">
+                <div class="support-icon">&#127384;</div>
+                <h3>Ugyfeltamogatas</h3>
+                <p>Hibajegy leadasi lehetoseg e-mailben. Igyekszunk 24 oran belul valaszolni minden megkeresestre.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- REFERENCES -->
+<section id="references">
+    <div class="container">
+        <div class="section-header section-header-center reveal">
+            <div class="section-label">Referenciak</div>
+            <h2 class="section-title">Amit ugyfeleink mondanak</h2>
+        </div>
+        <div class="ref-grid">
+            <div class="ref-card reveal reveal-delay-1">
+                <div class="ref-quote">"Korabban perceket toltottem azzal, hogy megkeressek egy-egy adatlapot a CRM-ben. Most egyszeruen belepek Claude-ba es megkerdem. Napi szinten sporolok vele idot."</div>
+                <div class="ref-author">
+                    <div class="ref-avatar">JA</div>
+                    <div>
+                        <div class="ref-name">Juhasz Attila</div>
+                        <div class="ref-role">Ugyvezeto</div>
+                    </div>
+                </div>
+            </div>
+            <div class="ref-card reveal reveal-delay-2">
+                <div class="ref-quote">"A beallitas tenyleg 30 masodperc volt. A csapatbol tobben is hasznaljak mar, mindenki a sajat licencevel. Nagyon egyszeru."</div>
+                <div class="ref-author">
+                    <div class="ref-avatar">VG</div>
+                    <div>
+                        <div class="ref-name">Varga Gergo</div>
+                        <div class="ref-role">Ertekesitesi vezeto</div>
+                    </div>
+                </div>
+            </div>
+            <div class="ref-card reveal reveal-delay-3">
+                <div class="ref-quote">"Vegre nem kell a CRM-ben kattingatni. Beirom Claude-nak, hogy mit csinaljon, es megvan. A munkam sokkal gyorsabb lett."</div>
+                <div class="ref-author">
+                    <div class="ref-avatar">KM</div>
+                    <div>
+                        <div class="ref-name">Kiss Maria</div>
+                        <div class="ref-role">Projektvezeto</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+    <div class="container">
+        <div class="cta-box reveal">
+            <div class="section-label">Kezdje el most</div>
+            <h2>Probaja ki a MiniCRM MCP-t ingyenesen</h2>
+            <p>14 napos ingyenes proba. Semmilyen elkotelezodes. Mi bemutatjuk a mukodest es segitunk a beallitasban.</p>
+            <div class="cta-buttons">
+                <a href="#demo-form" class="btn-primary">Bemutato kerese</a>
+                <a href="/setup" class="btn-secondary">Mar van licencem &#8594;</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <div class="container">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <div class="nav-logo">Mini<span>CRM</span> MCP</div>
+                <p>AI-alapu CRM kezeles a Claude AI segitsegevel. A Nexly AI fejlesztese.</p>
+                <a href="https://www.nexly.hu" target="_blank" class="footer-nexly">www.nexly.hu</a>
+            </div>
+            <div class="footer-col">
+                <h4>Termek</h4>
+                <a href="#features">Funkciok</a>
+                <a href="#how-it-works">Hogyan mukodik</a>
+                <a href="#demo">Elo pelda</a>
+                <a href="#security">Biztonsag</a>
+            </div>
+            <div class="footer-col">
+                <h4>Tamogatas</h4>
+                <a href="#support">Ugyfeltamogatas</a>
+                <a href="#demo-form">Ingyenes bemutato</a>
+                <a href="/setup">Beallitasi utmutato</a>
+            </div>
+            <div class="footer-col">
+                <h4>Kapcsolat</h4>
+                <a href="mailto:info@nexly.hu">info@nexly.hu</a>
+                <a href="https://www.nexly.hu" target="_blank">www.nexly.hu</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>&copy; 2026 Nexly AI. Minden jog fenntartva.</span>
+            <div class="footer-legal">
+                <a href="/aszf">ASZF</a>
+                <a href="/adatkezeles">Adatkezelesi szabalyzat</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>
+    function toggleMenu() {
+        document.getElementById('mobileMenu').classList.toggle('open');
+    }
+    function closeMenu() {
+        document.getElementById('mobileMenu').classList.remove('open');
+    }
+
+    // Scroll reveal
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // Form
+    document.getElementById('demoForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const form = e.target;
+        const btn = form.querySelector('.form-submit');
+        btn.disabled = true;
+        btn.textContent = 'Kuldes...';
+        try {
+            const response = await fetch('/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams(new FormData(form)).toString()
             });
+            if (response.ok) {
+                document.getElementById('formContent').style.display = 'none';
+                document.getElementById('formSuccess').style.display = 'block';
+            } else { throw new Error(); }
+        } catch {
+            btn.disabled = false;
+            btn.textContent = 'Bemutato kerese';
+            alert('Hiba tortent. Kerem probaja ujra, vagy irjon az info@nexly.hu cimre.');
         }
-    </script>
+    });
+</script>
+
 </body>
 </html>

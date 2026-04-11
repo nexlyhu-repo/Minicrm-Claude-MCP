@@ -1,6 +1,6 @@
 [build]
   publish = "public"
-  command = "mkdir -p public && cp landing/index.html public/index.html"
+  command = "mkdir -p public && cp -r landing/* public/"
 
 [[headers]]
   for = "/*"
@@ -9,6 +9,22 @@
     Access-Control-Allow-Methods = "GET, POST, OPTIONS, DELETE"
     Access-Control-Allow-Headers = "Content-Type, Authorization, Mcp-Session-Id"
     Access-Control-Expose-Headers = "Mcp-Session-Id"
+
+# Clean URLs for static pages
+[[redirects]]
+  from = "/aszf"
+  to = "/aszf.html"
+  status = 200
+
+[[redirects]]
+  from = "/adatkezeles"
+  to = "/adatkezeles.html"
+  status = 200
+
+[[redirects]]
+  from = "/setup"
+  to = "/setup.html"
+  status = 200
 
 # Proxy MCP server requests to Hetzner
 [[redirects]]

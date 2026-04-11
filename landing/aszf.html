@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ÁSZF - MiniCRM MCP | Nexly AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0e17;
+            --card: #111827;
+            --border: #1e2330;
+            --text: #e2e8f0;
+            --muted: #8892a8;
+            --accent: #4f7df5;
+            --orange: linear-gradient(135deg, #c8702a, #e8a040, #d4883a);
+            --orange-hover: linear-gradient(135deg, #d47e34, #f0b050, #dc9444);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Manrope', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.7;
+            font-size: 15px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 24px 60px;
+        }
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 32px;
+            transition: color 0.2s;
+        }
+        .back-link:hover { color: var(--text); }
+        .back-link svg { width: 16px; height: 16px; }
+        h1 {
+            font-family: 'Sora', sans-serif;
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 8px;
+        }
+        h1 span { color: var(--accent); }
+        .subtitle {
+            color: var(--muted);
+            font-size: 15px;
+            margin-bottom: 40px;
+        }
+        .section {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 28px 32px;
+            margin-bottom: 16px;
+        }
+        .section h2 {
+            font-family: 'Sora', sans-serif;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            letter-spacing: -0.01em;
+        }
+        .section-num {
+            color: var(--accent);
+            font-family: 'Sora', sans-serif;
+            font-weight: 600;
+            margin-right: 6px;
+        }
+        .section p {
+            margin-bottom: 12px;
+            color: var(--text);
+        }
+        .section p:last-child { margin-bottom: 0; }
+        .section ul, .section ol {
+            margin: 8px 0 12px 20px;
+            color: var(--text);
+        }
+        .section li {
+            margin-bottom: 6px;
+        }
+        .section a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+        .section a:hover { text-decoration: underline; }
+        .effective-date {
+            text-align: center;
+            color: var(--muted);
+            font-size: 14px;
+            margin-top: 32px;
+            margin-bottom: 24px;
+        }
+        .footer {
+            text-align: center;
+            padding-top: 16px;
+        }
+        .footer a {
+            display: inline-block;
+            padding: 10px 24px;
+            background: var(--orange);
+            color: #0a0e17;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        .footer a:hover {
+            background: var(--orange-hover);
+            transform: translateY(-1px);
+        }
+        @media (max-width: 600px) {
+            .container { padding: 24px 16px 40px; }
+            h1 { font-size: 24px; }
+            .section { padding: 20px; }
+            .section h2 { font-size: 16px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+            Vissza a f&#337;oldalra
+        </a>
+
+        <h1>&#193;ltal&#225;nos <span>Szerz&#337;d&#233;si Felt&#233;telek</span></h1>
+        <p class="subtitle">MiniCRM MCP szolg&#225;ltat&#225;s &mdash; Nexly AI</p>
+
+        <!-- 1. Általános rendelkezések -->
+        <div class="section">
+            <h2><span class="section-num">1.</span> &#193;ltal&#225;nos rendelkez&#233;sek</h2>
+            <p>A jelen &#193;ltal&#225;nos Szerz&#337;d&#233;si Felt&#233;telek (a tov&#225;bbiakban: &#193;SZF) a <strong>[C&#233;gn&#233;v]</strong> (tov&#225;bbiakban: Szolg&#225;ltat&#243;) &#225;ltal &#252;zemeltetett MiniCRM MCP szolg&#225;ltat&#225;s (tov&#225;bbiakban: Szolg&#225;ltat&#225;s) ig&#233;nybev&#233;tel&#233;re vonatkoz&#243; felt&#233;teleket tartalmazza.</p>
+            <p><strong>Szolg&#225;ltat&#243; adatai:</strong></p>
+            <ul>
+                <li>C&#233;gn&#233;v: [C&#233;gn&#233;v] (Nexly AI)</li>
+                <li>Sz&#233;khely: [Sz&#233;khely]</li>
+                <li>C&#233;gjegyz&#233;ksz&#225;m: [C&#233;gjegyz&#233;ksz&#225;m]</li>
+                <li>Ad&#243;sz&#225;m: [Ad&#243;sz&#225;m]</li>
+                <li>E-mail: [E-mail c&#237;m]</li>
+                <li>Weboldal: <a href="https://www.nexly.hu" target="_blank">www.nexly.hu</a></li>
+            </ul>
+            <p>A Szolg&#225;ltat&#225;s haszn&#225;lat&#225;val a Felhaszn&#225;l&#243; elfogadja a jelen &#193;SZF rendelkez&#233;seit. A Szolg&#225;ltat&#225;s kiz&#225;r&#243;lag a jelen felt&#233;telekkel &#246;sszhangban vehet&#337; ig&#233;nybe.</p>
+        </div>
+
+        <!-- 2. A szolgáltatás leírása -->
+        <div class="section">
+            <h2><span class="section-num">2.</span> A szolg&#225;ltat&#225;s le&#237;r&#225;sa</h2>
+            <p>A MiniCRM MCP egy szoftver-szolg&#225;ltat&#225;s (SaaS), amely az MCP (Model Context Protocol) szabv&#225;nyon kereszt&#252;l lehet&#337;v&#233; teszi a MiniCRM rendszer &#233;s a Claude AI (Anthropic) &#246;sszek&#246;t&#233;s&#233;t.</p>
+            <p>A Szolg&#225;ltat&#225;s az al&#225;bbi funkci&#243;kat biztos&#237;tja:</p>
+            <ul>
+                <li>MiniCRM adatok lek&#233;rdez&#233;se &#233;s kezel&#233;se Claude AI fel&#252;leten kereszt&#252;l</li>
+                <li>Projektek, kontaktok, teend&#337;k &#233;s egy&#233;b MiniCRM entit&#225;sok olvas&#225;sa, l&#233;trehoz&#225;sa &#233;s m&#243;dos&#237;t&#225;sa term&#233;szetes nyelv&#369; utas&#237;t&#225;sokkal</li>
+                <li>Automatiz&#225;lt munkafolyamatok t&#225;mogat&#225;sa AI seg&#237;ts&#233;g&#233;vel</li>
+            </ul>
+            <p>A Szolg&#225;ltat&#225;s a Felhaszn&#225;l&#243; saj&#225;t MiniCRM fi&#243;kj&#225;ban t&#225;rolt adatokhoz f&#233;r hozz&#225; a Felhaszn&#225;l&#243; &#225;ltal megadott API hiteles&#237;t&#337; adatok (System ID &#233;s API kulcs) alapj&#225;n. A Szolg&#225;ltat&#243; nem t&#225;rol &#233;s nem dolgoz fel MiniCRM adatokat a Felhaszn&#225;l&#243; kifejezett utas&#237;t&#225;s&#225;n t&#250;lmen&#337;en.</p>
+        </div>
+
+        <!-- 3. Regisztráció és licenckulcs -->
+        <div class="section">
+            <h2><span class="section-num">3.</span> Regisztr&#225;ci&#243; &#233;s licenckulcs</h2>
+            <p>A Szolg&#225;ltat&#225;s ig&#233;nybev&#233;tel&#233;hez a Felhaszn&#225;l&#243;nak az al&#225;bbi adatokra van sz&#252;ks&#233;ge:</p>
+            <ol>
+                <li><strong>Licenckulcs:</strong> A Szolg&#225;ltat&#243; &#225;ltal ki&#225;ll&#237;tott, a hozz&#225;f&#233;r&#233;st biztos&#237;t&#243; egyedi azonos&#237;t&#243;.</li>
+                <li><strong>MiniCRM System ID:</strong> A Felhaszn&#225;l&#243; saj&#225;t MiniCRM rendszer&#233;nek azonos&#237;t&#243;ja.</li>
+                <li><strong>MiniCRM API kulcs:</strong> A Felhaszn&#225;l&#243; saj&#225;t MiniCRM API hozz&#225;f&#233;r&#233;si kulcsa.</li>
+            </ol>
+            <p>A Felhaszn&#225;l&#243; k&#246;teles a licenckulcsot &#233;s az API hiteles&#237;t&#337; adatokat bizalmasan kezelni, harmadik f&#233;lnek nem &#225;tadni. A licenckulcs egyetlen szem&#233;ly &#225;ltal haszn&#225;lhat&#243;, annak tov&#225;bbad&#225;sa vagy megoszt&#225;sa tilos.</p>
+            <p>A Szolg&#225;ltat&#243; fenntartja a jogot, hogy a jogosulatlanul haszn&#225;lt licenckulcsokat azonnali hat&#225;llyal felf&#252;ggeszsze.</p>
+        </div>
+
+        <!-- 4. Díjszabás és fizetés -->
+        <div class="section">
+            <h2><span class="section-num">4.</span> D&#237;jszab&#225;s &#233;s fizet&#233;s</h2>
+            <p>A Szolg&#225;ltat&#225;s haszn&#225;lata a mindenkori d&#237;jszab&#225;snak megfelel&#337;en fizet&#337;s. Az aktu&#225;lis &#225;rak a Szolg&#225;ltat&#243; weboldal&#225;n (www.nexly.hu) vagy az &#233;rt&#233;kes&#237;t&#233;si csatorn&#225;kon kereszt&#252;l &#233;rhet&#337;k el.</p>
+            <p>Az el&#337;fizet&#233;s felt&#233;telei:</p>
+            <ul>
+                <li>A licencd&#237;j az el&#337;fizet&#233;si id&#337;szak elej&#233;n esed&#233;kes, el&#337;fizet&#233;si rendszerben.</li>
+                <li>A Szolg&#225;ltat&#243; elektronikus sz&#225;ml&#225;t &#225;ll&#237;t ki, amelyet e-mailben juttat el a Felhaszn&#225;l&#243;nak.</li>
+                <li>Fizet&#233;si k&#233;s&#233;s eset&#233;n a Szolg&#225;ltat&#243; jogosult a hozz&#225;f&#233;r&#233;st felf&#252;ggeszteni a tartoz&#225;s rendez&#233;s&#233;ig.</li>
+                <li>A Szolg&#225;ltat&#243; jogosult a d&#237;jszab&#225;st m&#243;dos&#237;tani, err&#337;l a Felhaszn&#225;l&#243;t legal&#225;bb 30 nappal el&#337;re &#233;rtes&#237;ti.</li>
+            </ul>
+            <p>A m&#225;r kifizetett el&#337;fizet&#233;si d&#237;jak a szerz&#337;d&#233;sszer&#369; haszn&#225;lat felt&#233;telei mellett nem visszat&#233;r&#237;thet&#337;k, kiv&#233;ve, ha a Szolg&#225;ltat&#243; a Szolg&#225;ltat&#225;st tart&#243;san (30 napot meghalad&#243;an) nem k&#233;pes ny&#250;jtani.</p>
+        </div>
+
+        <!-- 5. A felhasználó jogai és kötelezettségei -->
+        <div class="section">
+            <h2><span class="section-num">5.</span> A felhaszn&#225;l&#243; jogai &#233;s k&#246;telezetts&#233;gei</h2>
+            <p><strong>A Felhaszn&#225;l&#243; jogosult:</strong></p>
+            <ul>
+                <li>A Szolg&#225;ltat&#225;st a jelen &#193;SZF keretei k&#246;z&#246;tt, rendeltet&#233;sszer&#369;en haszn&#225;lni.</li>
+                <li>A Szolg&#225;ltat&#243; &#252;gyf&#233;lszolg&#225;lat&#225;hoz fordulni technikai k&#233;rd&#233;sekkel &#233;s hibabejelent&#233;sekkel.</li>
+                <li>Az el&#337;fizet&#233;s&#233;t a jelen &#193;SZF-ben foglaltak szerint megsz&#252;ntetni.</li>
+            </ul>
+            <p><strong>A Felhaszn&#225;l&#243; k&#246;teles:</strong></p>
+            <ul>
+                <li>A Szolg&#225;ltat&#225;st kiz&#225;r&#243;lag jogszer&#369;en, a vonatkoz&#243; jogszab&#225;lyokkal &#246;sszhangban haszn&#225;lni.</li>
+                <li>A hiteles&#237;t&#337; adatait (licenckulcs, API kulcsok) biztons&#225;gosan t&#225;rolni &#233;s harmadik f&#233;lnek nem hozz&#225;f&#233;rhet&#337;v&#233; tenni.</li>
+                <li>A MiniCRM rendszer&#233;hez tartoz&#243; API hozz&#225;f&#233;r&#233;s felt&#233;teleit (MiniCRM &#193;SZF) betartani.</li>
+                <li>A Szolg&#225;ltat&#225;son kereszt&#252;l v&#233;gzett m&#369;veletekert (pl. adatm&#243;dos&#237;t&#225;s, t&#246;rl&#233;s) teljes felel&#337;ss&#233;get v&#225;llalni.</li>
+                <li>A Szolg&#225;ltat&#225;st nem haszn&#225;lni automatiz&#225;lt t&#246;megm&#369;veletekre, amelyek a MiniCRM API korl&#225;toz&#225;sait s&#233;rten&#233;k.</li>
+            </ul>
+        </div>
+
+        <!-- 6. A szolgáltató jogai és kötelezettségei -->
+        <div class="section">
+            <h2><span class="section-num">6.</span> A szolg&#225;ltat&#243; jogai &#233;s k&#246;telezetts&#233;gei</h2>
+            <p><strong>A Szolg&#225;ltat&#243; k&#246;teles:</strong></p>
+            <ul>
+                <li>A Szolg&#225;ltat&#225;st az elv&#225;rhat&#243; gondoss&#225;ggal, a technika mindenkori &#225;ll&#225;s&#225;nak megfelel&#337;en &#252;zemeltetni.</li>
+                <li>Az el&#233;rhet&#337;s&#233;get az &#233;sszer&#369; kereteken bel&#252;l biztos&#237;tani (c&#233;l: 99% &#233;ves rendelkez&#233;sre &#225;ll&#225;s, a tervezett karbantart&#225;si id&#337;szakokat lesz&#225;m&#237;tva).</li>
+                <li>A Felhaszn&#225;l&#243;t &#233;rtes&#237;teni a tervezett karbantart&#225;sr&#243;l legal&#225;bb 24 &#243;r&#225;val el&#337;re.</li>
+                <li>A Felhaszn&#225;l&#243; adatait a vonatkoz&#243; adatv&#233;delmi szab&#225;lyoz&#225;snak megfelel&#337;en kezelni.</li>
+            </ul>
+            <p><strong>A Szolg&#225;ltat&#243; jogosult:</strong></p>
+            <ul>
+                <li>A Szolg&#225;ltat&#225;s m&#369;k&#246;d&#233;s&#233;t karbantart&#225;si c&#233;lb&#243;l ideiglenesen sz&#252;neteltetni.</li>
+                <li>A jelen &#193;SZF-et egyoldal&#250;an m&#243;dos&#237;tani, a m&#243;dos&#237;t&#225;sr&#243;l a Felhaszn&#225;l&#243;kat legal&#225;bb 15 nappal el&#337;re &#233;rtes&#237;tve.</li>
+                <li>A Felhaszn&#225;l&#243; hozz&#225;f&#233;r&#233;s&#233;t azonnal felf&#252;ggeszteni, amennyiben az &#193;SZF-be &#252;tk&#246;z&#337; vagy jogellenes tev&#233;kenys&#233;get &#233;szlel.</li>
+                <li>A Szolg&#225;ltat&#225;s funkcionalit&#225;s&#225;t b&#337;v&#237;teni vagy m&#243;dos&#237;tani.</li>
+            </ul>
+        </div>
+
+        <!-- 7. Felelősségkorlátozás -->
+        <div class="section">
+            <h2><span class="section-num">7.</span> Felel&#337;ss&#233;gkorl&#225;toz&#225;s</h2>
+            <p>A Szolg&#225;ltat&#243; az al&#225;bbi esetekben nem v&#225;llal felel&#337;ss&#233;get:</p>
+            <ul>
+                <li><strong>Felhaszn&#225;l&#243;i utas&#237;t&#225;sok k&#246;vetkezm&#233;nye:</strong> A Szolg&#225;ltat&#225;s a Felhaszn&#225;l&#243; &#225;ltal megadott utas&#237;t&#225;sokat hajtja v&#233;gre. A Szolg&#225;ltat&#243; nem felel&#337;s a Felhaszn&#225;l&#243; &#225;ltal kezdem&#233;nyezett adatm&#243;dos&#237;t&#225;sok, t&#246;rl&#233;sek vagy egy&#233;b m&#369;veletek k&#246;vetkezm&#233;nyei&#233;rt.</li>
+                <li><strong>MiniCRM API v&#225;ltoz&#225;sok:</strong> A MiniCRM API a MiniCRM Zrt. term&#233;ke, amelynek m&#369;k&#246;d&#233;s&#233;re, el&#233;rhet&#337;s&#233;g&#233;re &#233;s v&#225;ltoz&#225;saira a Szolg&#225;ltat&#243;nak nincs r&#225;hat&#225;sa. Az API v&#225;ltoz&#225;saib&#243;l ered&#337; &#225;tmeneti szolg&#225;ltat&#225;s-kies&#233;st vagy funkci&#243;veszt&#233;st a Szolg&#225;ltat&#243; nem tudja garant&#225;lni, de t&#246;rekszik az igazod&#225;sra az &#250;j API verzi&#243;khoz.</li>
+                <li><strong>Harmadik f&#233;l&#369; szolg&#225;ltat&#225;sok:</strong> A Claude AI (Anthropic) &#233;s a MiniCRM rendszer el&#233;rhet&#337;s&#233;ge, m&#369;k&#246;d&#233;sbiztons&#225;ga &#233;s adatkezel&#233;se a saj&#225;t szolg&#225;ltat&#243;ik felel&#337;ss&#233;ge.</li>
+                <li><strong>Vis maior:</strong> Term&#233;szeti katasztr&#243;fa, h&#225;bor&#250;, korm&#225;nyint&#233;zked&#233;s, kibert&#225;mad&#225;s vagy egy&#233;b, a Szolg&#225;ltat&#243; &#233;rdekk&#246;r&#233;n k&#237;v&#252;l es&#337; esem&#233;nyek &#225;ltal okozott szolg&#225;ltat&#225;skies&#233;s.</li>
+                <li><strong>Adatveszt&#233;s:</strong> A Felhaszn&#225;l&#243; felel&#337;s a saj&#225;t MiniCRM adatainak ment&#233;s&#233;r&#337;l &#233;s biztons&#225;g&#225;r&#243;l. A Szolg&#225;ltat&#243; nem v&#225;llal felel&#337;ss&#233;get a Felhaszn&#225;l&#243; CRM rendszer&#233;ben bek&#246;vetkez&#337; adatveszt&#233;s&#233;rt.</li>
+            </ul>
+            <p>A Szolg&#225;ltat&#243; &#246;sszesz&#237;tett k&#225;rt&#233;r&#237;t&#233;si felel&#337;ss&#233;ge nem haladhatja meg a Felhaszn&#225;l&#243; &#225;ltal az utols&#243; 12 h&#243;napban t&#233;nylegesen megfizetett szolg&#225;ltat&#225;si d&#237;jat.</p>
+        </div>
+
+        <!-- 8. Adatvédelem -->
+        <div class="section">
+            <h2><span class="section-num">8.</span> Adatv&#233;delem</h2>
+            <p>A Szolg&#225;ltat&#243; kiemelten fontosnak tartja a Felhaszn&#225;l&#243;k szem&#233;lyes adatainak v&#233;delm&#233;t. Az adatkezel&#233;ssel kapcsolatos r&#233;szletes t&#225;j&#233;koztat&#225;s az <a href="adatkezeles.html">Adatkezel&#233;si T&#225;j&#233;koztat&#243;</a> dokumentumban tal&#225;lhat&#243;.</p>
+            <p>Az adatkezel&#233;s f&#337;bb elvei:</p>
+            <ul>
+                <li>A Szolg&#225;ltat&#243; kiz&#225;r&#243;lag a szolg&#225;ltat&#225;s ny&#250;jt&#225;s&#225;hoz sz&#252;ks&#233;ges adatokat kezeli.</li>
+                <li>A Felhaszn&#225;l&#243; MiniCRM hiteles&#237;t&#337; adatai (API kulcs, System ID) titkos&#237;tva ker&#252;lnek t&#225;rol&#225;sra.</li>
+                <li>A Szolg&#225;ltat&#243; a Felhaszn&#225;l&#243; CRM adatait nem t&#225;rolja tart&#243;san; azok a k&#233;r&#233;s teljes&#237;t&#233;se ut&#225;n nem maradnak a Szolg&#225;ltat&#243; rendszer&#233;ben.</li>
+                <li>Az adatkezel&#233;s megfelel az Eur&#243;pai Uni&#243; &#193;ltal&#225;nos Adatv&#233;delmi Rendelet&#233;nek (GDPR) &#233;s a vonatkoz&#243; magyar jogszab&#225;lyoknak.</li>
+            </ul>
+        </div>
+
+        <!-- 9. Szerződés megszüntetése -->
+        <div class="section">
+            <h2><span class="section-num">9.</span> Szerz&#337;d&#233;s megsz&#252;ntet&#233;se</h2>
+            <p><strong>A Felhaszn&#225;l&#243; &#225;ltal:</strong> A Felhaszn&#225;l&#243; az el&#337;fizet&#233;s&#233;t b&#225;rmikor, indokol&#225;s n&#233;lk&#252;l megsz&#252;ntetheti az aktu&#225;lis el&#337;fizet&#233;si id&#337;szak v&#233;g&#233;re. A felmond&#225;st &#237;r&#225;sban (e-mailben) kell k&#246;z&#246;lni a Szolg&#225;ltat&#243;val. A m&#225;r kifizetett, folyamatban l&#233;v&#337; id&#337;szak d&#237;j&#225;t a Szolg&#225;ltat&#243; nem t&#233;r&#237;ti vissza.</p>
+            <p><strong>A Szolg&#225;ltat&#243; &#225;ltal:</strong> A Szolg&#225;ltat&#243; jogosult a szerz&#337;d&#233;st azonnali hat&#225;llyal felmondani, amennyiben:</p>
+            <ul>
+                <li>A Felhaszn&#225;l&#243; s&#250;lyosan vagy ism&#233;telten megs&#233;rti a jelen &#193;SZF rendelkez&#233;seit.</li>
+                <li>A Felhaszn&#225;l&#243; a Szolg&#225;ltat&#225;st jogellenes c&#233;lra haszn&#225;lja.</li>
+                <li>A Felhaszn&#225;l&#243; fizet&#233;si k&#246;telezetts&#233;g&#233;nek felsz&#243;l&#237;t&#225;s ellen&#233;re sem tesz eleget 15 napon bel&#252;l.</li>
+            </ul>
+            <p><strong>A Szolg&#225;ltat&#225;s megsz&#252;ntet&#233;se:</strong> A Szolg&#225;ltat&#243; legal&#225;bb 60 nappal el&#337;re &#233;rtes&#237;ti a Felhaszn&#225;l&#243;kat, amennyiben a Szolg&#225;ltat&#225;s eg&#233;sz&#233;nek m&#369;k&#246;d&#233;s&#233;t v&#233;glegesen megsz&#252;nteti. Ebben az esetben a m&#233;g le nem j&#225;rt el&#337;fizet&#233;si id&#337;szakra vonatkoz&#243; d&#237;jat ar&#225;nyosan visszat&#233;r&#237;ti.</p>
+        </div>
+
+        <!-- 10. Záró rendelkezések -->
+        <div class="section">
+            <h2><span class="section-num">10.</span> Z&#225;r&#243; rendelkez&#233;sek</h2>
+            <p>A jelen &#193;SZF-ben nem szab&#225;lyozott k&#233;rd&#233;sekben a magyar jog, k&#252;l&#246;n&#246;sen a Polg&#225;ri T&#246;rv&#233;nyk&#246;nyv (2013. &#233;vi V. t&#246;rv&#233;ny) &#233;s az elektronikus kereskedelemr&#337;l sz&#243;l&#243; 2001. &#233;vi CVIII. t&#246;rv&#233;ny rendelkez&#233;sei az ir&#225;nyad&#243;k.</p>
+            <p>A felek az esetleges jogvit&#225;ikat els&#337;dlegesen t&#225;rgyal&#225;s &#250;tj&#225;n k&#237;s&#233;rlik meg rendezni. Ennek eredm&#233;nytelens&#233;ge eset&#233;n a Szolg&#225;ltat&#243; sz&#233;khelye szerinti hat&#225;sk&#246;r&#369; &#233;s illet&#233;kes b&#237;r&#243;s&#225;g j&#225;r el.</p>
+            <p>Amennyiben a jelen &#193;SZF b&#225;rmely rendelkez&#233;se &#233;rv&#233;nytelennek vagy v&#233;grehajthatatlannak bizonyulna, az nem &#233;rinti a t&#246;bbi rendelkez&#233;s &#233;rv&#233;nyess&#233;g&#233;t. Az &#233;rv&#233;nytelen rendelkez&#233;s hely&#233;be az az &#233;rv&#233;nyes rendelkez&#233;s l&#233;p, amely az eredeti c&#233;l megval&#243;s&#237;t&#225;s&#225;hoz a legk&#246;zelebb &#225;ll.</p>
+            <p>A Szolg&#225;ltat&#243; fenntartja a jogot a jelen &#193;SZF egyoldal&#250; m&#243;dos&#237;t&#225;s&#225;ra. A m&#243;dos&#237;t&#225;sr&#243;l a Felhaszn&#225;l&#243;kat e-mailben &#233;s a weboldalon kereszt&#252;l &#233;rtes&#237;ti. A m&#243;dos&#237;tott &#193;SZF az &#233;rtes&#237;t&#233;sben megjel&#246;lt napon l&#233;p hat&#225;lyba, de legkor&#225;bban a k&#246;zl&#233;st k&#246;vet&#337; 15. napon.</p>
+        </div>
+
+        <p class="effective-date">Hat&#225;lybal&#233;p&#233;s: 2026. &#225;prilis 11.</p>
+
+        <div class="footer">
+            <a href="https://www.nexly.hu" target="_blank">www.nexly.hu</a>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MiniCRM MCP - Claude AI Integráció</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0c10;
+            --card: #12151c;
+            --border: #1e2330;
+            --text: #e8eaf0;
+            --text2: #8890a4;
+            --dim: #555d74;
+            --accent: #4f7df5;
+            --accent-bright: #6b93ff;
+            --accent-glow: #4f7df540;
+            --green: #3dd68c;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(ellipse 60% 40% at 50% 0%, #4f7df510 0%, transparent 100%);
+            pointer-events: none;
+        }
+        .wrap {
+            max-width: 440px;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+            animation: fadeUp 0.6s ease;
+        }
+        .logo {
+            text-align: center;
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            margin-bottom: 8px;
+        }
+        .logo span { color: var(--accent); }
+        .sub {
+            text-align: center;
+            font-size: 15px;
+            color: var(--text2);
+            margin-bottom: 36px;
+        }
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 32px;
+            margin-bottom: 16px;
+        }
+        .step-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border-radius: 7px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--accent);
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+        .step {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 24px;
+        }
+        .step:last-child { margin-bottom: 0; }
+        .step-content {
+            min-width: 0;
+        }
+        .step-content h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .step-content p {
+            font-size: 13px;
+            color: var(--dim);
+            line-height: 1.5;
+        }
+        .url-box {
+            display: flex;
+            align-items: center;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 12px;
+            margin-top: 10px;
+            gap: 10px;
+        }
+        .url-box code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--text2);
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .copy-btn {
+            padding: 6px 12px;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text2);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+        .copy-btn.copied { border-color: var(--green); color: var(--green); }
+        .main-btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            transition: all 0.2s;
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+        .main-btn:hover {
+            background: var(--accent-bright);
+            transform: translateY(-1px);
+            box-shadow: 0 0 30px var(--accent-glow);
+        }
+        .footer {
+            text-align: center;
+            margin-top: 24px;
+        }
+        .footer a {
+            display: inline-block;
+            padding: 10px 24px;
+            background: linear-gradient(135deg, #c8702a, #e8a040, #d4883a);
+            color: #0a0c10;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        .footer a:hover { background: linear-gradient(135deg, #d47e34, #f0b050, #dc9444); transform: translateY(-1px); }
+        @media (max-width: 480px) {
+            .card { padding: 20px; }
+            .url-box {
+                flex-wrap: wrap;
+            }
+            .url-box code {
+                flex-basis: 100%;
+                font-size: 11px;
+            }
+            .copy-btn {
+                width: 100%;
+                text-align: center;
+            }
+        }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <div class="logo">Mini<span>CRM</span> MCP</div>
+        <div class="sub">Kezelje MiniCRM rendszerét a Claude AI-ból</div>
+
+        <div class="card">
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-content">
+                    <h3>Szerver URL másolása</h3>
+                    <p>Kattintson a Másolás gombra:</p>
+                    <div class="url-box">
+                        <code id="mcpUrl">https://minicrmmcp.netlify.app/mcp</code>
+                        <button class="copy-btn" id="copyBtn" onclick="copyUrl()">Másolás</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-content">
+                    <h3>Connector hozzáadása a Claude-ban</h3>
+                    <p>Kattintson az alábbi gombra, illessze be a másolt URL-t, majd adja meg a nevét (pl. "MiniCRM").</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-content">
+                    <h3>Bejelentkezés</h3>
+                    <p>Adja meg a licenckulcsát, MiniCRM System ID-ját és API kulcsát a megjelenő oldalon.</p>
+                </div>
+            </div>
+        </div>
+
+        <a href="https://claude.ai/settings/connectors?modal=add-custom-connector" target="_blank" class="main-btn">
+            Megnyitás a Claude-ban
+        </a>
+
+        <div class="footer">
+            <a href="https://www.nexly.hu" target="_blank">www.nexly.hu</a>
+        </div>
+    </div>
+
+    <script>
+        function copyUrl() {
+            const url = document.getElementById('mcpUrl').textContent;
+            navigator.clipboard.writeText(url).then(() => {
+                const btn = document.getElementById('copyBtn');
+                btn.textContent = 'Másolva!';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.textContent = 'Másolás';
+                    btn.classList.remove('copied');
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

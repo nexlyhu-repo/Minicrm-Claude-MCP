@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adatkezelesi Tajekoztato - MiniCRM MCP</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0e17;
+            --card: #111827;
+            --border: #1e2330;
+            --text: #e2e8f0;
+            --muted: #8892a8;
+            --accent: #4f7df5;
+            --accent-bright: #6b93ff;
+            --accent-glow: #4f7df540;
+            --orange-start: #c8702a;
+            --orange-mid: #e8a040;
+            --orange-end: #d4883a;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Manrope', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.7;
+            font-size: 15px;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(ellipse 60% 30% at 50% 0%, #4f7df508 0%, transparent 100%);
+            pointer-events: none;
+        }
+
+        .container {
+            max-width: 780px;
+            margin: 0 auto;
+            padding: 40px 24px 60px;
+            position: relative;
+            z-index: 1;
+            animation: fadeUp 0.5s ease;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 32px;
+            transition: color 0.2s;
+        }
+        .back-link:hover { color: var(--accent-bright); }
+        .back-link svg { width: 16px; height: 16px; }
+
+        .page-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            margin-bottom: 6px;
+        }
+        .page-title span { color: var(--accent); }
+
+        .page-subtitle {
+            color: var(--muted);
+            font-size: 15px;
+            margin-bottom: 40px;
+        }
+
+        .section {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 28px 32px;
+            margin-bottom: 16px;
+        }
+
+        .section h2 {
+            font-family: 'Sora', sans-serif;
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            margin-bottom: 16px;
+            color: var(--text);
+        }
+
+        .section h3 {
+            font-family: 'Sora', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            margin-top: 20px;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+
+        .section p {
+            color: var(--muted);
+            margin-bottom: 12px;
+        }
+        .section p:last-child { margin-bottom: 0; }
+
+        .section ul, .section ol {
+            color: var(--muted);
+            margin: 8px 0 12px 20px;
+        }
+        .section li {
+            margin-bottom: 6px;
+        }
+        .section li:last-child { margin-bottom: 0; }
+
+        .section a {
+            color: var(--accent-bright);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .section a:hover { text-decoration: underline; }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 12px 0;
+            font-size: 14px;
+        }
+        .data-table th,
+        .data-table td {
+            text-align: left;
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border);
+        }
+        .data-table th {
+            font-family: 'Sora', sans-serif;
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--text);
+            background: var(--bg);
+            white-space: nowrap;
+        }
+        .data-table td {
+            color: var(--muted);
+        }
+        .data-table tr:last-child td { border-bottom: none; }
+
+        .highlight-box {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px 18px;
+            margin: 12px 0;
+            font-size: 14px;
+            color: var(--muted);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 24px;
+        }
+        .footer a {
+            display: inline-block;
+            padding: 10px 24px;
+            background: linear-gradient(135deg, var(--orange-start), var(--orange-mid), var(--orange-end));
+            color: var(--bg);
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        .footer a:hover {
+            background: linear-gradient(135deg, #d47e34, #f0b050, #dc9444);
+            transform: translateY(-1px);
+        }
+
+        strong { color: var(--text); font-weight: 600; }
+
+        @media (max-width: 640px) {
+            .container { padding: 24px 16px 40px; }
+            .page-title { font-size: 24px; }
+            .section { padding: 20px; }
+            .section h2 { font-size: 16px; }
+            .data-table { font-size: 13px; }
+            .data-table th,
+            .data-table td { padding: 8px 10px; }
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <a href="/" class="back-link">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5"/></svg>
+            Vissza a fooldalra
+        </a>
+
+        <h1 class="page-title">Adatkezelesi <span>Tajekoztato</span></h1>
+        <p class="page-subtitle">MiniCRM MCP -- Claude AI Integracio</p>
+
+        <!-- 1. Az adatkezelo adatai -->
+        <div class="section">
+            <h2>1. Az adatkezelo adatai</h2>
+            <table class="data-table">
+                <tr><th>Adatkezelo neve</th><td>[Cegnev] (Nexly AI)</td></tr>
+                <tr><th>Szekhely</th><td>[Szekhely]</td></tr>
+                <tr><th>Adoszam</th><td>[Adoszam]</td></tr>
+                <tr><th>E-mail</th><td>[E-mail]</td></tr>
+                <tr><th>Weboldal</th><td><a href="https://www.nexly.hu" target="_blank">www.nexly.hu</a></td></tr>
+            </table>
+            <p>A jelen adatkezelesi tajekoztato (a tovabbiakban: <strong>Tajekoztato</strong>) ismerteti, hogy a <strong>MiniCRM MCP</strong> szolgaltatas (a tovabbiakban: <strong>Szolgaltatas</strong>) hasznalata soran hogyan kezeljuk az On szemelyesadatait az Europai Parlament es a Tanacs (EU) 2016/679 szamu altalanos adatvedelmi rendelete (a tovabbiakban: <strong>GDPR</strong>) es az informacios onrendelkezesi jogrol es az informacioszabadsagrol szolo 2011. evi CXII. torveny (a tovabbiakban: <strong>Infotv.</strong>) rendelkezeseivel osszhangban.</p>
+            <p>A MiniCRM MCP egy mesterseges intelligencian alapulo integracios szolgaltatas, amely a MiniCRM ugyfelkapcsolat-kezelő rendszert koti ossze a Claude AI-val az MCP (Model Context Protocol) szabvanyon keresztul.</p>
+        </div>
+
+        <!-- 2. Az adatkezeles celja es jogalapja -->
+        <div class="section">
+            <h2>2. Az adatkezeles celja es jogalapja</h2>
+
+            <h3>2.1. Licenckezeles es hitelesites</h3>
+            <p><strong>Cel:</strong> A felhasznalo azonositasa, a szolgaltatashoz valo hozzaferes biztositasa, a licencfeltetelek betartatasa, valamint a jogosultsag ellenorzese.</p>
+            <p><strong>Jogalap:</strong> Szerzodeses kotelezettseg teljesitese (GDPR 6. cikk (1) bek. b) pont) -- az adatkezeles a szolgaltatas nyujtasahoz szukseges szerzodeses jogviszony teljesitesehez elengedhetetlen.</p>
+
+            <h3>2.2. API-hivasok kozvetitese</h3>
+            <p><strong>Cel:</strong> A felhasznalo altal kezdemenyezett MiniCRM API-muveletek biztonsagos vegrehajtasa a Claude AI-n keresztul.</p>
+            <p><strong>Jogalap:</strong> Szerzodeses kotelezettseg teljesitese (GDPR 6. cikk (1) bek. b) pont), valamint az erintett hozzajarulasa (GDPR 6. cikk (1) bek. a) pont) -- a felhasznalo sajat akaratbol adja meg MiniCRM hozzaferesi adatait es kezdemenyez API-hivasokat.</p>
+
+            <h3>2.3. Technikai uzemeltetes es biztonsag</h3>
+            <p><strong>Cel:</strong> A szolgaltatas zavartalan mukodtetese, hibak elhariitasa, biztonsagi esemenyek megelozese es kivizsgalasa.</p>
+            <p><strong>Jogalap:</strong> Az adatkezelo jogos erdeke (GDPR 6. cikk (1) bek. f) pont) -- az informatikai biztonsag fenntartasa.</p>
+        </div>
+
+        <!-- 3. Kezelt adatok kore -->
+        <div class="section">
+            <h2>3. Kezelt adatok kore</h2>
+
+            <h3>3.1. Licencadatok (szerveren tarolva)</h3>
+            <p>A licencvalidacio soran az alabbi adatokat taroljuk:</p>
+            <table class="data-table">
+                <tr><th>Adat</th><th>Cel</th></tr>
+                <tr><td>E-mail cim</td><td>Felhasznalo azonositasa, kapcsolattartas</td></tr>
+                <tr><td>Licenckulcs</td><td>Jogosultsag ellenorzese</td></tr>
+                <tr><td>Aktivalasi allapot</td><td>Licenc ervenyes segenek kovetese</td></tr>
+                <tr><td>Lejarati datum</td><td>Elofizetesi idoszak kezelese</td></tr>
+                <tr><td>Kotott MiniCRM System ID</td><td>Licenc egy CRM-rendszerhez kotese</td></tr>
+            </table>
+
+            <h3>3.2. Hitelesitesi adatok (kizarolag kliensoldalon, JWT tokenben)</h3>
+            <p>A szolgaltatas hasznalata soran az alabbi adatok kerulnek kodolasra egy JWT (JSON Web Token) tokenben, amely <strong>kizarolag a kliens oldalon (a Claude alkalmazasban) tarolodik</strong>:</p>
+            <ul>
+                <li>MiniCRM System ID</li>
+                <li>MiniCRM API-kulcs</li>
+                <li>Licenckulcs</li>
+            </ul>
+            <div class="highlight-box">
+                <strong>Fontos:</strong> A szerver nem tarolja a felhasznalok MiniCRM hozzaferesi adatait (API-kulcs, System ID) tartosan. Ezek az adatok kizarolag a JWT tokenben, a kliens oldalon leteznek, es minden egyes API-hivas soran az atmeneti feldolgozas utan azonnal torlodnek a szerver memoriajabol.
+            </div>
+
+            <h3>3.3. CRM-adatok (NEM taroltak)</h3>
+            <p>A felhasznalo altal a Claude AI-n keresztul lekerdezett vagy modositott MiniCRM adatok (ugyfeladatok, projektek, kontaktok stb.) <strong>nem kerulnek tarolasra a szerverunkron</strong>. A szerver kizarolag kozvetito (proxy) szerepet tolt be: a kereseket tovabbitja a MiniCRM API fele (https://r3.minicrm.hu), a valaszt visszakuldi a kliensnek, majd az adatokat torli a memoriajbol.</p>
+
+            <h3>3.4. Technikai naplozasi adatok</h3>
+            <p>A szerver uzemeltetese soran az alabbi technikai adatok kerul(het)nek naplozasra:</p>
+            <ul>
+                <li>IP-cim (anonimizalt formaban)</li>
+                <li>Keresek idopontja</li>
+                <li>HTTP metodus es utvonal (URL)</li>
+                <li>Hibauzenet (hiba eseten)</li>
+            </ul>
+        </div>
+
+        <!-- 4. Az adatkezeles idotartama -->
+        <div class="section">
+            <h2>4. Az adatkezeles idotartama</h2>
+            <table class="data-table">
+                <tr><th>Adattipus</th><th>Megorzesi ido</th></tr>
+                <tr><td>Licencadatok (e-mail, kulcs, allapot)</td><td>A licenc elofizetesi idoszakanak lejarata utan legfeljebb 30 nappal</td></tr>
+                <tr><td>JWT token (hitelesitesi adatok)</td><td>A token lejarataig (kliensoldalon, a szerveren nem tarolodik)</td></tr>
+                <tr><td>API-kozvetites soran atvitt CRM-adatok</td><td>Nem tarolodnak -- kizarolag atmeneti memoriaban, a keres feldolgozasanak idejeig</td></tr>
+                <tr><td>Technikai naplok</td><td>Legfeljebb 90 nap</td></tr>
+            </table>
+            <p>A megorzesi ido lejartat kovetoen az adatokat veglegesen es visszaallithatatlanul toroljuk.</p>
+        </div>
+
+        <!-- 5. Adatfeldolgozok -->
+        <div class="section">
+            <h2>5. Adatfeldolgozok</h2>
+            <p>A szolgaltatas nyujtasa soran az alabbi adatfeldolgozokat vesszuk igenybe:</p>
+            <table class="data-table">
+                <tr><th>Adatfeldolgozo</th><th>Tevekenyseg</th><th>Szekhely</th></tr>
+                <tr>
+                    <td><strong>Cloudflare, Inc.</strong></td>
+                    <td>Licencvalidacios vegpont uzemeltetese (Cloudflare Workers), DDoS-vedelem, CDN</td>
+                    <td>Egyesult Allamok</td>
+                </tr>
+                <tr>
+                    <td><strong>Hetzner Online GmbH</strong></td>
+                    <td>Szerverhoszting (alkalmazasszerver)</td>
+                    <td>Nemetorszag (Nurnberg)</td>
+                </tr>
+                <tr>
+                    <td><strong>Anthropic, PBC</strong></td>
+                    <td>Claude AI platformszolgaltatas (az MCP-kapcsolat a felhasznalo Claude-fiokjan keresztul valosul meg)</td>
+                    <td>Egyesult Allamok</td>
+                </tr>
+            </table>
+            <p>Az adatfeldolgozokkal a GDPR 28. cikke szerinti adatfeldolgozoi szerzodes biztositja az adatok vedelmet.</p>
+        </div>
+
+        <!-- 6. Adattovabbitas -->
+        <div class="section">
+            <h2>6. Adattovabbitas</h2>
+
+            <h3>6.1. EGT-n beluli adattovabbitas</h3>
+            <p>A fő alkalmazasszerver Nemetorszagban (Hetzner Online GmbH, Nurnberg) uzemel, amely az Europai Gazdasagi Terseg (EGT) tagja. Az ide iranyulo adattovabbitas nem igenyel kulonleges garanciakat.</p>
+
+            <h3>6.2. EGT-n kivuli adattovabbitas (harmadik orszag)</h3>
+            <p>Az alabbi esetekben kerul sor adattovabbitasra az EGT-n kivulre:</p>
+            <ul>
+                <li><strong>Cloudflare, Inc.</strong> (Egyesult Allamok) -- A licencvalidacios keresek feldolgozasara. A Cloudflare az EU-U.S. Data Privacy Framework (DPF) tanusitassal rendelkezik, amely a GDPR 45. cikke szerinti megfelelo vedelmi szintet biztosit.</li>
+                <li><strong>Anthropic, PBC</strong> (Egyesult Allamok) -- A Claude AI platformot az Anthropic uzemelteti. A felhasznalo kozvetlenul a sajat Claude-fiokjan keresztul hasznalja a szolgaltatast; az MCP-szerver a felhasznalo altal tovabbitott kereseket dolgozza fel. Az Anthropic az EU Standard Contractual Clauses (SCC) alapjan biztositja a megfelelo adatvedelmi szintet.</li>
+            </ul>
+            <p>Az adattovabbitas minden esetben a GDPR V. fejezete szerinti megfelelo garanciakkal tortenik.</p>
+        </div>
+
+        <!-- 7. Az erintett jogai -->
+        <div class="section">
+            <h2>7. Az erintett jogai</h2>
+            <p>A GDPR es az Infotv. alapjan On az alabbi jogokkal rendelkezik:</p>
+            <ul>
+                <li><strong>Hozzaferesi jog</strong> (GDPR 15. cikk) -- Tajekoztatast kerhet arrol, hogy milyen szemelyes adatait kezeljuk, milyen celbol, es mennyi ideig.</li>
+                <li><strong>Helyesbiteshez valo jog</strong> (GDPR 16. cikk) -- Kerheti a pontatlan szemelyes adatai helyesbitesetvagy kiegesziteset.</li>
+                <li><strong>Torleshez valo jog ("az elfelejteteshez valo jog")</strong> (GDPR 17. cikk) -- Kerheti szemelyes adatai torlesett, amennyiben azok kezelesere mar nincs jogalap.</li>
+                <li><strong>Az adatkezeles korlatozasahoz valo jog</strong> (GDPR 18. cikk) -- Kerheti az adatkezeles korlatozasat a GDPR-ban foglalt feltetelek eseten.</li>
+                <li><strong>Adathordozhatosaghoz valo jog</strong> (GDPR 20. cikk) -- Kerheti, hogy szemelyesadatait tagolt, szeles korben hasznalt, geppel olvashat o formatumban bocsassuk rendelkezesere.</li>
+                <li><strong>Tiltakozashoz valo jog</strong> (GDPR 21. cikk) -- Tiltakozhat az adatkezeles ellen, amennyiben az jogos erdeken alapul.</li>
+                <li><strong>Hozzajarulas visszavonasa</strong> (GDPR 7. cikk (3) bek.) -- Amennyiben az adatkezeles hozzajarulason alapul, azt barmikorvissza vonhatja. A visszavonas nem erinti a visszavonas elotti adatkezeles jogszeruseget.</li>
+            </ul>
+            <p>Jogai gyakorlasara iranyulo kereset az <strong>[E-mail]</strong> cimre kuldheti. A kereset beerkezeset kovetoen legkesobb <strong>30 napon belul</strong> erdemben valaszolunk.</p>
+        </div>
+
+        <!-- 8. Cookie-k -->
+        <div class="section">
+            <h2>8. Cookie-k (sutik)</h2>
+            <p>A MiniCRM MCP szolgaltatas weboldalai <strong>kizarolag technikai jellegu sutiket</strong> hasznalnak, amelyek a weboldal alapveto mukodeshez szuksegesek. Nem hasznalunk marketing, elemzo vagy kozossegi media sutiket.</p>
+            <table class="data-table">
+                <tr><th>Suti neve</th><th>Cel</th><th>Eletartam</th><th>Tipus</th></tr>
+                <tr><td>Munkamenet-suti (ha alkalmazando)</td><td>Munkamenet-kezeles</td><td>Bongeszo bezarasaig</td><td>Szukseg es (GDPR 6. cikk (1) bek. f) pont)</td></tr>
+            </table>
+            <p>A technikai sutik nem igenylik az erintett eloozetes hozzajarulast, mivel azok a szolgaltatas nyujtasahoz feltetlenul szuksegesek (az elektronikus hirközlesi agazatban a szemelyes adatok kezeleserol szolo 2002/58/EK iranyelv 5. cikk (3) bekezdesevel osszhangban).</p>
+        </div>
+
+        <!-- 9. Adatbiztonsag -->
+        <div class="section">
+            <h2>9. Adatbiztonsag</h2>
+            <p>Az adatkezelo a GDPR 32. cikkenek megfelelo technikai es szervezesi intezkedeseket alkalmaz a szemelyes adatok biztonsaga erdekeben:</p>
+            <ul>
+                <li><strong>Titkositott kommunikacio:</strong> Minden adatforgalom HTTPS (TLS 1.2+) titkositassal vedett, beleertve a kliens-szerver, szerver-MiniCRM API es szerver-Cloudflare kommunikaciot.</li>
+                <li><strong>JWT alapu hitelesites:</strong> A hozzaferesi adatok (API-kulcs, System ID) kizarolag titkositott JWT tokenben, a kliens oldalon tarolodnak. A szerver nem tarol API-kulcsokat.</li>
+                <li><strong>Nincs tartosadattarolas:</strong> A CRM-adatok nem kerulnek szerveren tarolt adatbazisba; a szerver kizarolag kozvetit (proxy).</li>
+                <li><strong>Szerver biztonsag:</strong> A hoszt szerver (Hetzner, Nurnberg) fizikai es logikai biztonsagi intezkedesekkel vedett, beleertve a tuzfalat, SSH-kulcs alapu hozzaferest es rendszeres biztonsagi frissiteseket.</li>
+                <li><strong>Hozzaferes-korlatozas:</strong> A szerver adminisztracios hozzaferese korlatos szemelykornek biztositott, kulcs alapu hitelesitessel.</li>
+                <li><strong>DDoS-vedelem:</strong> A Cloudflare infrastrukturaval biztositott elosztott szolgaltatasmegtagadasi tamadasok elleni vedelem.</li>
+                <li><strong>Sebezheto segvizsgalat:</strong> Rendszeres fuggoseg-frissites es biztonsagi audit.</li>
+            </ul>
+        </div>
+
+        <!-- 10. Kapcsolat es jogorvoslat -->
+        <div class="section">
+            <h2>10. Kapcsolat es jogorvoslat</h2>
+
+            <h3>10.1. Kapcsolatfelvetel az adatkezelovel</h3>
+            <p>Adatvedelmi kerdeseivel, joggyakorlasi kerelmeivel forduljon hozzank:</p>
+            <div class="highlight-box">
+                <strong>[Cegnev] (Nexly AI)</strong><br>
+                Szekhely: [Szekhely]<br>
+                E-mail: [E-mail]<br>
+                Weboldal: <a href="https://www.nexly.hu" target="_blank">www.nexly.hu</a>
+            </div>
+
+            <h3>10.2. Hatosagi jogorvoslat</h3>
+            <p>Amennyiben ugy iteli meg, hogy szemelyes adatai kezelese sertiaz On jogait, panasszal fordulhat a Nemzeti Adatvedelmi es Informacioszabadsag Hatosaghoz:</p>
+            <div class="highlight-box">
+                <strong>Nemzeti Adatvedelmi es Informacioszabadsag Hatosag (NAIH)</strong><br>
+                Cim: 1055 Budapest, Falk Miksa utca 9-11.<br>
+                Postacim: 1363 Budapest, Pf. 9.<br>
+                Telefon: +36 (1) 391-1400<br>
+                E-mail: ugyfelszolgalat@naih.hu<br>
+                Weboldal: <a href="https://naih.hu" target="_blank">https://naih.hu</a>
+            </div>
+
+            <h3>10.3. Birosagi jogorvoslat</h3>
+            <p>Az erintett jogainak megsertese eseten birosaghoz is fordulhat. A per az erintett valasztasa szerint az erintett lakhelye vagy tartozkodasi helye szerinti torvenyszek elott is megindithato (Infotv. 22. ss).</p>
+        </div>
+
+        <!-- 11. Hatalybalepeses -->
+        <div class="section">
+            <h2>11. Zarorendelkezesek</h2>
+            <p>A jelen Adatkezelesi Tajekoztato <strong>2026. aprilis 11-en</strong> lep hatalyba es visszavonasig, illetve a kovetkezo modositas hataly balepeseig ervenyes.</p>
+            <p>Az adatkezelo fenntartja a jogot, hogy a jelen Tajekoztatot egyoldaluan modositsa. A lenyeges valtozasokrol a felhasznalokat e-mailben vagy a szolgaltatas feluleten tajekoztatjuk. A modositott Tajekoztato a kozetetetellel lep hatalyba.</p>
+            <p style="margin-top: 16px; font-size: 13px; color: var(--muted);">Utolso frissites: 2026. aprilis 11.</p>
+        </div>
+
+        <div class="footer">
+            <a href="https://www.nexly.hu" target="_blank">www.nexly.hu</a>
+        </div>
+    </div>
+</body>
+</html>
