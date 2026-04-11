@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MiniCRM MCP - Kezelje CRM rendszeret mesterseges intelligenciaval</title>
-    <meta name="description" content="Kapcsolja ossze MiniCRM rendszeret a Claude AI-val. Termeszetes nyelven kezelheti ugyfeleit, projektjeit es feladatait.">
+    <title>MiniCRM MCP - Kezelje CRM rendszerét mesterséges intelligenciával</title>
+    <meta name="description" content="Kapcsolja össze MiniCRM rendszerét a Claude AI-val. Természetes nyelven kezelheti ügyfeleit, projektjeit és feladatait.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -356,7 +356,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
+            color: var(--accent);
             margin-bottom: 16px;
         }
         .feature-card h3 {
@@ -380,12 +380,12 @@
         .steps-grid::before {
             content: '';
             position: absolute;
-            top: 36px;
-            left: calc(16.66% + 12px);
-            right: calc(16.66% + 12px);
+            top: 24px;
+            left: calc(16.66% + 24px);
+            right: calc(16.66% + 24px);
             height: 2px;
-            background: linear-gradient(90deg, var(--accent), var(--border), var(--accent));
-            opacity: 0.3;
+            background: repeating-linear-gradient(90deg, var(--accent) 0, var(--accent) 8px, transparent 8px, transparent 16px);
+            opacity: 0.25;
         }
         .step-card { text-align: center; position: relative; }
         .step-number {
@@ -507,7 +507,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            color: var(--green);
             flex-shrink: 0;
         }
         .security-card h3 {
@@ -767,23 +767,23 @@
     <div class="nav-inner">
         <div class="nav-logo">Mini<span>CRM</span> MCP</div>
         <div class="nav-links">
-            <a href="#features">Funkciok</a>
-            <a href="#how-it-works">Hogyan mukodik</a>
-            <a href="#security">Biztonsag</a>
-            <a href="#support">Tamogatas</a>
-            <a href="#references">Referenciak</a>
-            <a href="#demo-form" class="nav-cta">Ingyenes bemutato</a>
+            <a href="#features">Funkciók</a>
+            <a href="#how-it-works">Hogyan működik</a>
+            <a href="#security">Biztonság</a>
+            <a href="#support">Támogatás</a>
+            <a href="#references">Referenciák</a>
+            <a href="#demo-form" class="nav-cta">Ingyenes bemutató</a>
         </div>
         <button class="mobile-menu-btn" onclick="toggleMenu()" aria-label="Menu">&#9776;</button>
     </div>
 </nav>
 <div class="mobile-menu" id="mobileMenu">
-    <a href="#features" onclick="closeMenu()">Funkciok</a>
-    <a href="#how-it-works" onclick="closeMenu()">Hogyan mukodik</a>
-    <a href="#security" onclick="closeMenu()">Biztonsag</a>
-    <a href="#support" onclick="closeMenu()">Tamogatas</a>
-    <a href="#references" onclick="closeMenu()">Referenciak</a>
-    <a href="#demo-form" onclick="closeMenu()">Ingyenes bemutato</a>
+    <a href="#features" onclick="closeMenu()">Funkciók</a>
+    <a href="#how-it-works" onclick="closeMenu()">Hogyan működik</a>
+    <a href="#security" onclick="closeMenu()">Biztonság</a>
+    <a href="#support" onclick="closeMenu()">Támogatás</a>
+    <a href="#references" onclick="closeMenu()">Referenciák</a>
+    <a href="#demo-form" onclick="closeMenu()">Ingyenes bemutató</a>
 </div>
 
 <!-- HERO -->
@@ -791,56 +791,56 @@
     <div class="container">
         <div class="hero-grid">
             <div>
-                <div class="hero-badge">Elerheto Claude AI-ban</div>
-                <h1>Kezelje MiniCRM rendszeret <em>mesterseges intelligenciaval</em></h1>
+                <div class="hero-badge">Elérhető Claude AI-ban</div>
+                <h1>Kezelje MiniCRM rendszerét <em>mesterséges intelligenciával</em></h1>
                 <p class="hero-text">
-                    Kapcsolja ossze MiniCRM fiogjat a Claude AI-val. Keressen ugyfelet, frissitsen adatlapokat, hozzon letre feladatokat - mindezt termeszetes nyelven, egyetlen mondattal.
+                    Kapcsolja össze MiniCRM fiókját a Claude AI-val. Keressen ügyfelet, frissítsen adatlapokat, hozzon létre feladatokat - mindezt természetes nyelven, egyetlen mondattal.
                 </p>
                 <div class="hero-stats">
                     <div class="hero-stat">
                         <div class="hero-stat-num">54</div>
-                        <div class="hero-stat-label">CRM eszkoz</div>
+                        <div class="hero-stat-label">CRM eszköz</div>
                     </div>
                     <div class="hero-stat">
                         <div class="hero-stat-num">30 mp</div>
-                        <div class="hero-stat-label">Beallitas</div>
+                        <div class="hero-stat-label">Beállítás</div>
                     </div>
                     <div class="hero-stat">
                         <div class="hero-stat-num">0 Ft</div>
-                        <div class="hero-stat-label">Bemutato</div>
+                        <div class="hero-stat-label">Bemutató</div>
                     </div>
                 </div>
             </div>
             <div id="demo-form">
                 <div class="demo-form-card">
                     <div id="formContent">
-                        <h3>Ingyenes bemutato</h3>
-                        <p class="form-sub">Probaja ki 14 napig ingyen. Felvesszuk Onnel a kapcsolatot es bemutatjuk a mukodest.</p>
+                        <h3>Ingyenes bemutató</h3>
+                        <p class="form-sub">Próbálja ki 14 napig ingyen. Felvesszük Önnel a kapcsolatot és bemutatjuk a működést.</p>
                         <form name="demo-request" method="POST" data-netlify="true" id="demoForm">
                             <div class="form-group">
-                                <label for="name">Nev</label>
-                                <input type="text" id="name" name="name" placeholder="Teljes nev" required>
+                                <label for="name">Név</label>
+                                <input type="text" id="name" name="name" placeholder="Teljes név" required>
                             </div>
                             <div class="form-group">
                                 <label for="email">E-mail</label>
                                 <input type="email" id="email" name="email" placeholder="email@ceg.hu" required>
                             </div>
                             <div class="form-group">
-                                <label for="phone">Telefonszam</label>
+                                <label for="phone">Telefonszám</label>
                                 <input type="tel" id="phone" name="phone" placeholder="+36 ..." required>
                             </div>
                             <div class="form-group">
-                                <label for="company">Cegnev</label>
-                                <input type="text" id="company" name="company" placeholder="Ceg neve">
+                                <label for="company">Cégnév</label>
+                                <input type="text" id="company" name="company" placeholder="Cég neve">
                             </div>
-                            <button type="submit" class="form-submit">Bemutato kerese</button>
+                            <button type="submit" class="form-submit">Bemutató kérése</button>
                         </form>
-                        <p class="form-note">Adatait bizalmasan kezeljuk. Nincs elkotelezodes.</p>
+                        <p class="form-note">Adatait bizalmasan kezeljük. Nincs elköteleződés.</p>
                     </div>
                     <div class="form-success" id="formSuccess">
                         <div class="check-icon">&#10003;</div>
-                        <h4>Koszonjuk!</h4>
-                        <p>Hamarosan felvesszuk Onnel a kapcsolatot es bemutatjuk a MiniCRM MCP mukodeset.</p>
+                        <h4>Köszönjük!</h4>
+                        <p>Hamarosan felvesszük Önnel a kapcsolatot és bemutatjuk a MiniCRM MCP működését.</p>
                     </div>
                 </div>
             </div>
@@ -852,40 +852,40 @@
 <section id="features">
     <div class="container">
         <div class="section-header section-header-center reveal">
-            <div class="section-label">Funkciok</div>
-            <h2 class="section-title">Minden CRM-muvelet, egyetlen mondattal</h2>
-            <p class="section-desc">A MiniCRM MCP 54 eszkozzel kapcsolja ossze CRM rendszeret a Claude AI-val. Nem kell menuket bogesznie - egyszeruen mondja el, mit szeretne.</p>
+            <div class="section-label">Funkciók</div>
+            <h2 class="section-title">Minden CRM-művelet, egyetlen mondattal</h2>
+            <p class="section-desc">A MiniCRM MCP 54 eszközzel kapcsolja össze CRM rendszerét a Claude AI-val. Nem kell menüket böngésznie - egyszerűen mondja el, mit szeretne.</p>
         </div>
         <div class="features-grid">
             <div class="feature-card reveal reveal-delay-1">
-                <div class="feature-icon">&#128269;</div>
-                <h3>Ugyfelek keresese</h3>
-                <p>Keressen nev, e-mail, telefon vagy barmilyen egyedi mezo alapjan. Az AI azonnal megtalalja a megfelelo adatlapot.</p>
+                <div class="feature-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+                <h3>Ügyfelek keresése</h3>
+                <p>Keressen név, e-mail, telefon vagy bármilyen egyedi mező alapján. Az AI azonnal megtalálja a megfelelő adatlapot.</p>
             </div>
             <div class="feature-card reveal reveal-delay-2">
-                <div class="feature-icon">&#128221;</div>
-                <h3>Adatlapok kezelese</h3>
-                <p>Hozzon letre uj projektet, modositson statuszokat, frissitsen mezoket - mindezt termeszetes nyelven.</p>
+                <div class="feature-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
+                <h3>Adatlapok kezelése</h3>
+                <p>Hozzon létre új projektet, módosítson státuszokat, frissítsen mezőket - mindezt természetes nyelven.</p>
             </div>
             <div class="feature-card reveal reveal-delay-3">
-                <div class="feature-icon">&#128203;</div>
-                <h3>Feladatok es teendok</h3>
-                <p>Listazza, hozza letre es zarje le a teendoket. Kerdezze meg az AI-t, mi a kovetkezo lepes egy projekten.</p>
+                <div class="feature-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+                <h3>Feladatok és teendők</h3>
+                <p>Listázza, hozza létre és zárja le a teendőket. Kérdezze meg az AI-t, mi a következő lépés egy projekten.</p>
             </div>
             <div class="feature-card reveal reveal-delay-1">
-                <div class="feature-icon">&#128200;</div>
-                <h3>Riportok es osszesitesek</h3>
-                <p>Kerjen osszefoglalot a nyitott projektekrol, statisztikakat egy modulbol, vagy idoszaki ertekesitesi adatokat.</p>
+                <div class="feature-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+                <h3>Riportok és összesítések</h3>
+                <p>Kérjen összefoglalót a nyitott projektekről, statisztikákat egy modulból, vagy időszaki értékesítési adatokat.</p>
             </div>
             <div class="feature-card reveal reveal-delay-2">
-                <div class="feature-icon">&#128231;</div>
-                <h3>Kommunikacio</h3>
-                <p>Tekintse meg az adatlapokhoz tartozo e-maileket, megjegyzeseket es az elozmenyeket egy helyen.</p>
+                <div class="feature-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+                <h3>Kommunikáció</h3>
+                <p>Tekintse meg az adatlapokhoz tartozó e-maileket, megjegyzéseket és az előzményeket egy helyen.</p>
             </div>
             <div class="feature-card reveal reveal-delay-3">
-                <div class="feature-icon">&#9889;</div>
-                <h3>Azonnali valaszok</h3>
-                <p>Nem kell varakoznia. A Claude AI masodpercek alatt valaszol a CRM-mel kapcsolatos kerdeseire.</p>
+                <div class="feature-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+                <h3>Azonnali válaszok</h3>
+                <p>Nem kell várakoznia. A Claude AI másodpercek alatt válaszol a CRM-mel kapcsolatos kérdéseire.</p>
             </div>
         </div>
     </div>
@@ -895,25 +895,25 @@
 <section id="how-it-works">
     <div class="container">
         <div class="section-header section-header-center reveal">
-            <div class="section-label">Hogyan mukodik</div>
-            <h2 class="section-title">3 lepes es mar hasznalhatja</h2>
-            <p class="section-desc">A beallitas alig 30 masodpercet vesz igenybe. Semmilyen technikai tudas nem szukseges.</p>
+            <div class="section-label">Hogyan működik</div>
+            <h2 class="section-title">3 lépés és már használhatja</h2>
+            <p class="section-desc">A beállítás alig 30 másodpercet vesz igénybe. Semmilyen technikai tudás nem szükséges.</p>
         </div>
         <div class="steps-grid">
             <div class="step-card reveal reveal-delay-1">
                 <div class="step-number">1</div>
-                <h3>Csatlakoztatas</h3>
-                <p>Masolja be a szerver URL-t a Claude AI beallitasaiba. Egyetlen kattintas az egesz.</p>
+                <h3>Csatlakoztatás</h3>
+                <p>Másolja be a szerver URL-t a Claude AI beállításaiba. Egyetlen kattintás az egész.</p>
             </div>
             <div class="step-card reveal reveal-delay-2">
                 <div class="step-number">2</div>
-                <h3>Bejelentkezes</h3>
-                <p>Adja meg licenckulcsat es MiniCRM hozzaferesi adatait. A rendszer ellenorzi a kapcsolatot.</p>
+                <h3>Bejelentkezés</h3>
+                <p>Adja meg licenckulcsát és MiniCRM hozzáférési adatait. A rendszer ellenőrzi a kapcsolatot.</p>
             </div>
             <div class="step-card reveal reveal-delay-3">
                 <div class="step-number">3</div>
-                <h3>Hasznalat</h3>
-                <p>Nyisson egy beszelgetest Claude-ban es kezdje el hasznalni. Peldaul: "Mutasd a mai teendoimet!"</p>
+                <h3>Használat</h3>
+                <p>Nyisson egy beszélgetést Claude-ban és kezdje el használni. Például: "Mutasd a mai teendőimet!"</p>
             </div>
         </div>
     </div>
@@ -923,9 +923,9 @@
 <section id="demo">
     <div class="container">
         <div class="section-header section-header-center reveal">
-            <div class="section-label">Elo pelda</div>
-            <h2 class="section-title">Igy nez ki a gyakorlatban</h2>
-            <p class="section-desc">Egy valodi parbeszed a Claude AI-val, MiniCRM MCP hasznalataval.</p>
+            <div class="section-label">Élő példa</div>
+            <h2 class="section-title">Így néz ki a gyakorlatban</h2>
+            <p class="section-desc">Egy valódi párbeszéd a Claude AI-val, MiniCRM MCP használatával.</p>
         </div>
         <div class="demo-showcase reveal">
             <div class="demo-header">
@@ -938,26 +938,26 @@
                 <div class="demo-conversation">
                     <div class="demo-msg">
                         <div class="demo-avatar user">Te</div>
-                        <div class="demo-bubble">Keress ra a "Kovacs" nevhez tartozo nyitott projektekre.</div>
+                        <div class="demo-bubble">Keress rá a "Kovács" névhez tartozó nyitott projektekre.</div>
                     </div>
                     <div class="demo-msg">
                         <div class="demo-avatar ai">AI</div>
                         <div class="demo-bubble">
-                            <strong>3 nyitott projektet talaltam "Kovacs" nevvel:</strong><br><br>
-                            1. <strong>Kovacs Kft. - Weboldal fejlesztes</strong> - Statusz: <code>Folyamatban</code><br>
-                            2. <strong>Kovacs Peter - Marketing tanacsdas</strong> - Statusz: <code>Ajanlatadas</code><br>
-                            3. <strong>Kovacs es Tarsa Bt. - SEO audit</strong> - Statusz: <code>Uj</code><br><br>
-                            Melyikkel kapcsolatban szeretne reszleteket?
+                            <strong>3 nyitott projektet találtam "Kovács" névvel:</strong><br><br>
+                            1. <strong>Kovács Kft. - Weboldal fejlesztés</strong> - Státusz: <code>Folyamatban</code><br>
+                            2. <strong>Kovács Péter - Marketing tanácsadás</strong> - Státusz: <code>Ajánlatadás</code><br>
+                            3. <strong>Kovács és Társa Bt. - SEO audit</strong> - Státusz: <code>Új</code><br><br>
+                            Melyikkel kapcsolatban szeretne részleteket?
                         </div>
                     </div>
                     <div class="demo-msg">
                         <div class="demo-avatar user">Te</div>
-                        <div class="demo-bubble">Allitsd a masodik statuszt "Elfogadva"-ra es irj hozza megjegyzest: "Alairt szerzodes megerkezett."</div>
+                        <div class="demo-bubble">Állítsd a második státuszt "Elfogadva"-ra és írj hozzá megjegyzést: "Aláírt szerződés megérkezett."</div>
                     </div>
                     <div class="demo-msg">
                         <div class="demo-avatar ai">AI</div>
                         <div class="demo-bubble">
-                            Kesz! A <strong>Kovacs Peter - Marketing tanacsdas</strong> projekt statuszat <code>Elfogadva</code>-ra allitottam es hozzaadtam a megjegyzest.
+                            Kész! A <strong>Kovács Péter - Marketing tanácsadás</strong> projekt státuszát <code>Elfogadva</code>-ra állítottam és hozzáadtam a megjegyzést.
                         </div>
                     </div>
                 </div>
@@ -970,37 +970,37 @@
 <section id="security">
     <div class="container">
         <div class="section-header reveal">
-            <div class="section-label">Biztonsag</div>
-            <h2 class="section-title">Az On adatai biztonsagban vannak</h2>
-            <p class="section-desc">Az adatbiztonsag es az atlathatosag kiemelt prioritas. Az alabbiakban reszletezzuk, hogyan veduk az On adatait.</p>
+            <div class="section-label">Biztonság</div>
+            <h2 class="section-title">Az Ön adatai biztonságban vannak</h2>
+            <p class="section-desc">Az adatbiztonság és az átláthatóság kiemelt prioritás. Az alábbiakban részletezzük, hogyan védjük az Ön adatait.</p>
         </div>
         <div class="security-grid">
             <div class="security-card reveal reveal-delay-1">
-                <div class="security-icon">&#128274;</div>
+                <div class="security-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
                 <div>
-                    <h3>Titkositott kommunikacio</h3>
-                    <p>Minden adatforgalom HTTPS titkositassal tortenik. A szerver es a MiniCRM API kozotti kapcsolat vegig vedett.</p>
+                    <h3>Titkosított kommunikáció</h3>
+                    <p>Minden adatforgalom HTTPS titkosítással történik. A szerver és a MiniCRM API közötti kapcsolat végig védett.</p>
                 </div>
             </div>
             <div class="security-card reveal reveal-delay-2">
-                <div class="security-icon">&#128230;</div>
+                <div class="security-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
                 <div>
-                    <h3>Nem taroljuk az On CRM adatait</h3>
-                    <p>A rendszer kozvetitokent mukodik. Az On CRM adatai nem kerulnek tarolasra a mi szervereinkre - azok kizarolag a MiniCRM rendszerben maradnak.</p>
+                    <h3>Nem tároljuk az Ön CRM adatait</h3>
+                    <p>A rendszer közvetítőként működik. Az Ön CRM adatai nem kerülnek tárolásra a mi szervereinkre - azok kizárólag a MiniCRM rendszerben maradnak.</p>
                 </div>
             </div>
             <div class="security-card reveal reveal-delay-3">
-                <div class="security-icon">&#128272;</div>
+                <div class="security-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg></div>
                 <div>
-                    <h3>Licenc-alapu hozzaferes</h3>
-                    <p>Minden felhasznalo egyedi licenckulccsal fer hozza a szolgaltatashoz. A kulcsok egy MiniCRM rendszerhez vannak kotve.</p>
+                    <h3>Licenc-alapú hozzáférés</h3>
+                    <p>Minden felhasználó egyedi licenckulccsal fér hozzá a szolgáltatáshoz. A kulcsok egy MiniCRM rendszerhez vannak kötve.</p>
                 </div>
             </div>
             <div class="security-card reveal reveal-delay-4">
-                <div class="security-icon">&#127466;&#127482;</div>
+                <div class="security-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
                 <div>
                     <h3>EU szerveren fut</h3>
-                    <p>A szolgaltatas europai (nemetorszagi) szerveren uzemel, a GDPR eloirasoknak megfeleloen. Reszleteket az adatkezelesi szabalyzatban talal.</p>
+                    <p>A szolgáltatás európai (németországi) szerveren üzemel, a GDPR előírásoknak megfelelően. Részleteket az adatkezelési szabályzatban talál.</p>
                 </div>
             </div>
         </div>
@@ -1011,25 +1011,25 @@
 <section id="support">
     <div class="container">
         <div class="section-header section-header-center reveal">
-            <div class="section-label">Tamogatas</div>
-            <h2 class="section-title">Tamogatas a teljes uton</h2>
-            <p class="section-desc">Az elofizetesben nem csak a szoftvert kapja, hanem a teljes koru tamogatast is.</p>
+            <div class="section-label">Támogatás</div>
+            <h2 class="section-title">Támogatás a teljes úton</h2>
+            <p class="section-desc">Az előfizetésben nem csak a szoftvert kapja, hanem a teljes körű támogatást is.</p>
         </div>
         <div class="support-grid">
             <div class="support-card reveal reveal-delay-1">
-                <div class="support-icon">&#127909;</div>
-                <h3>Ingyenes bemutato</h3>
-                <p>A vasarlas elott ingyenesen bemutatjuk a rendszer mukodeset egy szemelyes konzultacion. Nem kell semmit sem telepitenie.</p>
+                <div class="support-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg></div>
+                <h3>Ingyenes bemutató</h3>
+                <p>A vásárlás előtt ingyenesen bemutatjuk a rendszer működését egy személyes konzultáción. Nem kell semmit sem telepítenie.</p>
             </div>
             <div class="support-card reveal reveal-delay-2">
-                <div class="support-icon">&#128736;</div>
-                <h3>Folyamatos uzemeltetes</h3>
-                <p>A rendszert folyamatosan monitorozzuk es karbantartjuk. Frissitesek es fejlesztesek automatikusan elerhetok.</p>
+                <div class="support-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
+                <h3>Folyamatos üzemeltetés</h3>
+                <p>A rendszert folyamatosan monitorozzuk és karbantartjuk. Frissítések és fejlesztések automatikusan elérhetők.</p>
             </div>
             <div class="support-card reveal reveal-delay-3">
-                <div class="support-icon">&#127384;</div>
-                <h3>Ugyfeltamogatas</h3>
-                <p>Hibajegy leadasi lehetoseg e-mailben. Igyekszunk 24 oran belul valaszolni minden megkeresestre.</p>
+                <div class="support-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0z"/></svg></div>
+                <h3>Ügyfélszolgálat</h3>
+                <p>Hibajegy leadási lehetőség e-mailben. Igyekszünk 24 órán belül válaszolni minden megkeresésre.</p>
             </div>
         </div>
     </div>
@@ -1039,37 +1039,37 @@
 <section id="references">
     <div class="container">
         <div class="section-header section-header-center reveal">
-            <div class="section-label">Referenciak</div>
-            <h2 class="section-title">Amit ugyfeleink mondanak</h2>
+            <div class="section-label">Referenciák</div>
+            <h2 class="section-title">Amit ügyfeleink mondanak</h2>
         </div>
         <div class="ref-grid">
             <div class="ref-card reveal reveal-delay-1">
-                <div class="ref-quote">"Korabban perceket toltottem azzal, hogy megkeressek egy-egy adatlapot a CRM-ben. Most egyszeruen belepek Claude-ba es megkerdem. Napi szinten sporolok vele idot."</div>
+                <div class="ref-quote">"Korábban perceket töltöttem azzal, hogy megkeressek egy-egy adatlapot a CRM-ben. Most egyszerűen belépek Claude-ba és megkérdem. Napi szinten spórolok vele időt."</div>
                 <div class="ref-author">
                     <div class="ref-avatar">JA</div>
                     <div>
-                        <div class="ref-name">Juhasz Attila</div>
-                        <div class="ref-role">Ugyvezeto</div>
+                        <div class="ref-name">Juhász Attila</div>
+                        <div class="ref-role">Ügyvezető</div>
                     </div>
                 </div>
             </div>
             <div class="ref-card reveal reveal-delay-2">
-                <div class="ref-quote">"A beallitas tenyleg 30 masodperc volt. A csapatbol tobben is hasznaljak mar, mindenki a sajat licencevel. Nagyon egyszeru."</div>
+                <div class="ref-quote">"A beállítás tényleg 30 másodperc volt. A csapatból többen is használják már, mindenki a saját licencével. Nagyon egyszerű."</div>
                 <div class="ref-author">
                     <div class="ref-avatar">VG</div>
                     <div>
-                        <div class="ref-name">Varga Gergo</div>
-                        <div class="ref-role">Ertekesitesi vezeto</div>
+                        <div class="ref-name">Varga Gergő</div>
+                        <div class="ref-role">Értékesítési vezető</div>
                     </div>
                 </div>
             </div>
             <div class="ref-card reveal reveal-delay-3">
-                <div class="ref-quote">"Vegre nem kell a CRM-ben kattingatni. Beirom Claude-nak, hogy mit csinaljon, es megvan. A munkam sokkal gyorsabb lett."</div>
+                <div class="ref-quote">"Végre nem kell a CRM-ben kattintgatni. Beírom Claude-nak, hogy mit csináljon, és megvan. A munkám sokkal gyorsabb lett."</div>
                 <div class="ref-author">
                     <div class="ref-avatar">KM</div>
                     <div>
-                        <div class="ref-name">Kiss Maria</div>
-                        <div class="ref-role">Projektvezeto</div>
+                        <div class="ref-name">Kiss Mária</div>
+                        <div class="ref-role">Projektvezető</div>
                     </div>
                 </div>
             </div>
@@ -1082,11 +1082,11 @@
     <div class="container">
         <div class="cta-box reveal">
             <div class="section-label">Kezdje el most</div>
-            <h2>Probaja ki a MiniCRM MCP-t ingyenesen</h2>
-            <p>14 napos ingyenes proba. Semmilyen elkotelezodes. Mi bemutatjuk a mukodest es segitunk a beallitasban.</p>
+            <h2>Próbálja ki a MiniCRM MCP-t ingyenesen</h2>
+            <p>14 napos ingyenes próba. Semmilyen elköteleződés. Mi bemutatjuk a működést és segítünk a beállításban.</p>
             <div class="cta-buttons">
-                <a href="#demo-form" class="btn-primary">Bemutato kerese</a>
-                <a href="/setup" class="btn-secondary">Mar van licencem &#8594;</a>
+                <a href="#demo-form" class="btn-primary">Bemutató kérése</a>
+                <a href="/setup" class="btn-secondary">Már van licencem &#8594;</a>
             </div>
         </div>
     </div>
@@ -1098,33 +1098,33 @@
         <div class="footer-grid">
             <div class="footer-brand">
                 <div class="nav-logo">Mini<span>CRM</span> MCP</div>
-                <p>AI-alapu CRM kezeles a Claude AI segitsegevel. A Nexly Digital fejlesztese.</p>
+                <p>AI-alapú CRM kezelés a Claude AI segítségével. A Nexly Digital fejlesztése.</p>
                 <a href="https://www.nexly.hu" target="_blank" class="footer-nexly">www.nexly.hu</a>
             </div>
             <div class="footer-col">
-                <h4>Termek</h4>
-                <a href="#features">Funkciok</a>
-                <a href="#how-it-works">Hogyan mukodik</a>
-                <a href="#demo">Elo pelda</a>
-                <a href="#security">Biztonsag</a>
+                <h4>Termék</h4>
+                <a href="#features">Funkciók</a>
+                <a href="#how-it-works">Hogyan működik</a>
+                <a href="#demo">Élő példa</a>
+                <a href="#security">Biztonság</a>
             </div>
             <div class="footer-col">
-                <h4>Tamogatas</h4>
-                <a href="#support">Ugyfeltamogatas</a>
-                <a href="#demo-form">Ingyenes bemutato</a>
-                <a href="/setup">Beallitasi utmutato</a>
+                <h4>Támogatás</h4>
+                <a href="#support">Ügyfélszolgálat</a>
+                <a href="#demo-form">Ingyenes bemutató</a>
+                <a href="/setup">Beállítási útmutató</a>
             </div>
             <div class="footer-col">
                 <h4>Kapcsolat</h4>
-                <a href="mailto:info@nexly.hu">info@nexly.hu</a>
+                <a href="mailto:info@nexly.digital">info@nexly.digital</a>
                 <a href="https://www.nexly.hu" target="_blank">www.nexly.hu</a>
             </div>
         </div>
         <div class="footer-bottom">
             <span>&copy; 2026 Nexly Digital (Ducsai Marcell e.v.). Minden jog fenntartva.</span>
             <div class="footer-legal">
-                <a href="/aszf">ASZF</a>
-                <a href="/adatkezeles">Adatkezelesi szabalyzat</a>
+                <a href="/aszf">ÁSZF</a>
+                <a href="/adatkezeles">Adatkezelési szabályzat</a>
             </div>
         </div>
     </div>
@@ -1155,7 +1155,7 @@
         const form = e.target;
         const btn = form.querySelector('.form-submit');
         btn.disabled = true;
-        btn.textContent = 'Kuldes...';
+        btn.textContent = 'Küldés...';
         try {
             const response = await fetch('/', {
                 method: 'POST',
@@ -1168,8 +1168,8 @@
             } else { throw new Error(); }
         } catch {
             btn.disabled = false;
-            btn.textContent = 'Bemutato kerese';
-            alert('Hiba tortent. Kerem probaja ujra, vagy irjon az info@nexly.hu cimre.');
+            btn.textContent = 'Bemutató kérése';
+            alert('Hiba történt. Kérem próbálja újra, vagy írjon az info@nexly.digital címre.');
         }
     });
 </script>
