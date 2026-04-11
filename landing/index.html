@@ -370,6 +370,87 @@
             line-height: 1.6;
         }
 
+        /* === TOOLS === */
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+        .tool-group {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+            transition: border-color 0.3s;
+        }
+        .tool-group:hover { border-color: var(--border-light); }
+        .tool-group-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 20px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .tool-group-icon {
+            width: 36px; height: 36px;
+            background: var(--accent-subtle);
+            border: 1px solid #4f7df520;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+            flex-shrink: 0;
+        }
+        .tool-group-info { flex: 1; min-width: 0; }
+        .tool-group-info h3 {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+        .tool-group-info span {
+            font-size: 12px;
+            color: var(--dim);
+        }
+        .tool-group-arrow {
+            color: var(--dim);
+            transition: transform 0.3s;
+            flex-shrink: 0;
+        }
+        .tool-group.open .tool-group-arrow { transform: rotate(180deg); }
+        .tool-group-body {
+            display: none;
+            padding: 0 20px 20px;
+        }
+        .tool-group.open .tool-group-body { display: block; }
+        .tool-item {
+            padding: 8px 0;
+            border-top: 1px solid var(--border);
+        }
+        .tool-item:first-child { border-top: none; }
+        .tool-item-name {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--accent-bright);
+            margin-bottom: 2px;
+        }
+        .tool-item-desc {
+            font-size: 13px;
+            color: var(--text2);
+            line-height: 1.5;
+        }
+        .tools-total {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 14px;
+            color: var(--dim);
+        }
+        .tools-total strong {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
         /* === HOW IT WORKS === */
         .steps-grid {
             display: grid;
@@ -739,6 +820,7 @@
             .hero { padding: 120px 0 60px; }
             .hero h1 { font-size: 34px; }
             .features-grid { grid-template-columns: 1fr 1fr; }
+            .tools-grid { grid-template-columns: 1fr 1fr; }
             .steps-grid { grid-template-columns: 1fr; gap: 32px; }
             .steps-grid::before { display: none; }
             .security-grid { grid-template-columns: 1fr; }
@@ -750,6 +832,7 @@
             .hero h1 { font-size: 28px; }
             .hero-stats { flex-direction: column; gap: 16px; }
             .features-grid { grid-template-columns: 1fr; }
+            .tools-grid { grid-template-columns: 1fr; }
             .nav-links { display: none; }
             .mobile-menu-btn { display: block; }
             .demo-form-card { padding: 24px; }
@@ -768,6 +851,7 @@
         <div class="nav-logo">Mini<span>CRM</span> MCP</div>
         <div class="nav-links">
             <a href="#features">Funkciók</a>
+            <a href="#tools">Eszközök</a>
             <a href="#how-it-works">Hogyan működik</a>
             <a href="#security">Biztonság</a>
             <a href="#support">Támogatás</a>
@@ -779,6 +863,7 @@
 </nav>
 <div class="mobile-menu" id="mobileMenu">
     <a href="#features" onclick="closeMenu()">Funkciók</a>
+    <a href="#tools" onclick="closeMenu()">Eszközök</a>
     <a href="#how-it-works" onclick="closeMenu()">Hogyan működik</a>
     <a href="#security" onclick="closeMenu()">Biztonság</a>
     <a href="#support" onclick="closeMenu()">Támogatás</a>
@@ -888,6 +973,192 @@
                 <p>Nem kell várakoznia. A Claude AI másodpercek alatt válaszol a CRM-mel kapcsolatos kérdéseire.</p>
             </div>
         </div>
+    </div>
+</section>
+
+<!-- TOOLS -->
+<section id="tools">
+    <div class="container">
+        <div class="section-header section-header-center reveal">
+            <div class="section-label">Eszközök</div>
+            <h2 class="section-title">54 eszköz, teljes CRM kontroll</h2>
+            <p class="section-desc">Kattintson egy kategóriára a részletes eszközlista megtekintéséhez.</p>
+        </div>
+        <div class="tools-grid">
+
+            <div class="tool-group reveal reveal-delay-1">
+                <div class="tool-group-header" onclick="this.parentElement.classList.toggle('open')">
+                    <div class="tool-group-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+                    <div class="tool-group-info">
+                        <h3>Ügyfelek és kontaktok</h3>
+                        <span>6 eszköz</span>
+                    </div>
+                    <div class="tool-group-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div>
+                </div>
+                <div class="tool-group-body">
+                    <div class="tool-item"><div class="tool-item-name">search_contacts</div><div class="tool-item-desc">Kontaktok keresése név, e-mail, telefon vagy egyedi mező alapján</div></div>
+                    <div class="tool-item"><div class="tool-item-name">get_contact</div><div class="tool-item-desc">Kontakt részletes adatainak lekérdezése</div></div>
+                    <div class="tool-item"><div class="tool-item-name">create_contact</div><div class="tool-item-desc">Új személy vagy cég létrehozása</div></div>
+                    <div class="tool-item"><div class="tool-item-name">update_contact</div><div class="tool-item-desc">Kontakt adatainak frissítése</div></div>
+                    <div class="tool-item"><div class="tool-item-name">delete_contact</div><div class="tool-item-desc">Személy kontakt törlése</div></div>
+                    <div class="tool-item"><div class="tool-item-name">list_company_contacts</div><div class="tool-item-desc">Céghez tartozó kontakt személyek listázása</div></div>
+                </div>
+            </div>
+
+            <div class="tool-group reveal reveal-delay-2">
+                <div class="tool-group-header" onclick="this.parentElement.classList.toggle('open')">
+                    <div class="tool-group-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+                    <div class="tool-group-info">
+                        <h3>Projektek és adatlapok</h3>
+                        <span>7 eszköz</span>
+                    </div>
+                    <div class="tool-group-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div>
+                </div>
+                <div class="tool-group-body">
+                    <div class="tool-item"><div class="tool-item-name">search_projects</div><div class="tool-item-desc">Projektek keresése és szűrése modul, státusz, felhasználó alapján</div></div>
+                    <div class="tool-item"><div class="tool-item-name">get_project</div><div class="tool-item-desc">Adatlap részletes adatainak lekérdezése</div></div>
+                    <div class="tool-item"><div class="tool-item-name">create_project</div><div class="tool-item-desc">Új projekt/adatlap létrehozása</div></div>
+                    <div class="tool-item"><div class="tool-item-name">update_project</div><div class="tool-item-desc">Adatlap mezőinek frissítése, státuszváltás</div></div>
+                    <div class="tool-item"><div class="tool-item-name">delete_project</div><div class="tool-item-desc">Adatlap törlése (kukába helyezés)</div></div>
+                    <div class="tool-item"><div class="tool-item-name">restore_project</div><div class="tool-item-desc">Törölt adatlap visszaállítása</div></div>
+                    <div class="tool-item"><div class="tool-item-name">get_project_history</div><div class="tool-item-desc">Státuszváltozási előzmények lekérdezése</div></div>
+                </div>
+            </div>
+
+            <div class="tool-group reveal reveal-delay-3">
+                <div class="tool-group-header" onclick="this.parentElement.classList.toggle('open')">
+                    <div class="tool-group-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+                    <div class="tool-group-info">
+                        <h3>Feladatok és teendők</h3>
+                        <span>5 eszköz</span>
+                    </div>
+                    <div class="tool-group-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div>
+                </div>
+                <div class="tool-group-body">
+                    <div class="tool-item"><div class="tool-item-name">list_todos</div><div class="tool-item-desc">Teendők listázása projekthez, szűrhető státusz alapján</div></div>
+                    <div class="tool-item"><div class="tool-item-name">get_todo</div><div class="tool-item-desc">Teendő részletes adatainak lekérdezése</div></div>
+                    <div class="tool-item"><div class="tool-item-name">create_todo</div><div class="tool-item-desc">Új feladat létrehozása projekthez</div></div>
+                    <div class="tool-item"><div class="tool-item-name">update_todo</div><div class="tool-item-desc">Nyitott teendő frissítése</div></div>
+                    <div class="tool-item"><div class="tool-item-name">close_todo</div><div class="tool-item-desc">Teendő lezárása</div></div>
+                </div>
+            </div>
+
+            <div class="tool-group reveal reveal-delay-1">
+                <div class="tool-group-header" onclick="this.parentElement.classList.toggle('open')">
+                    <div class="tool-group-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
+                    <div class="tool-group-info">
+                        <h3>Modulok és sémák</h3>
+                        <span>4 eszköz</span>
+                    </div>
+                    <div class="tool-group-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div>
+                </div>
+                <div class="tool-group-body">
+                    <div class="tool-item"><div class="tool-item-name">list_categories</div><div class="tool-item-desc">Modulok (kategóriák) listázása az összes elérhető modullal</div></div>
+                    <div class="tool-item"><div class="tool-item-name">get_person_schema</div><div class="tool-item-desc">Személy mezők, típusok és legördülő opciók</div></div>
+                    <div class="tool-item"><div class="tool-item-name">get_business_schema</div><div class="tool-item-desc">Cég mezők, típusok és legördülő opciók</div></div>
+                    <div class="tool-item"><div class="tool-item-name">get_project_schema</div><div class="tool-item-desc">Projekt mezők, státuszok és legördülő opciók modulonként</div></div>
+                </div>
+            </div>
+
+            <div class="tool-group reveal reveal-delay-2">
+                <div class="tool-group-header" onclick="this.parentElement.classList.toggle('open')">
+                    <div class="tool-group-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>
+                    <div class="tool-group-info">
+                        <h3>Megrendelések</h3>
+                        <span>8 eszköz</span>
+                    </div>
+                    <div class="tool-group-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div>
+                </div>
+                <div class="tool-group-body">
+                    <div class="tool-item"><div class="tool-item-name">create_order</div><div class="tool-item-desc">Új megrendelés létrehozása</div></div>
+                    <div class="tool-item"><div class="tool-item-name">get_order</div><div class="tool-item-desc">Megrendelés részletes adatai</div></div>
+                    <div class="tool-item"><div class="tool-item-name">list_orders</div><div class="tool-item-desc">Megrendelések listázása</div></div>
+                    <div class="tool-item"><div class="tool-item-name">update_order</div><div class="tool-item-desc">Piszkozat megrendelés frissítése</div></div>
+                    <div class="tool-item"><div class="tool-item-name">finalize_order</div><div class="tool-item-desc">Megrendelés véglegesítése</div></div>
+                    <div class="tool-item"><div class="tool-item-name">complete_order</div><div class="tool-item-desc">Megrendelés befejezése</div></div>
+                    <div class="tool-item"><div class="tool-item-name">pay_order</div><div class="tool-item-desc">Megrendelés fizetettre állítása</div></div>
+                    <div class="tool-item"><div class="tool-item-name">storno_order</div><div class="tool-item-desc">Megrendelés sztornózása</div></div>
+                </div>
+            </div>
+
+            <div class="tool-group reveal reveal-delay-3">
+                <div class="tool-group-header" onclick="this.parentElement.classList.toggle('open')">
+                    <div class="tool-group-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+                    <div class="tool-group-info">
+                        <h3>Számlák</h3>
+                        <span>5 eszköz</span>
+                    </div>
+                    <div class="tool-group-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div>
+                </div>
+                <div class="tool-group-body">
+                    <div class="tool-item"><div class="tool-item-name">create_invoice</div><div class="tool-item-desc">Számla vagy díjbekérő létrehozása és kiállítása</div></div>
+                    <div class="tool-item"><div class="tool-item-name">get_invoice</div><div class="tool-item-desc">Számla részletes adatai</div></div>
+                    <div class="tool-item"><div class="tool-item-name">list_invoices</div><div class="tool-item-desc">Számlák listázása</div></div>
+                    <div class="tool-item"><div class="tool-item-name">pay_invoice</div><div class="tool-item-desc">Számla fizetettre állítása</div></div>
+                    <div class="tool-item"><div class="tool-item-name">storno_invoice</div><div class="tool-item-desc">Számla sztornózása</div></div>
+                </div>
+            </div>
+
+            <div class="tool-group reveal reveal-delay-1">
+                <div class="tool-group-header" onclick="this.parentElement.classList.toggle('open')">
+                    <div class="tool-group-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+                    <div class="tool-group-info">
+                        <h3>Ajánlatok</h3>
+                        <span>4 eszköz</span>
+                    </div>
+                    <div class="tool-group-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div>
+                </div>
+                <div class="tool-group-body">
+                    <div class="tool-item"><div class="tool-item-name">create_offer</div><div class="tool-item-desc">Új ajánlat létrehozása és kiállítása</div></div>
+                    <div class="tool-item"><div class="tool-item-name">get_offer</div><div class="tool-item-desc">Ajánlat részletes adatai</div></div>
+                    <div class="tool-item"><div class="tool-item-name">list_offers</div><div class="tool-item-desc">Ajánlatok listázása</div></div>
+                    <div class="tool-item"><div class="tool-item-name">update_offer</div><div class="tool-item-desc">Ajánlat frissítése, státuszváltás</div></div>
+                </div>
+            </div>
+
+            <div class="tool-group reveal reveal-delay-2">
+                <div class="tool-group-header" onclick="this.parentElement.classList.toggle('open')">
+                    <div class="tool-group-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></div>
+                    <div class="tool-group-info">
+                        <h3>Termékek</h3>
+                        <span>3 eszköz</span>
+                    </div>
+                    <div class="tool-group-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div>
+                </div>
+                <div class="tool-group-body">
+                    <div class="tool-item"><div class="tool-item-name">create_product</div><div class="tool-item-desc">Új termék létrehozása a készletben</div></div>
+                    <div class="tool-item"><div class="tool-item-name">update_product</div><div class="tool-item-desc">Termék adatainak frissítése</div></div>
+                    <div class="tool-item"><div class="tool-item-name">delete_product</div><div class="tool-item-desc">Termék törlése a készletből</div></div>
+                </div>
+            </div>
+
+            <div class="tool-group reveal reveal-delay-3">
+                <div class="tool-group-header" onclick="this.parentElement.classList.toggle('open')">
+                    <div class="tool-group-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+                    <div class="tool-group-info">
+                        <h3>E-mailek, sablonok, egyéb</h3>
+                        <span>12 eszköz</span>
+                    </div>
+                    <div class="tool-group-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div>
+                </div>
+                <div class="tool-group-body">
+                    <div class="tool-item"><div class="tool-item-name">list_emails</div><div class="tool-item-desc">Projekthez tartozó e-mailek listázása</div></div>
+                    <div class="tool-item"><div class="tool-item-name">list_templates</div><div class="tool-item-desc">Sablonok listázása modulhoz (Email, Todo, SMS, File)</div></div>
+                    <div class="tool-item"><div class="tool-item-name">get_template</div><div class="tool-item-desc">Sablon részletes adatai: név, tárgy, tartalom</div></div>
+                    <div class="tool-item"><div class="tool-item-name">list_addresses</div><div class="tool-item-desc">Kontakthoz tartozó címek listázása</div></div>
+                    <div class="tool-item"><div class="tool-item-name">get_address</div><div class="tool-item-desc">Cím részletes adatai</div></div>
+                    <div class="tool-item"><div class="tool-item-name">create_address</div><div class="tool-item-desc">Új cím létrehozása kontakthoz</div></div>
+                    <div class="tool-item"><div class="tool-item-name">update_address</div><div class="tool-item-desc">Cím adatainak frissítése</div></div>
+                    <div class="tool-item"><div class="tool-item-name">create_connection</div><div class="tool-item-desc">Kapcsolat létrehozása két projekt között</div></div>
+                    <div class="tool-item"><div class="tool-item-name">list_connections</div><div class="tool-item-desc">Projekthez tartozó kapcsolatok listázása</div></div>
+                    <div class="tool-item"><div class="tool-item-name">update_connection</div><div class="tool-item-desc">Kapcsolat leírásának frissítése</div></div>
+                    <div class="tool-item"><div class="tool-item-name">delete_connection</div><div class="tool-item-desc">Kapcsolat törlése két projekt között</div></div>
+                    <div class="tool-item"><div class="tool-item-name">submit_call_log</div><div class="tool-item-desc">Hívásnapló bejegyzés küldése (VOIP integráció)</div></div>
+                </div>
+            </div>
+
+        </div>
+        <p class="tools-total reveal">Összesen <strong>54 eszköz</strong> a teljes MiniCRM API lefedettséggel</p>
     </div>
 </section>
 
