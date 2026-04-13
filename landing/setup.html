@@ -3,118 +3,529 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MiniCRM MCP - Claude AI Integráció</title>
+    <title>Beállítási útmutató - MiniCRM MCP</title>
+    <meta name="description" content="Lépésről lépésre útmutató a MiniCRM MCP Claude AI integráció beállításához.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #0a0c10;
-            --card: #12151c;
+            --bg: #0a0e17;
+            --bg2: #0d1220;
+            --card: #111827;
+            --card-hover: #161d2e;
             --border: #1e2330;
-            --text: #e8eaf0;
-            --text2: #8890a4;
-            --dim: #555d74;
+            --border-light: #2a3040;
+            --text: #e2e8f0;
+            --text2: #8892a8;
+            --dim: #5a6478;
             --accent: #4f7df5;
             --accent-bright: #6b93ff;
-            --accent-glow: #4f7df540;
+            --accent-glow: #4f7df530;
+            --accent-subtle: #4f7df510;
             --green: #3dd68c;
+            --amber: #e8a040;
+            --amber-dark: #c8702a;
+            --red: #f06060;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
         body {
-            font-family: 'DM Sans', sans-serif;
+            font-family: 'Manrope', sans-serif;
             background: var(--bg);
             color: var(--text);
-            min-height: 100vh;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        h1, h2, h3, h4 {
+            font-family: 'Sora', sans-serif;
+            line-height: 1.2;
+            letter-spacing: -0.02em;
+        }
+        a { color: var(--accent); text-decoration: none; }
+
+        /* === NAV === */
+        nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            background: #0a0e17e6;
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+        .nav-inner {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 24px;
             display: flex;
             align-items: center;
-            justify-content: center;
-            padding: 24px;
+            justify-content: space-between;
+            height: 64px;
         }
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: radial-gradient(ellipse 60% 40% at 50% 0%, #4f7df510 0%, transparent 100%);
-            pointer-events: none;
-        }
-        .wrap {
-            max-width: 440px;
-            width: 100%;
-            position: relative;
-            z-index: 1;
-            animation: fadeUp 0.6s ease;
-        }
-        .logo {
-            text-align: center;
-            font-size: 28px;
+        .nav-logo {
+            font-family: 'Sora', sans-serif;
+            font-size: 20px;
             font-weight: 700;
+            color: var(--text);
             letter-spacing: -0.03em;
-            margin-bottom: 8px;
+            text-decoration: none;
         }
-        .logo span { color: var(--accent); }
-        .sub {
-            text-align: center;
-            font-size: 15px;
+        .nav-logo span { color: var(--accent); }
+        .nav-back {
+            font-size: 14px;
+            font-weight: 500;
             color: var(--text2);
-            margin-bottom: 36px;
+            transition: color 0.2s;
         }
-        .card {
+        .nav-back:hover { color: var(--text); }
+
+        /* === LAYOUT === */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* === HEADER === */
+        .guide-header {
+            padding: 100px 0 40px;
+            text-align: center;
+        }
+        .guide-header h1 {
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, var(--text) 0%, var(--text2) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .guide-header p {
+            font-size: 17px;
+            color: var(--text2);
+            max-width: 520px;
+            margin: 0 auto;
+        }
+        .guide-time {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 16px;
+            padding: 6px 14px;
+            background: var(--accent-subtle);
+            border: 1px solid #4f7df520;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--accent-bright);
+        }
+
+        /* === PREREQ === */
+        .prereq-section {
+            padding: 0 0 48px;
+        }
+        .prereq-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--amber);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .prereq-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+        .prereq-card {
             background: var(--card);
             border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 32px;
-            margin-bottom: 16px;
+            border-radius: 12px;
+            padding: 20px;
         }
-        .step-num {
+        .prereq-card h3 {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .prereq-card p {
+            font-size: 13px;
+            color: var(--text2);
+            line-height: 1.6;
+        }
+        .prereq-card a {
+            font-weight: 600;
+        }
+        .prereq-icon {
+            width: 28px; height: 28px;
+            border-radius: 7px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 24px;
-            height: 24px;
-            border-radius: 7px;
-            background: var(--bg);
-            border: 1px solid var(--border);
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 12px;
-            font-weight: 500;
-            color: var(--accent);
-            margin-right: 10px;
+            font-size: 14px;
             flex-shrink: 0;
         }
-        .step {
+        .prereq-icon.claude { background: #e8a04018; color: var(--amber); }
+        .prereq-icon.crm { background: var(--accent-subtle); color: var(--accent); }
+        .prereq-icon.api { background: #3dd68c18; color: var(--green); }
+        .prereq-icon.lic { background: #f0606018; color: var(--red); }
+        .prereq-warn {
+            background: #e8a04008;
+            border: 1px solid #e8a04025;
+            border-radius: 10px;
+            padding: 14px 18px;
+            margin-top: 14px;
+            font-size: 13px;
+            color: var(--amber);
+            line-height: 1.6;
             display: flex;
+            gap: 10px;
             align-items: flex-start;
-            margin-bottom: 24px;
         }
-        .step:last-child { margin-bottom: 0; }
-        .step-content {
-            min-width: 0;
+        .prereq-warn svg { flex-shrink: 0; margin-top: 1px; }
+
+        /* === STEPS === */
+        .steps-section {
+            padding: 0 0 60px;
         }
-        .step-content h3 {
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 4px;
+        .step-block {
+            position: relative;
+            padding-left: 56px;
+            margin-bottom: 48px;
         }
-        .step-content p {
+        .step-block:last-child { margin-bottom: 0; }
+        .step-block::before {
+            content: '';
+            position: absolute;
+            left: 23px;
+            top: 48px;
+            bottom: -48px;
+            width: 2px;
+            background: var(--border);
+        }
+        .step-block:last-child::before { display: none; }
+        .step-num {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--card);
+            border: 2px solid var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Sora', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--accent);
+            z-index: 1;
+        }
+        .step-block.done .step-num {
+            background: var(--green);
+            border-color: var(--green);
+            color: #0a0e17;
+        }
+        .step-content h2 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            padding-top: 8px;
+        }
+        .step-content > p {
+            font-size: 15px;
+            color: var(--text2);
+            line-height: 1.7;
+            margin-bottom: 16px;
+        }
+
+        /* === MOCKUPS === */
+        .mockup {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 16px 0;
+        }
+        .mockup-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            background: #0d1118;
+            border-bottom: 1px solid var(--border);
+        }
+        .mockup-dot { width: 10px; height: 10px; border-radius: 50%; }
+        .mockup-dot:nth-child(1) { background: #f06060; }
+        .mockup-dot:nth-child(2) { background: #e8a040; }
+        .mockup-dot:nth-child(3) { background: #3dd68c; }
+        .mockup-url {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--dim);
+            margin-left: 8px;
+        }
+        .mockup-body { padding: 24px; }
+
+        /* Connector mockup */
+        .mock-settings {
+            display: flex;
+            gap: 32px;
+        }
+        .mock-sidebar {
+            width: 140px;
+            flex-shrink: 0;
+        }
+        .mock-sidebar-item {
+            padding: 8px 12px;
             font-size: 13px;
             color: var(--dim);
+            border-radius: 6px;
+            margin-bottom: 2px;
+        }
+        .mock-sidebar-item.active {
+            background: var(--accent-subtle);
+            color: var(--accent);
+            font-weight: 600;
+        }
+        .mock-main { flex: 1; min-width: 0; }
+        .mock-main h3 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .mock-main .subtitle {
+            font-size: 12px;
+            color: var(--dim);
+            margin-bottom: 16px;
+        }
+        .mock-connector-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-top: 1px solid var(--border);
+        }
+        .mock-connector-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .mock-connector-icon {
+            width: 32px; height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .mock-connector-name {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .mock-connector-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            padding: 2px 6px;
+            background: var(--accent-subtle);
+            color: var(--accent);
+            border-radius: 4px;
+            margin-left: 6px;
+        }
+        .mock-connector-url {
+            font-size: 11px;
+            color: var(--dim);
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .mock-btn {
+            padding: 6px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text2);
+        }
+        .mock-btn.primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+        }
+        .mock-btn.green {
+            border-color: var(--green);
+            color: var(--green);
+        }
+
+        /* Add connector modal mockup */
+        .mock-modal {
+            background: #1a1f2e;
+            border: 1px solid var(--border-light);
+            border-radius: 14px;
+            padding: 28px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        .mock-modal h3 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            text-align: center;
+        }
+        .mock-modal .subtitle {
+            font-size: 13px;
+            color: var(--dim);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .mock-input-group {
+            margin-bottom: 14px;
+        }
+        .mock-input-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text2);
+            margin-bottom: 6px;
+        }
+        .mock-input {
+            width: 100%;
+            padding: 10px 14px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+        }
+        .mock-input.highlight {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+        .mock-input-hint {
+            font-size: 11px;
+            color: var(--dim);
+            margin-top: 4px;
+        }
+        .mock-modal-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Sora', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        /* Login form mockup */
+        .mock-login {
+            max-width: 380px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .mock-login h3 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .mock-login h3 span { color: var(--accent); }
+        .mock-login .subtitle {
+            font-size: 13px;
+            color: var(--dim);
+            margin-bottom: 24px;
+        }
+        .mock-login .mock-input-group { text-align: left; }
+        .mock-login-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Sora', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            margin-top: 8px;
+        }
+
+        /* Chat mockup */
+        .mock-chat {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        .mock-chat-greeting {
+            text-align: center;
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 20px;
+        }
+        .mock-chat-input {
+            background: #1a1f2e;
+            border: 1px solid var(--border-light);
+            border-radius: 14px;
+            padding: 16px 18px;
+        }
+        .mock-chat-placeholder {
+            font-size: 15px;
+            color: var(--dim);
+            margin-bottom: 12px;
+        }
+        .mock-chat-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .mock-chat-model {
+            font-size: 12px;
+            color: var(--dim);
+        }
+        .mock-chat-example {
+            margin-top: 16px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 16px;
+        }
+        .mock-chat-example p {
+            font-size: 14px;
+            color: var(--text);
             line-height: 1.5;
         }
+        .mock-chat-example .label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 6px;
+        }
+
+        /* === COPY URL BOX === */
         .url-box {
             display: flex;
             align-items: center;
             background: var(--bg);
             border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 10px 12px;
-            margin-top: 10px;
-            gap: 10px;
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin: 12px 0;
+            gap: 12px;
         }
         .url-box code {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 12px;
-            color: var(--text2);
+            font-size: 13px;
+            color: var(--accent-bright);
             flex: 1;
             min-width: 0;
             overflow: hidden;
@@ -122,134 +533,619 @@
             white-space: nowrap;
         }
         .copy-btn {
-            padding: 6px 12px;
-            background: transparent;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            color: var(--text2);
-            font-family: 'DM Sans', sans-serif;
-            font-size: 12px;
+            padding: 8px 16px;
+            background: var(--accent);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-family: 'Manrope', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
             white-space: nowrap;
         }
-        .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
-        .copy-btn.copied { border-color: var(--green); color: var(--green); }
-        .main-btn {
-            display: block;
-            width: 100%;
-            padding: 14px;
+        .copy-btn:hover { background: var(--accent-bright); }
+        .copy-btn.copied { background: var(--green); }
+
+        /* === ANNOTATION === */
+        .annotation {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            background: var(--accent-subtle);
+            border: 1px solid #4f7df520;
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin: 12px 0;
+            font-size: 13px;
+            color: var(--accent-bright);
+            line-height: 1.6;
+        }
+        .annotation svg { flex-shrink: 0; margin-top: 2px; }
+        .annotation.warn {
+            background: #e8a04008;
+            border-color: #e8a04025;
+            color: var(--amber);
+        }
+        .annotation.success {
+            background: #3dd68c08;
+            border-color: #3dd68c25;
+            color: var(--green);
+        }
+
+        /* === HIGHLIGHT ARROW === */
+        .highlight-ring {
+            position: relative;
+        }
+        .highlight-ring::after {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border: 2px solid var(--accent);
+            border-radius: 10px;
+            animation: pulse-ring 2s infinite;
+            pointer-events: none;
+        }
+        @keyframes pulse-ring {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* === API KEY FINDER === */
+        .finder-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 12px 0;
+        }
+        .finder-card h4 {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .finder-path {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .finder-crumb {
+            padding: 6px 12px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text);
+        }
+        .finder-arrow {
+            color: var(--dim);
+            font-size: 14px;
+        }
+        .finder-crumb.active {
+            background: var(--accent-subtle);
+            border-color: var(--accent);
+            color: var(--accent-bright);
+        }
+
+        /* === PRICING NOTE === */
+        .pricing-mock {
+            background: #111827;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            max-width: 420px;
+        }
+        .pricing-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: var(--accent-subtle);
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .pricing-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+            color: var(--text2);
+        }
+        .pricing-row:last-child { border-bottom: none; }
+        .pricing-row.highlight {
+            background: #3dd68c08;
+            color: var(--green);
+            font-weight: 600;
+        }
+        .pricing-row .price {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+        }
+
+        /* === CTA === */
+        .cta-section {
+            padding: 48px 0 80px;
+            text-align: center;
+        }
+        .cta-box {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 40px;
+        }
+        .cta-box h2 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .cta-box p {
+            font-size: 15px;
+            color: var(--text2);
+            margin-bottom: 24px;
+        }
+        .cta-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .btn-primary {
+            padding: 14px 32px;
             background: var(--accent);
             color: #fff;
             border: none;
             border-radius: 10px;
-            font-family: 'DM Sans', sans-serif;
+            font-family: 'Sora', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+        .btn-primary:hover {
+            background: var(--accent-bright);
+            transform: translateY(-1px);
+        }
+        .btn-secondary {
+            padding: 14px 32px;
+            background: transparent;
+            color: var(--text2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-family: 'Sora', sans-serif;
             font-size: 15px;
             font-weight: 600;
             cursor: pointer;
             text-decoration: none;
-            text-align: center;
             transition: all 0.2s;
-            box-shadow: 0 0 20px var(--accent-glow);
         }
-        .main-btn:hover {
-            background: var(--accent-bright);
-            transform: translateY(-1px);
-            box-shadow: 0 0 30px var(--accent-glow);
+        .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+        /* === FAQ === */
+        .faq-section {
+            padding: 0 0 48px;
         }
-        .footer {
-            text-align: center;
-            margin-top: 24px;
+        .faq-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 20px;
         }
-        .footer a {
-            display: inline-block;
-            padding: 10px 24px;
-            background: linear-gradient(135deg, #c8702a, #e8a040, #d4883a);
-            color: #0a0c10;
-            font-size: 13px;
+        .faq-item {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+        .faq-q {
+            padding: 16px 20px;
+            font-size: 15px;
             font-weight: 600;
-            text-decoration: none;
-            border-radius: 8px;
-            transition: all 0.2s;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+            transition: color 0.2s;
         }
-        .footer a:hover { background: linear-gradient(135deg, #d47e34, #f0b050, #dc9444); transform: translateY(-1px); }
-        @media (max-width: 480px) {
-            .card { padding: 20px; }
-            .url-box {
-                flex-wrap: wrap;
-            }
-            .url-box code {
-                flex-basis: 100%;
-                font-size: 11px;
-            }
-            .copy-btn {
-                width: 100%;
-                text-align: center;
-            }
+        .faq-q:hover { color: var(--accent); }
+        .faq-q svg {
+            transition: transform 0.3s;
+            flex-shrink: 0;
+            color: var(--dim);
         }
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(16px); }
-            to { opacity: 1; transform: translateY(0); }
+        .faq-item.open .faq-q svg { transform: rotate(180deg); }
+        .faq-a {
+            display: none;
+            padding: 0 20px 16px;
+            font-size: 14px;
+            color: var(--text2);
+            line-height: 1.7;
+        }
+        .faq-item.open .faq-a { display: block; }
+        .faq-a code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            background: var(--bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: var(--accent-bright);
+        }
+
+        /* === FOOTER === */
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 24px 0;
+            text-align: center;
+        }
+        footer p {
+            font-size: 13px;
+            color: var(--dim);
+        }
+        footer a {
+            color: var(--text2);
+            margin: 0 10px;
+            font-size: 13px;
+        }
+        footer a:hover { color: var(--accent); }
+
+        /* === RESPONSIVE === */
+        @media (max-width: 640px) {
+            .guide-header h1 { font-size: 28px; }
+            .prereq-grid { grid-template-columns: 1fr; }
+            .mock-settings { flex-direction: column; }
+            .mock-sidebar { width: 100%; display: flex; gap: 4px; flex-wrap: wrap; }
+            .step-block { padding-left: 44px; }
+            .step-num { width: 36px; height: 36px; font-size: 14px; }
+            .step-block::before { left: 17px; }
+            .step-content h2 { font-size: 18px; }
+            .url-box { flex-direction: column; }
+            .url-box code { width: 100%; text-align: center; }
+            .copy-btn { width: 100%; text-align: center; }
+            .cta-box { padding: 28px 20px; }
         }
     </style>
 </head>
 <body>
-    <div class="wrap">
-        <div class="logo">Mini<span>CRM</span> MCP</div>
-        <div class="sub">Kezelje MiniCRM rendszerét a Claude AI-ból</div>
 
-        <div class="card">
-            <div class="step">
-                <div class="step-num">1</div>
-                <div class="step-content">
-                    <h3>Szerver URL másolása</h3>
-                    <p>Kattintson a Másolás gombra:</p>
-                    <div class="url-box">
-                        <code id="mcpUrl">https://minicrmmcp.netlify.app/mcp</code>
-                        <button class="copy-btn" id="copyBtn" onclick="copyUrl()">Másolás</button>
-                    </div>
-                </div>
-            </div>
+<!-- NAV -->
+<nav>
+    <div class="nav-inner">
+        <a href="/" class="nav-logo">Mini<span>CRM</span> MCP</a>
+        <a href="/" class="nav-back">&larr; Vissza a főoldalra</a>
+    </div>
+</nav>
 
-            <div class="step">
-                <div class="step-num">2</div>
-                <div class="step-content">
-                    <h3>Connector hozzáadása a Claude-ban</h3>
-                    <p>Kattintson az alábbi gombra, illessze be a másolt URL-t, majd adja meg a nevét (pl. "MiniCRM").</p>
-                </div>
-            </div>
-
-            <div class="step">
-                <div class="step-num">3</div>
-                <div class="step-content">
-                    <h3>Bejelentkezés</h3>
-                    <p>Adja meg a licenckulcsát, MiniCRM System ID-ját és API kulcsát a megjelenő oldalon.</p>
-                </div>
-            </div>
-        </div>
-
-        <a href="https://claude.ai/settings/connectors?modal=add-custom-connector" target="_blank" class="main-btn">
-            Megnyitás a Claude-ban
-        </a>
-
-        <div class="footer">
-            <a href="https://www.nexly.hu" target="_blank">www.nexly.hu</a>
+<!-- HEADER -->
+<div class="guide-header">
+    <div class="container">
+        <h1>Beállítási útmutató</h1>
+        <p>Kösd össze a MiniCRM rendszeredet a Claude AI-val 5 egyszerű lépésben.</p>
+        <div class="guide-time">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Kb. 2 perc
         </div>
     </div>
+</div>
 
-    <script>
-        function copyUrl() {
-            const url = document.getElementById('mcpUrl').textContent;
-            navigator.clipboard.writeText(url).then(() => {
-                const btn = document.getElementById('copyBtn');
-                btn.textContent = 'Másolva!';
-                btn.classList.add('copied');
-                setTimeout(() => {
-                    btn.textContent = 'Másolás';
-                    btn.classList.remove('copied');
-                }, 2000);
-            });
-        }
-    </script>
+<!-- PREREQUISITES -->
+<div class="prereq-section">
+    <div class="container">
+        <div class="prereq-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4m0 4h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg>
+            Előfeltételek - mielőtt elkezded
+        </div>
+        <div class="prereq-grid">
+            <div class="prereq-card">
+                <h3>
+                    <div class="prereq-icon claude">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    </div>
+                    Claude AI fiók
+                </h3>
+                <p>Regisztrálj a <a href="https://claude.ai/" target="_blank">claude.ai</a> oldalon, ha még nincs fiókod. Pro vagy Team előfizetés ajánlott.</p>
+            </div>
+            <div class="prereq-card">
+                <h3>
+                    <div class="prereq-icon api">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+                    </div>
+                    REST API modul
+                </h3>
+                <p>A MiniCRM-ben aktív REST API + XML szinkronizáció modul szükséges. Nélküle nem férsz hozzá az API kulcshoz.</p>
+            </div>
+            <div class="prereq-card">
+                <h3>
+                    <div class="prereq-icon crm">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+                    </div>
+                    MiniCRM hozzáférés
+                </h3>
+                <p>Szükséged lesz a System ID-dra (címsorból) és az API kulcsodra (Beállítások menüből).</p>
+            </div>
+            <div class="prereq-card">
+                <h3>
+                    <div class="prereq-icon lic">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    </div>
+                    MiniCRM MCP licenckulcs
+                </h3>
+                <p>A <a href="https://www.nexly.hu" target="_blank">nexly.hu</a>-ról igényelhető. Formátum: <code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--bg);padding:2px 6px;border-radius:4px;color:var(--accent-bright)">lic_xxxxxxx</code></p>
+            </div>
+        </div>
+
+        <div class="prereq-warn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <div><strong>REST API modul kötelező!</strong> A MiniCRM-ben a Beállítások &rarr; Előfizetés menüpontban ellenőrizheted. A "Haladó integrációs csomag" alatt található "REST API + XML szinkronizáció" modult kell aktiválni (240 &euro;/év). E nélkül nem férsz hozzá az API kulcshoz!</div>
+        </div>
+
+        <img src="img/prereq-restapi.png" alt="MiniCRM REST API modul az Előfizetés menüben" style="margin-top:16px;max-width:420px;width:100%;border-radius:10px;border:1px solid var(--border);" />
+    </div>
+</div>
+
+<!-- STEPS -->
+<div class="steps-section">
+    <div class="container">
+
+        <!-- STEP 1 -->
+        <div class="step-block">
+            <div class="step-num">1</div>
+            <div class="step-content">
+                <h2>MCP szerver URL másolása</h2>
+                <p>Másold ki az alábbi URL-t. Erre lesz szükséged a következő lépésben, amikor a Claude AI-ban hozzáadod a MiniCRM csatlakozót.</p>
+
+                <div class="url-box">
+                    <code id="mcpUrl">https://minicrmmcp.netlify.app/mcp</code>
+                    <button class="copy-btn" id="copyBtn" onclick="copyUrl()">Másolás</button>
+                </div>
+
+                <div class="annotation">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/></svg>
+                    <span>Ezt az URL-t kell majd beillesztened a Claude AI beállításaiba. Tartsd vágólapon!</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 2 -->
+        <div class="step-block">
+            <div class="step-num">2</div>
+            <div class="step-content">
+                <h2>Connector hozzáadása a Claude AI-ban</h2>
+                <p>Nyisd meg az alábbi gombot, vagy navigálj manuálisan: <strong>Claude AI &rarr; Settings &rarr; Connectors &rarr; alul görgess le &rarr; Add custom connector</strong>.</p>
+
+                <a href="https://claude.ai/settings/connectors?modal=add-custom-connector" target="_blank" class="btn-primary" style="display:inline-block;margin:12px 0;font-size:14px;padding:12px 24px;">
+                    Megnyitás a Claude AI-ban &rarr;
+                </a>
+
+                <p style="margin-top:12px;">A megjelenő ablakban:</p>
+
+                <div class="mockup">
+                    <div class="mockup-bar">
+                        <div class="mockup-dot"></div>
+                        <div class="mockup-dot"></div>
+                        <div class="mockup-dot"></div>
+                        <span class="mockup-url">claude.ai/settings/connectors</span>
+                    </div>
+                    <div class="mockup-body">
+                        <div class="mock-modal">
+                            <h3>Add custom connector</h3>
+                            <div class="subtitle">Egyedi MCP szerver hozzáadása</div>
+                            <div class="mock-input-group">
+                                <label>URL</label>
+                                <div class="mock-input highlight">https://minicrmmcp.netlify.app/mcp</div>
+                                <div class="mock-input-hint">&uarr; Ide illeszd be az 1. lépésben kimásolt URL-t</div>
+                            </div>
+                            <div class="mock-input-group">
+                                <label>Name</label>
+                                <div class="mock-input">miniCRM</div>
+                                <div class="mock-input-hint">&uarr; Tetszőleges név, pl. "miniCRM"</div>
+                            </div>
+                            <div class="mock-modal-btn">Add connector</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="annotation success">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    <span>Ha sikeres, a miniCRM megjelenik a Connectors listában "CUSTOM" címkével.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 3 -->
+        <div class="step-block">
+            <div class="step-num">3</div>
+            <div class="step-content">
+                <h2>Connect gombra kattintás</h2>
+                <p>A Connectors listában keresd meg a "miniCRM" sort és kattints a mellette lévő <strong>Connect</strong> gombra.</p>
+
+                <img src="img/step3-connectors.png" alt="Claude AI Connectors beállítások - miniCRM Connect gomb" style="max-width:100%;border-radius:10px;border:1px solid var(--border);margin:16px 0;" />
+
+                <div class="annotation">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/></svg>
+                    <span>A Connect gomb egy felugró bejelentkezési ablakot fog megnyitni (következő lépés).</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 4 -->
+        <div class="step-block">
+            <div class="step-num">4</div>
+            <div class="step-content">
+                <h2>Adatok megadása</h2>
+                <p>A felugró ablakban add meg a három adatot: licenckulcs, MiniCRM System ID és API kulcs.</p>
+
+                <img src="img/step4-login.png" alt="MiniCRM MCP bejelentkezési ablak - Licenckulcs, System ID, API kulcs" style="max-width:420px;width:100%;border-radius:10px;border:1px solid var(--border);margin:16px 0;" />
+
+                <!-- Where to find System ID -->
+                <div class="finder-card">
+                    <h4>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        Hol találom a System ID-t?
+                    </h4>
+                    <p style="font-size:13px;color:var(--text2);margin-bottom:10px;">Lépj be a MiniCRM-be és nézd meg a böngésző címsorát:</p>
+                    <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--dim);">
+                        https://r3.minicrm.hu/<span style="color:var(--accent-bright);font-weight:600;background:var(--accent-subtle);padding:2px 6px;border-radius:4px;">53832</span>/...
+                    </div>
+                    <p style="font-size:12px;color:var(--dim);margin-top:6px;">A szám az "r3.minicrm.hu/" után &mdash; ez a te System ID-d.</p>
+                </div>
+
+                <!-- Where to find API key -->
+                <div class="finder-card">
+                    <h4>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        Hol találom az API kulcsot?
+                    </h4>
+                    <p style="font-size:13px;color:var(--text2);margin-bottom:10px;">A MiniCRM-ben navigálj ide:</p>
+                    <div class="finder-path">
+                        <span class="finder-crumb">Beállítások</span>
+                        <span class="finder-arrow">&rarr;</span>
+                        <span class="finder-crumb">Rendszer</span>
+                        <span class="finder-arrow">&rarr;</span>
+                        <span class="finder-crumb active">API kulcs</span>
+                    </div>
+                    <p style="font-size:12px;color:var(--dim);margin-top:8px;">Ha nem látod az API kulcs menüt, ellenőrizd, hogy aktív-e a REST API modul az előfizetésedben!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 5 -->
+        <div class="step-block">
+            <div class="step-num">5</div>
+            <div class="step-content">
+                <h2>Kész! Kezdd el használni</h2>
+                <p>A csatlakozás után menj vissza a <a href="https://claude.ai" target="_blank">claude.ai</a> főoldalra és írj be bármit a MiniCRM-mel kapcsolatban. A Claude automatikusan használja a MiniCRM eszközöket.</p>
+
+                <img src="img/step5-chat.png" alt="Claude AI chat felület - itt írd be az utasításaidat" style="max-width:100%;border-radius:10px;border:1px solid var(--border);margin:16px 0;" />
+
+                <div style="margin-top:12px;">
+                    <div style="font-size:11px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">Példa utasítások</div>
+                    <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin-bottom:6px;font-size:14px;color:var(--text);">"Listázd ki az összes nyitott projektet az Értékesítés modulban."</div>
+                    <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin-bottom:6px;font-size:14px;color:var(--text);">"Keresd meg Kiss János kontaktot és mutasd meg az adatait."</div>
+                    <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px 16px;font-size:14px;color:var(--text);">"Hozz létre egy új teendőt a #12345 projekthez: holnap fél 10-re hívjam vissza."</div>
+                </div>
+
+                <div class="annotation success">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    <span>A Claude AI mostantól hozzáfér a MiniCRM rendszeredhez. 54 eszköz áll rendelkezésre: kontaktok, projektek, teendők, számlák, és még sok más.</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- FAQ -->
+<div class="faq-section">
+    <div class="container">
+        <h2 class="faq-title">Gyakran ismételt kérdések</h2>
+
+        <div class="faq-item">
+            <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+                Nem látom az API kulcsot a MiniCRM-ben. Mit tegyek?
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+            <div class="faq-a">
+                Az API kulcs csak akkor érhető el, ha aktív a REST API + XML szinkronizáció modul. Ellenőrizd a MiniCRM-ben: <strong>Beállítások &rarr; Előfizetés</strong>. Ha nincs aktiválva, ott tudod megrendelni (a "Haladó integrációs csomag" részén belül, 240 &euro;/év).
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+                Nem jelenik meg a miniCRM a Connectors listában.
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+            <div class="faq-a">
+                Ellenőrizd, hogy pontosan ezt az URL-t adtad-e meg: <code>https://minicrmmcp.netlify.app/mcp</code>. Ha a "Connectors have moved to Customize" üzenet jelenik meg, kattints a "Go to Customize" gombra és ott add hozzá az egyedi csatlakozót.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+                A "Csatlakozás" gomb után hibaüzenet jön.
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+            <div class="faq-a">
+                Ellenőrizd a három megadott adatot:<br>
+                &bull; <strong>Licenckulcs</strong>: <code>lic_</code> kezdetű, a Nexly-től kapott kulcs.<br>
+                &bull; <strong>System ID</strong>: szám, pl. <code>53832</code> (a címsorból).<br>
+                &bull; <strong>API kulcs</strong>: a MiniCRM Beállítások &rarr; Rendszer &rarr; API kulcs menüben található.<br><br>
+                Ha minden adat helyes és még mindig nem működik, írj nekünk: <a href="mailto:info@nexly.digital">info@nexly.digital</a>
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+                Mennyibe kerül a MiniCRM MCP?
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+            <div class="faq-a">
+                14 napos ingyenes próba, utána havi előfizetés. Részletekért látogass el a <a href="https://www.nexly.hu" target="_blank">nexly.hu</a> oldalra, vagy kérj ingyenes bemutatót a főoldalunkon.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+                Biztonságos ez? Ki fér hozzá az adataimhoz?
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+            <div class="faq-a">
+                A MiniCRM MCP szerver nem tárol adatot. Minden kérést a Claude AI küld a MiniCRM API-nak a te hitelesítő adataiddal, közvetlenül. Az API kulcsod titkosítva van tárolva. Részletekért lásd az <a href="/adatkezeles">adatkezelési szabályzatot</a>.
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CTA -->
+<div class="cta-section">
+    <div class="container">
+        <div class="cta-box">
+            <h2>Segítség kell a beállításhoz?</h2>
+            <p>Írj nekünk és segítünk beállítani, vagy kérj ingyenes bemutatót ahol végigvezetünk a folyamaton.</p>
+            <div class="cta-buttons">
+                <a href="mailto:info@nexly.digital" class="btn-primary">Segítséget kérek</a>
+                <a href="/" class="btn-secondary">Bemutató kérése</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+    <div class="container">
+        <p>&copy; 2026 Nexly Digital (Ducsai Marcell e.v.). Minden jog fenntartva.</p>
+        <div style="margin-top:8px;">
+            <a href="/">Főoldal</a>
+            <a href="/aszf">ASZF</a>
+            <a href="/adatkezeles">Adatkezelés</a>
+            <a href="https://www.nexly.hu" target="_blank">nexly.hu</a>
+        </div>
+    </div>
+</footer>
+
+<script>
+    function copyUrl() {
+        const url = document.getElementById('mcpUrl').textContent;
+        navigator.clipboard.writeText(url).then(() => {
+            const btn = document.getElementById('copyBtn');
+            btn.textContent = 'Másolva!';
+            btn.classList.add('copied');
+            setTimeout(() => {
+                btn.textContent = 'Másolás';
+                btn.classList.remove('copied');
+            }, 2000);
+        });
+    }
+</script>
 </body>
 </html>
