@@ -30,7 +30,7 @@
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        html { scroll-behavior: smooth; }
+        html { scroll-behavior: smooth; overflow-x: hidden; }
 
         body {
             font-family: 'Manrope', sans-serif;
@@ -827,14 +827,14 @@
             .support-grid { grid-template-columns: 1fr; }
             .ref-grid { grid-template-columns: 1fr; }
             .footer-grid { grid-template-columns: 1fr 1fr; gap: 24px; }
+            .nav-links { display: none; }
+            .mobile-menu-btn { display: block; }
         }
         @media (max-width: 600px) {
             .hero h1 { font-size: 28px; }
             .hero-stats { flex-direction: column; gap: 16px; }
             .features-grid { grid-template-columns: 1fr; }
             .tools-grid { grid-template-columns: 1fr; }
-            .nav-links { display: none; }
-            .mobile-menu-btn { display: block; }
             .demo-form-card { padding: 24px; }
             .section-title { font-size: 26px; }
             .footer-grid { grid-template-columns: 1fr; }
