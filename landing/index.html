@@ -899,39 +899,48 @@
                 </div>
                 <div style="margin-top:28px;display:flex;gap:12px;flex-wrap:wrap;">
                     <a href="/setup" style="display:inline-flex;align-items:center;gap:8px;padding:14px 28px;background:linear-gradient(135deg,var(--amber-dark),var(--amber));color:#0a0e17;border-radius:10px;font-family:'Sora',sans-serif;font-size:15px;font-weight:700;text-decoration:none;transition:all 0.2s;box-shadow:0 0 20px #e8a04030;">Beállítási útmutató &rarr;</a>
-                    <a href="#demo-form" style="display:inline-flex;align-items:center;gap:8px;padding:14px 28px;background:transparent;color:var(--text2);border:1px solid var(--border);border-radius:10px;font-family:'Sora',sans-serif;font-size:15px;font-weight:600;text-decoration:none;transition:all 0.2s;">Ingyenes bemutató</a>
+                    <a href="#demo-form" style="display:inline-flex;align-items:center;gap:8px;padding:14px 28px;background:transparent;color:var(--text2);border:1px solid var(--border);border-radius:10px;font-family:'Sora',sans-serif;font-size:15px;font-weight:600;text-decoration:none;transition:all 0.2s;">Ingyenes próba</a>
                 </div>
             </div>
             <div id="demo-form">
                 <div class="demo-form-card">
                     <div id="formContent">
-                        <h3>Ingyenes bemutató</h3>
-                        <p class="form-sub">Próbálja ki 14 napig ingyen. Felvesszük Önnel a kapcsolatot és bemutatjuk a működést.</p>
-                        <form name="demo-request" method="POST" data-netlify="true" id="demoForm">
+                        <h3>14 napos ingyenes próba</h3>
+                        <p class="form-sub">Töltse ki az alábbi adatokat és azonnal megkapja a próba licenckulcsot.</p>
+                        <form id="demoForm">
                             <div class="form-group">
-                                <label for="name">Név</label>
+                                <label for="company">Cégnév</label>
+                                <input type="text" id="company" name="company" placeholder="Cég neve" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="name">Kapcsolattartó neve</label>
                                 <input type="text" id="name" name="name" placeholder="Teljes név" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="phone">Mobiltelefon</label>
+                                <input type="tel" id="phone" name="phone" placeholder="+36 ..." required>
                             </div>
                             <div class="form-group">
                                 <label for="email">E-mail</label>
                                 <input type="email" id="email" name="email" placeholder="email@ceg.hu" required>
                             </div>
                             <div class="form-group">
-                                <label for="phone">Telefonszám</label>
-                                <input type="tel" id="phone" name="phone" placeholder="+36 ..." required>
+                                <label for="userCount">Felhasználók száma</label>
+                                <input type="number" id="userCount" name="userCount" placeholder="Hány felhasználó fogja használni?" min="1" value="1" required>
                             </div>
-                            <div class="form-group">
-                                <label for="company">Cégnév</label>
-                                <input type="text" id="company" name="company" placeholder="Cég neve">
-                            </div>
-                            <button type="submit" class="form-submit">Bemutató kérése</button>
+                            <button type="submit" class="form-submit">Próba licenc igénylése</button>
                         </form>
-                        <p class="form-note">Adatait bizalmasan kezeljük. Nincs elköteleződés.</p>
+                        <p class="form-note">14 napos ingyenes próba. Nincs elköteleződés.</p>
                     </div>
                     <div class="form-success" id="formSuccess">
                         <div class="check-icon">&#10003;</div>
-                        <h4>Köszönjük!</h4>
-                        <p>Hamarosan felvesszük Önnel a kapcsolatot és bemutatjuk a MiniCRM MCP működését.</p>
+                        <h4>Kész! Itt a licenckulcsa:</h4>
+                        <div id="licenseKeyBox" style="margin:16px 0;padding:14px;background:#0a0e17;border:2px solid var(--green);border-radius:10px;font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--green);word-break:break-all;cursor:pointer;position:relative;" onclick="copyLicense()" title="Kattintson a másoláshoz">
+                            <span id="licenseKeyText"></span>
+                            <span style="display:block;font-size:11px;color:var(--dim);font-family:'Manrope',sans-serif;margin-top:6px;">Kattintson a másoláshoz</span>
+                        </div>
+                        <p style="font-size:13px;color:var(--text2);margin-bottom:8px;">Érvényes: <strong id="licenseExpiry"></strong></p>
+                        <a href="/setup" style="display:inline-block;margin-top:12px;padding:12px 24px;background:var(--accent);color:#fff;border-radius:8px;font-weight:700;font-size:14px;text-decoration:none;">Beállítási útmutató &rarr;</a>
                     </div>
                 </div>
             </div>
@@ -1360,9 +1369,9 @@
         <div class="cta-box reveal">
             <div class="section-label">Kezdje el most</div>
             <h2>Próbálja ki a MiniCRM MCP-t ingyenesen</h2>
-            <p>14 napos ingyenes próba. Semmilyen elköteleződés. Mi bemutatjuk a működést és segítünk a beállításban.</p>
+            <p>14 napos ingyenes próba. Semmilyen elköteleződés. Azonnal megkapja a licenckulcsot.</p>
             <div class="cta-buttons">
-                <a href="#demo-form" class="btn-primary">Bemutató kérése</a>
+                <a href="#demo-form" class="btn-primary">Ingyenes próba indítása</a>
                 <a href="/setup" class="btn-secondary">Már van licencem &#8594;</a>
             </div>
         </div>
@@ -1426,26 +1435,75 @@
     }, { threshold: 0.1 });
     document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
+    // Config
+    const LICENSE_API = 'https://minicrm-license.nexlyhu.workers.dev/trial';
+    const SHEET_WEBHOOK = 'GOOGLE_APPS_SCRIPT_URL'; // TODO: replace after Apps Script deploy
+
+    function copyLicense() {
+        const key = document.getElementById('licenseKeyText').textContent;
+        navigator.clipboard.writeText(key).then(() => {
+            const box = document.getElementById('licenseKeyBox');
+            box.style.borderColor = 'var(--accent)';
+            box.querySelector('span:last-child').textContent = 'Kimásolva!';
+            setTimeout(() => {
+                box.style.borderColor = 'var(--green)';
+                box.querySelector('span:last-child').textContent = 'Kattintson a másoláshoz';
+            }, 2000);
+        });
+    }
+
     // Form
     document.getElementById('demoForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         const form = e.target;
         const btn = form.querySelector('.form-submit');
         btn.disabled = true;
-        btn.textContent = 'Küldés...';
+        btn.textContent = 'Licenc generálása...';
+
+        const formData = {
+            company: form.company.value.trim(),
+            name: form.name.value.trim(),
+            phone: form.phone.value.trim(),
+            email: form.email.value.trim(),
+            userCount: parseInt(form.userCount.value) || 1,
+        };
+
         try {
-            const response = await fetch('/', {
+            // 1. Generate trial license
+            const licRes = await fetch(LICENSE_API, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: new URLSearchParams(new FormData(form)).toString()
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData),
             });
-            if (response.ok) {
-                document.getElementById('formContent').style.display = 'none';
-                document.getElementById('formSuccess').style.display = 'block';
-            } else { throw new Error(); }
+            const licData = await licRes.json();
+
+            if (!licRes.ok) {
+                if (licRes.status === 409) {
+                    alert('Ehhez az e-mail címhez már tartozik próba licenc. Ha elvesztette a kulcsát, írjon az info@nexly.digital címre.');
+                } else {
+                    alert(licData.error || 'Hiba történt a licenc generálásakor.');
+                }
+                btn.disabled = false;
+                btn.textContent = 'Próba licenc igénylése';
+                return;
+            }
+
+            // 2. Send lead to Google Sheet (fire-and-forget)
+            if (SHEET_WEBHOOK !== 'GOOGLE_APPS_SCRIPT_URL') {
+                fetch(SHEET_WEBHOOK, {
+                    method: 'POST',
+                    body: JSON.stringify({ ...formData, licenseKey: licData.key, expiresAt: licData.expiresAt }),
+                }).catch(() => {});
+            }
+
+            // 3. Show the license key
+            document.getElementById('licenseKeyText').textContent = licData.key;
+            document.getElementById('licenseExpiry').textContent = new Date(licData.expiresAt).toLocaleDateString('hu-HU');
+            document.getElementById('formContent').style.display = 'none';
+            document.getElementById('formSuccess').style.display = 'block';
         } catch {
             btn.disabled = false;
-            btn.textContent = 'Bemutató kérése';
+            btn.textContent = 'Próba licenc igénylése';
             alert('Hiba történt. Kérem próbálja újra, vagy írjon az info@nexly.digital címre.');
         }
     });

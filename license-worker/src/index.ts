@@ -19,6 +19,15 @@ function json(data: unknown, status = 200): Response {
   });
 }
 
+function cors(response: Response): Response {
+  const headers = new Headers(response.headers);
+  headers.set("Access-Control-Allow-Origin", "*");
+  return new Response(response.body, {
+    status: response.status,
+    headers,
+  });
+}
+
 function generateKey(): string {
   const bytes = new Uint8Array(20);
   crypto.getRandomValues(bytes);
@@ -51,6 +60,48 @@ export default {
           "Access-Control-Allow-Headers": "Content-Type, Authorization",
         },
       });
+    }
+
+    // POST /trial — public, landing page calls this to create a 14-day trial
+    if (method === "POST" && url.pathname === "/trial") {
+      try {
+        const body = (await request.json()) as {
+          email?: string;
+          name?: string;
+          company?: string;
+          phone?: string;
+          userCount?: number;
+        };
+
+        if (!body.email) {
+          return cors(json({ error: "E-mail megadása kötelező." }, 400));
+        }
+
+        // Check if this email already has a trial key
+        const list = await env.LICENSES.list();
+        for (const item of list.keys) {
+          const existing = await env.LICENSES.get<LicenseData>(item.name, "json");
+          if (existing && existing.email === body.email && existing.note?.startsWith("trial:")) {
+            return cors(json({ error: "Ehhez az e-mail címhez már tartozik próba licenc.", existingKey: item.name }, 409));
+          }
+        }
+
+        const key = generateKey();
+        const expiresAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString();
+        const data: LicenseData = {
+          active: true,
+          email: body.email,
+          createdAt: new Date().toISOString(),
+          expiresAt,
+          note: `trial: ${body.name || ""} | ${body.company || ""} | ${body.phone || ""} | users:${body.userCount || "?"}`,
+        };
+
+        await env.LICENSES.put(key, JSON.stringify(data));
+
+        return cors(json({ key, expiresAt }, 201));
+      } catch {
+        return cors(json({ error: "Érvénytelen kérés." }, 400));
+      }
     }
 
     // POST /validate — public, MCP server calls this on startup
