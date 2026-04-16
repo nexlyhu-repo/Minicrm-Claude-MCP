@@ -78,93 +78,97 @@ function sendWelcomeEmail(email, name, licenseKey, expiryDate) {
   var greeting = name ? ('Kedves ' + name + '!') : 'Kedves Felhasználó!';
 
   var htmlBody = '<!DOCTYPE html>'
-    + '<html><head><meta charset="utf-8"></head>'
-    + '<body style="margin:0;padding:0;background:#f4f4f7;font-family:Arial,Helvetica,sans-serif;">'
-    + '<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f7;padding:32px 0;">'
-    + '<tr><td align="center">'
-    + '<table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08);">'
+    + '<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>'
+    + '<body style="margin:0;padding:0;background:#f4f4f7;font-family:Arial,Helvetica,sans-serif;-webkit-text-size-adjust:100%;">'
+    + '<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f7;padding:16px 0;">'
+    + '<tr><td align="center" style="padding:0 12px;">'
+    + '<table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08);">'
 
     // Header
-    + '<tr><td style="background:#0a0e17;padding:28px 40px;text-align:center;">'
-    + '<span style="font-size:24px;font-weight:bold;color:#e2e8f0;">Mini</span>'
-    + '<span style="font-size:24px;font-weight:bold;color:#4f7df5;">CRM</span>'
-    + '<span style="font-size:24px;font-weight:bold;color:#e2e8f0;"> MCP</span>'
+    + '<tr><td style="background:#0a0e17;padding:24px 20px;text-align:center;">'
+    + '<span style="font-size:26px;font-weight:bold;color:#e2e8f0;">Mini</span>'
+    + '<span style="font-size:26px;font-weight:bold;color:#4f7df5;">CRM</span>'
+    + '<span style="font-size:26px;font-weight:bold;color:#e2e8f0;"> MCP</span>'
     + '</td></tr>'
 
     // Body
-    + '<tr><td style="padding:36px 40px;">'
-    + '<p style="font-size:16px;color:#333;margin:0 0 16px;">' + greeting + '</p>'
-    + '<p style="font-size:15px;color:#555;line-height:1.6;margin:0 0 24px;">'
+    + '<tr><td style="padding:28px 20px;">'
+    + '<p style="font-size:18px;color:#333;margin:0 0 16px;">' + greeting + '</p>'
+    + '<p style="font-size:16px;color:#555;line-height:1.7;margin:0 0 24px;">'
     + 'Köszönjük, hogy kipróbálja a MiniCRM MCP-t! Az alábbiakban megtalálja a próba licenckulcsát és a beállítási útmutatót.'
     + '</p>'
 
     // License key box
-    + '<div style="background:#0a0e17;border:2px solid #3dd68c;border-radius:10px;padding:20px;text-align:center;margin:0 0 24px;">'
-    + '<p style="font-size:12px;color:#8892a8;margin:0 0 8px;text-transform:uppercase;letter-spacing:1px;">Az Ön licenckulcsa</p>'
-    + '<p style="font-size:18px;font-family:monospace;color:#3dd68c;margin:0;word-break:break-all;font-weight:bold;">'
+    + '<div style="background:#0a0e17;border:2px solid #3dd68c;border-radius:12px;padding:20px 16px;text-align:center;margin:0 0 24px;">'
+    + '<p style="font-size:13px;color:#8892a8;margin:0 0 10px;text-transform:uppercase;letter-spacing:1px;">Az Ön licenckulcsa</p>'
+    + '<p style="font-size:13px;font-family:Courier New,monospace;color:#3dd68c;margin:0;word-break:break-all;font-weight:bold;line-height:1.5;">'
     + licenseKey
     + '</p>'
-    + '<p style="font-size:13px;color:#8892a8;margin:8px 0 0;">Érvényes: ' + expiryDate + '</p>'
+    + '<p style="font-size:14px;color:#8892a8;margin:12px 0 0;">Érvényes: <strong>' + expiryDate + '</strong></p>'
     + '</div>'
 
     // Setup steps
-    + '<h2 style="font-size:18px;color:#333;margin:0 0 16px;">Beállítás 5 egyszerű lépésben</h2>'
+    + '<h2 style="font-size:20px;color:#333;margin:0 0 20px;">Beállítás lépésről lépésre</h2>'
 
-    + '<table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px;">'
+    // Step 1
+    + '<div style="padding:14px 0;border-bottom:1px solid #eee;">'
+    + '<table width="100%" cellpadding="0" cellspacing="0"><tr>'
+    + '<td style="width:36px;vertical-align:top;padding-top:2px;"><div style="width:32px;height:32px;background:#4f7df5;border-radius:50%;text-align:center;line-height:32px;color:#fff;font-weight:bold;font-size:15px;">1</div></td>'
+    + '<td style="padding-left:14px;font-size:16px;color:#555;line-height:1.6;">Nyissa meg a <a href="https://minicrmmcp.netlify.app/setup" style="color:#4f7df5;font-weight:bold;">beállítási útmutatót</a> és másolja ki az MCP szerver URL-t</td>'
+    + '</tr></table></div>'
 
-    + '<tr><td style="padding:10px 0;border-bottom:1px solid #eee;">'
-    + '<table cellpadding="0" cellspacing="0"><tr>'
-    + '<td style="width:32px;height:32px;background:#4f7df5;border-radius:50%;text-align:center;vertical-align:middle;color:#fff;font-weight:bold;font-size:14px;">1</td>'
-    + '<td style="padding-left:12px;font-size:14px;color:#555;">Nyissa meg a <a href="https://minicrmmcp.netlify.app/setup" style="color:#4f7df5;font-weight:bold;">beállítási útmutatót</a> és másolja ki az MCP szerver URL-t</td>'
-    + '</tr></table></td></tr>'
+    // Step 2
+    + '<div style="padding:14px 0;border-bottom:1px solid #eee;">'
+    + '<table width="100%" cellpadding="0" cellspacing="0"><tr>'
+    + '<td style="width:36px;vertical-align:top;padding-top:2px;"><div style="width:32px;height:32px;background:#4f7df5;border-radius:50%;text-align:center;line-height:32px;color:#fff;font-weight:bold;font-size:15px;">2</div></td>'
+    + '<td style="padding-left:14px;font-size:16px;color:#555;line-height:1.6;">A <a href="https://claude.ai/settings/connectors?modal=add-custom-connector" style="color:#4f7df5;font-weight:bold;">Claude AI-ban</a> adja hozzá egyedi connector-ként az URL-t, név: <strong>miniCRM</strong></td>'
+    + '</tr></table></div>'
 
-    + '<tr><td style="padding:10px 0;border-bottom:1px solid #eee;">'
-    + '<table cellpadding="0" cellspacing="0"><tr>'
-    + '<td style="width:32px;height:32px;background:#4f7df5;border-radius:50%;text-align:center;vertical-align:middle;color:#fff;font-weight:bold;font-size:14px;">2</td>'
-    + '<td style="padding-left:12px;font-size:14px;color:#555;">Nyissa meg a <a href="https://claude.ai/settings/connectors?modal=add-custom-connector" style="color:#4f7df5;font-weight:bold;">Claude AI Connectors beállításokat</a> és illessze be az URL-t</td>'
-    + '</tr></table></td></tr>'
+    // Step 3
+    + '<div style="padding:14px 0;border-bottom:1px solid #eee;">'
+    + '<table width="100%" cellpadding="0" cellspacing="0"><tr>'
+    + '<td style="width:36px;vertical-align:top;padding-top:2px;"><div style="width:32px;height:32px;background:#4f7df5;border-radius:50%;text-align:center;line-height:32px;color:#fff;font-weight:bold;font-size:15px;">3</div></td>'
+    + '<td style="padding-left:14px;font-size:16px;color:#555;line-height:1.6;">A Connectors listában kattintson a miniCRM melletti <strong>Connect</strong> gombra</td>'
+    + '</tr></table></div>'
 
-    + '<tr><td style="padding:10px 0;border-bottom:1px solid #eee;">'
-    + '<table cellpadding="0" cellspacing="0"><tr>'
-    + '<td style="width:32px;height:32px;background:#4f7df5;border-radius:50%;text-align:center;vertical-align:middle;color:#fff;font-weight:bold;font-size:14px;">3</td>'
-    + '<td style="padding-left:12px;font-size:14px;color:#555;">Kattintson a miniCRM melletti <strong>Connect</strong> gombra</td>'
-    + '</tr></table></td></tr>'
+    // Step 4
+    + '<div style="padding:14px 0;border-bottom:1px solid #eee;">'
+    + '<table width="100%" cellpadding="0" cellspacing="0"><tr>'
+    + '<td style="width:36px;vertical-align:top;padding-top:2px;"><div style="width:32px;height:32px;background:#4f7df5;border-radius:50%;text-align:center;line-height:32px;color:#fff;font-weight:bold;font-size:15px;">4</div></td>'
+    + '<td style="padding-left:14px;font-size:16px;color:#555;line-height:1.6;">Adja meg:<br>'
+    + '<strong style="color:#333;">Licenckulcs:</strong> a fenti kulcs<br>'
+    + '<strong style="color:#333;">System ID:</strong> a címsorból (r3.minicrm.hu/<strong>XXXXX</strong>/...)<br>'
+    + '<strong style="color:#333;">API kulcs:</strong> Beállítások → Rendszer → API kulcs</td>'
+    + '</tr></table></div>'
 
-    + '<tr><td style="padding:10px 0;border-bottom:1px solid #eee;">'
-    + '<table cellpadding="0" cellspacing="0"><tr>'
-    + '<td style="width:32px;height:32px;background:#4f7df5;border-radius:50%;text-align:center;vertical-align:middle;color:#fff;font-weight:bold;font-size:14px;">4</td>'
-    + '<td style="padding-left:12px;font-size:14px;color:#555;">Adja meg a fenti <strong>licenckulcsot</strong>, a MiniCRM <strong>System ID</strong>-ját (a címsorból: r3.minicrm.hu/<strong>XXXXX</strong>/...) és az <strong>API kulcsát</strong> (Beállítások → Rendszer → API kulcs)</td>'
-    + '</tr></table></td></tr>'
-
-    + '<tr><td style="padding:10px 0;">'
-    + '<table cellpadding="0" cellspacing="0"><tr>'
-    + '<td style="width:32px;height:32px;background:#3dd68c;border-radius:50%;text-align:center;vertical-align:middle;color:#fff;font-weight:bold;font-size:14px;">5</td>'
-    + '<td style="padding-left:12px;font-size:14px;color:#555;">Kész! Nyissa meg a <a href="https://claude.ai" style="color:#4f7df5;font-weight:bold;">claude.ai</a>-t és kezdje el használni a MiniCRM-et természetes nyelven.</td>'
-    + '</tr></table></td></tr>'
-
-    + '</table>'
+    // Step 5
+    + '<div style="padding:14px 0;margin-bottom:24px;">'
+    + '<table width="100%" cellpadding="0" cellspacing="0"><tr>'
+    + '<td style="width:36px;vertical-align:top;padding-top:2px;"><div style="width:32px;height:32px;background:#3dd68c;border-radius:50%;text-align:center;line-height:32px;color:#fff;font-weight:bold;font-size:15px;">5</div></td>'
+    + '<td style="padding-left:14px;font-size:16px;color:#555;line-height:1.6;">Kész! Nyissa meg a <a href="https://claude.ai" style="color:#4f7df5;font-weight:bold;">claude.ai</a>-t és használja a MiniCRM-et természetes nyelven.</td>'
+    + '</tr></table></div>'
 
     // Important note
-    + '<div style="background:#fff8ee;border-left:4px solid #e8a040;border-radius:6px;padding:14px 18px;margin:0 0 24px;">'
-    + '<p style="font-size:13px;color:#8a6d3b;margin:0;line-height:1.6;">'
-    + '<strong>Fontos:</strong> A MiniCRM-ben aktív REST API + XML szinkronizáció modul szükséges (Beállítások → Előfizetés → Haladó integrációs csomag). E nélkül nem érhető el az API kulcs.'
+    + '<div style="background:#fff8ee;border-left:4px solid #e8a040;border-radius:6px;padding:16px 18px;margin:0 0 28px;">'
+    + '<p style="font-size:15px;color:#8a6d3b;margin:0;line-height:1.6;">'
+    + '<strong>Fontos:</strong> A MiniCRM-ben aktív REST API modul szükséges (Beállítások → Előfizetés → Haladó integrációs csomag).'
     + '</p></div>'
 
     // CTA button
-    + '<div style="text-align:center;margin:0 0 16px;">'
-    + '<a href="https://minicrmmcp.netlify.app/setup" style="display:inline-block;padding:14px 36px;background:#4f7df5;color:#ffffff;text-decoration:none;border-radius:8px;font-size:15px;font-weight:bold;">Részletes beállítási útmutató</a>'
+    + '<div style="text-align:center;margin:0 0 24px;">'
+    + '<a href="https://minicrmmcp.netlify.app/setup" style="display:inline-block;padding:16px 32px;background:#4f7df5;color:#ffffff;text-decoration:none;border-radius:10px;font-size:17px;font-weight:bold;">Beállítási útmutató megnyitása</a>'
     + '</div>'
 
-    + '<p style="font-size:14px;color:#555;line-height:1.6;margin:0 0 8px;">'
-    + 'Ha bármilyen kérdése van, írjon nekünk az <a href="mailto:info@nexly.digital" style="color:#4f7df5;">info@nexly.digital</a> címre.'
+    + '<p style="font-size:15px;color:#555;line-height:1.6;margin:0;">'
+    + 'Kérdése van? Írjon nekünk: <a href="mailto:info@nexly.digital" style="color:#4f7df5;font-weight:bold;">info@nexly.digital</a>'
     + '</p>'
 
     + '</td></tr>'
 
     // Footer
-    + '<tr><td style="background:#f8f8fa;padding:20px 40px;border-top:1px solid #eee;text-align:center;">'
-    + '<p style="font-size:12px;color:#999;margin:0 0 4px;">MiniCRM MCP - A Nexly Digital fejlesztése</p>'
-    + '<a href="https://www.nexly.hu" style="font-size:12px;color:#4f7df5;">www.nexly.hu</a>'
+    + '<tr><td style="background:#f8f8fa;padding:20px;border-top:1px solid #eee;text-align:center;">'
+    + '<p style="font-size:13px;color:#999;margin:0 0 4px;">MiniCRM MCP - A Nexly Digital fejlesztése</p>'
+    + '<a href="https://www.nexly.hu" style="font-size:13px;color:#4f7df5;">www.nexly.hu</a>'
     + '</td></tr>'
 
     + '</table></td></tr></table></body></html>';
@@ -239,51 +243,51 @@ function sendExpiryEmail(email, name, licenseKey, expiryDate) {
   var greeting = name ? ('Kedves ' + name + '!') : 'Kedves Felhasználó!';
 
   var htmlBody = '<!DOCTYPE html>'
-    + '<html><head><meta charset="utf-8"></head>'
-    + '<body style="margin:0;padding:0;background:#f4f4f7;font-family:Arial,Helvetica,sans-serif;">'
-    + '<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f7;padding:32px 0;">'
-    + '<tr><td align="center">'
-    + '<table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08);">'
+    + '<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>'
+    + '<body style="margin:0;padding:0;background:#f4f4f7;font-family:Arial,Helvetica,sans-serif;-webkit-text-size-adjust:100%;">'
+    + '<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f7;padding:16px 0;">'
+    + '<tr><td align="center" style="padding:0 12px;">'
+    + '<table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08);">'
 
     // Header
-    + '<tr><td style="background:#0a0e17;padding:28px 40px;text-align:center;">'
-    + '<span style="font-size:24px;font-weight:bold;color:#e2e8f0;">Mini</span>'
-    + '<span style="font-size:24px;font-weight:bold;color:#4f7df5;">CRM</span>'
-    + '<span style="font-size:24px;font-weight:bold;color:#e2e8f0;"> MCP</span>'
+    + '<tr><td style="background:#0a0e17;padding:24px 20px;text-align:center;">'
+    + '<span style="font-size:26px;font-weight:bold;color:#e2e8f0;">Mini</span>'
+    + '<span style="font-size:26px;font-weight:bold;color:#4f7df5;">CRM</span>'
+    + '<span style="font-size:26px;font-weight:bold;color:#e2e8f0;"> MCP</span>'
     + '</td></tr>'
 
     // Body
-    + '<tr><td style="padding:36px 40px;">'
-    + '<p style="font-size:16px;color:#333;margin:0 0 16px;">' + greeting + '</p>'
-    + '<p style="font-size:15px;color:#555;line-height:1.6;margin:0 0 24px;">'
-    + 'Az ingyenes próba licenckulcsa (' + expiryDate + ') lejárt.'
+    + '<tr><td style="padding:28px 20px;">'
+    + '<p style="font-size:18px;color:#333;margin:0 0 16px;">' + greeting + '</p>'
+    + '<p style="font-size:16px;color:#555;line-height:1.7;margin:0 0 24px;">'
+    + 'Az ingyenes próba időszaka (' + expiryDate + ') lejárt.'
     + '</p>'
 
     // Expired key box
-    + '<div style="background:#f8f8fa;border:2px solid #ddd;border-radius:10px;padding:20px;text-align:center;margin:0 0 24px;">'
-    + '<p style="font-size:12px;color:#999;margin:0 0 8px;text-transform:uppercase;letter-spacing:1px;">Lejárt licenckulcs</p>'
-    + '<p style="font-size:16px;font-family:monospace;color:#999;margin:0;word-break:break-all;text-decoration:line-through;">'
+    + '<div style="background:#f8f8fa;border:2px solid #ddd;border-radius:12px;padding:20px 16px;text-align:center;margin:0 0 24px;">'
+    + '<p style="font-size:13px;color:#999;margin:0 0 10px;text-transform:uppercase;letter-spacing:1px;">Lejárt licenckulcs</p>'
+    + '<p style="font-size:13px;font-family:Courier New,monospace;color:#999;margin:0;word-break:break-all;text-decoration:line-through;line-height:1.5;">'
     + licenseKey
     + '</p></div>'
 
-    + '<p style="font-size:15px;color:#555;line-height:1.6;margin:0 0 24px;">'
+    + '<p style="font-size:16px;color:#555;line-height:1.7;margin:0 0 28px;">'
     + 'Ha elégedett volt a szolgáltatással és szeretné tovább használni, szívesen segítünk az előfizetés beállításában.'
     + '</p>'
 
     // CTA
-    + '<div style="text-align:center;margin:0 0 24px;">'
-    + '<a href="mailto:info@nexly.digital?subject=MiniCRM%20MCP%20el%C5%91fizet%C3%A9s" style="display:inline-block;padding:14px 36px;background:linear-gradient(135deg,#c8702a,#e8a040);color:#0a0e17;text-decoration:none;border-radius:8px;font-size:15px;font-weight:bold;">Előfizetés igénylése</a>'
+    + '<div style="text-align:center;margin:0 0 28px;">'
+    + '<a href="mailto:info@nexly.digital?subject=MiniCRM%20MCP%20el%C5%91fizet%C3%A9s" style="display:inline-block;padding:16px 32px;background:#e8a040;color:#0a0e17;text-decoration:none;border-radius:10px;font-size:17px;font-weight:bold;">Előfizetés igénylése</a>'
     + '</div>'
 
-    + '<p style="font-size:14px;color:#555;line-height:1.6;margin:0;">'
-    + 'Kérdés esetén írjon az <a href="mailto:info@nexly.digital" style="color:#4f7df5;">info@nexly.digital</a> címre.'
+    + '<p style="font-size:15px;color:#555;line-height:1.6;margin:0;">'
+    + 'Kérdése van? Írjon nekünk: <a href="mailto:info@nexly.digital" style="color:#4f7df5;font-weight:bold;">info@nexly.digital</a>'
     + '</p>'
     + '</td></tr>'
 
     // Footer
-    + '<tr><td style="background:#f8f8fa;padding:20px 40px;border-top:1px solid #eee;text-align:center;">'
-    + '<p style="font-size:12px;color:#999;margin:0 0 4px;">MiniCRM MCP - A Nexly Digital fejlesztése</p>'
-    + '<a href="https://www.nexly.hu" style="font-size:12px;color:#4f7df5;">www.nexly.hu</a>'
+    + '<tr><td style="background:#f8f8fa;padding:20px;border-top:1px solid #eee;text-align:center;">'
+    + '<p style="font-size:13px;color:#999;margin:0 0 4px;">MiniCRM MCP - A Nexly Digital fejlesztése</p>'
+    + '<a href="https://www.nexly.hu" style="font-size:13px;color:#4f7df5;">www.nexly.hu</a>'
     + '</td></tr>'
 
     + '</table></td></tr></table></body></html>';
