@@ -12,6 +12,22 @@
 // A1: Dátum | B1: Cégnév | C1: Név | D1: Telefon | E1: E-mail | F1: Felhasználók | G1: Licenckulcs | H1: Lejárat | I1: Email küldve | J1: Lejárati email
 
 // ============================================================
+// 0. TESZT — Futtasd ezt EGYSZER az engedélyek megadásához!
+//    Apps Script editor → válaszd "testEmailPermission" → Run
+//    Fogadj el minden permission kérést (Gmail + Sheets)
+//    Utána Deploy → Manage deployments → ceruza → New version → Deploy
+// ============================================================
+
+function testEmailPermission() {
+  GmailApp.sendEmail(
+    Session.getActiveUser().getEmail(),
+    'MiniCRM MCP - Teszt email',
+    'Ha ezt az emailt megkaptad, a Gmail jogosultság rendben van. Törölheted ezt a levelet.'
+  );
+  Logger.log('Teszt email elküldve: ' + Session.getActiveUser().getEmail());
+}
+
+// ============================================================
 // 1. Lead rögzítés + üdvözlő email
 // ============================================================
 
