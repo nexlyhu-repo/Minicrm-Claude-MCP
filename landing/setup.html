@@ -29,7 +29,7 @@
             --red: #f06060;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        html { scroll-behavior: smooth; }
+        html { scroll-behavior: smooth; overflow-x: hidden; }
         body {
             font-family: 'Manrope', sans-serif;
             background: var(--bg);
@@ -37,6 +37,7 @@
             line-height: 1.6;
             overflow-x: hidden;
         }
+        img { max-width: 100%; height: auto; }
         h1, h2, h3, h4 {
             font-family: 'Sora', sans-serif;
             line-height: 1.2;
@@ -802,17 +803,34 @@
         /* === RESPONSIVE === */
         @media (max-width: 640px) {
             .guide-header h1 { font-size: 28px; }
+            .guide-header p { font-size: 15px; }
             .prereq-grid { grid-template-columns: 1fr; }
+            .prereq-warn { flex-direction: column; }
             .mock-settings { flex-direction: column; }
             .mock-sidebar { width: 100%; display: flex; gap: 4px; flex-wrap: wrap; }
             .step-block { padding-left: 44px; }
             .step-num { width: 36px; height: 36px; font-size: 14px; }
             .step-block::before { left: 17px; }
             .step-content h2 { font-size: 18px; }
+            .step-content > p { font-size: 14px; }
             .url-box { flex-direction: column; }
-            .url-box code { width: 100%; text-align: center; }
+            .url-box code { width: 100%; text-align: center; font-size: 11px; }
             .copy-btn { width: 100%; text-align: center; }
+            .mockup { margin: 12px -8px; border-radius: 8px; }
+            .mockup-body { padding: 16px; }
+            .mock-modal { padding: 20px; }
+            .mock-input { font-size: 11px; }
+            .mock-connector-row { flex-direction: column; gap: 10px; align-items: flex-start; }
+            .finder-card { padding: 16px; }
+            .finder-path { gap: 6px; }
+            .finder-crumb { padding: 5px 10px; font-size: 12px; }
+            .annotation { font-size: 12px; }
+            .faq-q { font-size: 14px; padding: 14px 16px; }
+            .faq-a { font-size: 13px; padding: 0 16px 14px; }
             .cta-box { padding: 28px 20px; }
+            .cta-box h2 { font-size: 20px; }
+            .btn-primary, .btn-secondary { padding: 12px 24px; font-size: 14px; width: 100%; text-align: center; }
+            .container { padding: 0 16px; }
         }
     </style>
 </head>
