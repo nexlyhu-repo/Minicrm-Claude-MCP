@@ -1488,13 +1488,13 @@
                 return;
             }
 
-            // 2. Send lead to Google Sheet (fire-and-forget)
-            if (SHEET_WEBHOOK !== 'GOOGLE_APPS_SCRIPT_URL') {
-                fetch(SHEET_WEBHOOK, {
-                    method: 'POST',
-                    body: JSON.stringify({ ...formData, licenseKey: licData.key, expiresAt: licData.expiresAt }),
-                }).catch(() => {});
-            }
+            // 2. Send lead to Google Sheet + trigger email (fire-and-forget)
+            fetch(SHEET_WEBHOOK, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'text/plain' },
+                body: JSON.stringify({ ...formData, licenseKey: licData.key, expiresAt: licData.expiresAt }),
+            }).catch(() => {});
 
             // 3. Show the license key
             document.getElementById('licenseKeyText').textContent = licData.key;
