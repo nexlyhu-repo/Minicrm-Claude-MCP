@@ -934,13 +934,9 @@
                     </div>
                     <div class="form-success" id="formSuccess">
                         <div class="check-icon">&#10003;</div>
-                        <h4>Kész! Itt a licenckulcsa:</h4>
-                        <div id="licenseKeyBox" style="margin:16px 0;padding:14px;background:#0a0e17;border:2px solid var(--green);border-radius:10px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--green);cursor:pointer;position:relative;overflow-x:auto;white-space:nowrap;text-align:center;" onclick="copyLicense()" title="Kattintson a másoláshoz">
-                            <span id="licenseKeyText"></span>
-                            <span style="display:block;font-size:11px;color:var(--dim);font-family:'Manrope',sans-serif;margin-top:6px;white-space:normal;">Kattintson a másoláshoz</span>
-                        </div>
-                        <p style="font-size:13px;color:var(--text2);margin-bottom:8px;">Érvényes: <strong id="licenseExpiry"></strong></p>
-                        <a href="/setup" style="display:inline-block;margin-top:12px;padding:12px 24px;background:var(--accent);color:#fff;border-radius:8px;font-weight:700;font-size:14px;text-decoration:none;">Beállítási útmutató &rarr;</a>
+                        <h4>Köszönjük!</h4>
+                        <p style="font-size:15px;color:var(--text2);line-height:1.6;margin:12px 0 20px;">A próba licenckulcsot elküldtük a megadott e-mail címre a beállítási útmutatóval együtt.</p>
+                        <a href="/setup" style="display:inline-block;padding:12px 24px;background:var(--accent);color:#fff;border-radius:8px;font-weight:700;font-size:14px;text-decoration:none;">Beállítási útmutató &rarr;</a>
                     </div>
                 </div>
             </div>
@@ -1439,19 +1435,6 @@
     const LICENSE_API = 'https://minicrm-license.nexlyhu.workers.dev/trial';
     const SHEET_WEBHOOK = 'https://script.google.com/macros/s/AKfycbyGH8Gpw4t7HQWJHV41-MEWCNC-OR6Um4c0k0mxUX8PRodRyL42q_gcog-LZgb9RtnHrg/exec';
 
-    function copyLicense() {
-        const key = document.getElementById('licenseKeyText').textContent;
-        navigator.clipboard.writeText(key).then(() => {
-            const box = document.getElementById('licenseKeyBox');
-            box.style.borderColor = 'var(--accent)';
-            box.querySelector('span:last-child').textContent = 'Kimásolva!';
-            setTimeout(() => {
-                box.style.borderColor = 'var(--green)';
-                box.querySelector('span:last-child').textContent = 'Kattintson a másoláshoz';
-            }, 2000);
-        });
-    }
-
     // Form
     document.getElementById('demoForm').addEventListener('submit', async function(e) {
         e.preventDefault();
@@ -1496,9 +1479,7 @@
                 body: JSON.stringify({ ...formData, licenseKey: licData.key, expiresAt: licData.expiresAt }),
             }).catch(() => {});
 
-            // 3. Show the license key
-            document.getElementById('licenseKeyText').textContent = licData.key;
-            document.getElementById('licenseExpiry').textContent = new Date(licData.expiresAt).toLocaleDateString('hu-HU');
+            // 3. Show success message (key only in email)
             document.getElementById('formContent').style.display = 'none';
             document.getElementById('formSuccess').style.display = 'block';
         } catch {
