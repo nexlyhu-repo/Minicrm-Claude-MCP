@@ -53,10 +53,15 @@ function doPost(e) {
       ''   // J: Lejárati email
     ]);
 
-    // Send welcome email
+    // Send email
     if (data.email && data.licenseKey) {
-      sendWelcomeEmail(data.email, data.name || '', data.licenseKey, expiryStr);
-      // Mark email sent
+      if (data.testExpiry) {
+        // Teszt: lejárati email küldése
+        sendExpiryEmail(data.email, data.name || '', data.licenseKey, expiryStr);
+      } else {
+        // Normál: üdvözlő email
+        sendWelcomeEmail(data.email, data.name || '', data.licenseKey, expiryStr);
+      }
       var lastRow = sheet.getLastRow();
       sheet.getRange(lastRow, 9).setValue('igen');
     }
