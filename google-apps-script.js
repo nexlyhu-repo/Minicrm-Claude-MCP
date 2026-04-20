@@ -55,15 +55,17 @@ function doPost(e) {
 
     // Send email
     if (data.email && data.licenseKey) {
+      var lastRow = sheet.getLastRow();
       if (data.testExpiry) {
         // Teszt: lejárati email küldése
         sendExpiryEmail(data.email, data.name || '', data.licenseKey, expiryStr);
+        sheet.getRange(lastRow, 9).setValue('igen');
+        sheet.getRange(lastRow, 10).setValue('igen'); // J oszlop is, hogy a trigger ne küldjön újra
       } else {
         // Normál: üdvözlő email
         sendWelcomeEmail(data.email, data.name || '', data.licenseKey, expiryStr);
+        sheet.getRange(lastRow, 9).setValue('igen');
       }
-      var lastRow = sheet.getLastRow();
-      sheet.getRange(lastRow, 9).setValue('igen');
     }
 
     return ContentService.createTextOutput(JSON.stringify({ success: true }))
