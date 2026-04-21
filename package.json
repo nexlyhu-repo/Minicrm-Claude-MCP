@@ -16,15 +16,23 @@
     "start:server": "node dist/server.js",
     "prepublishOnly": "npm run build"
   },
-  "keywords": ["minicrm", "mcp", "claude", "crm", "model-context-protocol"],
+  "keywords": [
+    "minicrm",
+    "mcp",
+    "claude",
+    "crm",
+    "model-context-protocol"
+  ],
   "license": "MIT",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
+    "better-sqlite3": "^12.9.0",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.0",
     "zod": "^3.25.0"
   },
   "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
     "@types/express": "^5.0.0",
     "@types/jsonwebtoken": "^9.0.0",
     "@types/node": "^22.0.0",

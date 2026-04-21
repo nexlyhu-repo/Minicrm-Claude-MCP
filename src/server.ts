@@ -12,6 +12,9 @@ import {
   verifyToken,
 } from "./auth.js";
 import { getLoginPageHtml } from "./login-page.js";
+import { logUsage } from "./usage-db.js";
+import { adminRouter } from "./admin.js";
+import { getAdminDashboardHtml } from "./admin-page.js";
 
 const PORT = parseInt(process.env.MCP_PORT || "4001", 10);
 const BASE_URL = process.env.MCP_BASE_URL || "https://minicrmmcp.netlify.app";
@@ -236,10 +239,20 @@ app.post("/mcp", async (req: Request, res: Response) => {
 
   await mcpServer.connect(transport);
   try {
-    console.log("MCP request body:", JSON.stringify(req.body));
-    await transport.handleRequest(req, res, req.body);
+    // Log tool usage
+    const body = req.body;
+    let toolName: string | null = null;
+    if (body?.method === "tools/call" && body?.params?.name) {
+      toolName = body.params.name;
+    }
+    if (body?.method === "tools/call" || body?.method === "tools/list") {
+      logUsage(credentials.licenseKey, credentials.systemId, toolName, true);
+    }
+
+    await transport.handleRequest(req, res, body);
   } catch (error) {
     console.error("MCP handleRequest hiba:", error);
+    logUsage(credentials.licenseKey, credentials.systemId, null, false);
     if (!res.headersSent) {
       res.status(500).json({ error: "Belso szerver hiba." });
     }
@@ -261,6 +274,14 @@ app.delete("/mcp", (_req: Request, res: Response) => {
     error: { code: -32000, message: "Sessions not supported." },
   });
 });
+
+// --- Admin Dashboard ---
+
+app.get("/admin", (_req: Request, res: Response) => {
+  res.type("html").send(getAdminDashboardHtml());
+});
+
+app.use("/admin", adminRouter);
 
 // --- Health check ---
 

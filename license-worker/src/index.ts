@@ -56,7 +56,7 @@ export default {
       return new Response(null, {
         headers: {
           "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
+          "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
           "Access-Control-Allow-Headers": "Content-Type, Authorization",
         },
       });
@@ -186,6 +186,31 @@ export default {
         return json({ error: "Licenc nem talalhato." }, 404);
       }
       return json({ key, ...data });
+    }
+
+    // PUT /keys/:key — update license fields (note, email, expiresAt)
+    if (method === "PUT" && url.pathname.startsWith("/keys/")) {
+      const key = url.pathname.replace("/keys/", "");
+      const data = await env.LICENSES.get<LicenseData>(key, "json");
+      if (!data) {
+        return json({ error: "Licenc nem talalhato." }, 404);
+      }
+
+      try {
+        const body = (await request.json()) as {
+          note?: string;
+          email?: string;
+          expiresAt?: string | null;
+        };
+        if (body.note !== undefined) data.note = body.note;
+        if (body.email !== undefined) data.email = body.email;
+        if (body.expiresAt !== undefined) data.expiresAt = body.expiresAt;
+
+        await env.LICENSES.put(key, JSON.stringify(data));
+        return json({ key, ...data, message: "Licenc frissitve." });
+      } catch {
+        return json({ error: "Ervenytelen keres." }, 400);
+      }
     }
 
     // DELETE /keys/:key — revoke a license
