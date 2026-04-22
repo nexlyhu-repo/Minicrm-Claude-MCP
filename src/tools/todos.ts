@@ -41,28 +41,57 @@ async function fetchAllTodos(
 ): Promise<(ToDo & { _projectId: number })[]> {
   let projectIds: number[] = [];
 
-  if (opts.categoryId) {
-    // Single category - just first page (max 100 projects)
-    const projects = await client.request<SearchResponse>("GET", `/Api/R3/Project?CategoryId=${opts.categoryId}`);
-    projectIds = Object.keys(projects.Results || {}).map(Number).filter(Boolean);
-  } else {
-    // All categories - fetch category list first, then projects per category in parallel
+  // Strategy: if we have a userId, search projects where they're responsible (much faster)
+  // This reduces 1500+ projects to typically 10-30
+  if (opts.filterUserId && !opts.categoryId) {
+    // Get categories first, then search per category with UserId filter
     const categories = await client.request<Record<string, unknown>>("GET", "/Api/R3/Category");
     const catIds = Object.keys(categories || {}).map(Number).filter(Boolean);
-    console.log(`[fetchAllTodos] Found ${catIds.length} categories: ${catIds.join(', ')}`);
+    console.log(`[fetchAllTodos] ${catIds.length} categories, filtering by UserId=${opts.filterUserId}`);
+
+    const allProjectIds: number[] = [];
+    for (let i = 0; i < catIds.length; i += 5) {
+      const batch = catIds.slice(i, i + 5).map(async (catId) => {
+        try {
+          const projects = await client.request<SearchResponse>("GET",
+            `/Api/R3/Project?CategoryId=${catId}&UserId=${opts.filterUserId}`);
+          return Object.keys(projects.Results || {}).map(Number).filter(Boolean);
+        } catch { return []; }
+      });
+      const results = await Promise.all(batch);
+      for (const ids of results) allProjectIds.push(...ids);
+    }
+
+    // Also search projects where they're the contact (not just responsible)
+    try {
+      const contactProjects = await client.request<SearchResponse>("GET",
+        `/Api/R3/Project?MainContactId=${opts.filterUserId}`);
+      const contactIds = Object.keys(contactProjects.Results || {}).map(Number).filter(Boolean);
+      for (const id of contactIds) {
+        if (!allProjectIds.includes(id)) allProjectIds.push(id);
+      }
+    } catch { /* skip */ }
+
+    projectIds = allProjectIds;
+    console.log(`[fetchAllTodos] User-filtered projects: ${projectIds.length}`);
+  } else if (opts.categoryId) {
+    const projects = await client.request<SearchResponse>("GET",
+      `/Api/R3/Project?CategoryId=${opts.categoryId}${opts.filterUserId ? `&UserId=${opts.filterUserId}` : ''}`);
+    projectIds = Object.keys(projects.Results || {}).map(Number).filter(Boolean);
+    console.log(`[fetchAllTodos] Category ${opts.categoryId}: ${projectIds.length} projects`);
+  } else {
+    // No userId, no categoryId - scan all (slow but complete)
+    const categories = await client.request<Record<string, unknown>>("GET", "/Api/R3/Category");
+    const catIds = Object.keys(categories || {}).map(Number).filter(Boolean);
+    console.log(`[fetchAllTodos] WARNING: scanning ALL ${catIds.length} categories (no userId filter)`);
 
     const allProjectIds: number[] = [];
     for (let i = 0; i < catIds.length; i += 5) {
       const batch = catIds.slice(i, i + 5).map(async (catId) => {
         try {
           const projects = await client.request<SearchResponse>("GET", `/Api/R3/Project?CategoryId=${catId}`);
-          const ids = Object.keys(projects.Results || {}).map(Number).filter(Boolean);
-          console.log(`[fetchAllTodos] Category ${catId}: ${ids.length} projects`);
-          return ids;
-        } catch (err) {
-          console.error(`[fetchAllTodos] Category ${catId} error:`, err);
-          return [];
-        }
+          return Object.keys(projects.Results || {}).map(Number).filter(Boolean);
+        } catch { return []; }
       });
       const results = await Promise.all(batch);
       for (const ids of results) allProjectIds.push(...ids);
