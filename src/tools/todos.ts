@@ -34,11 +34,30 @@ async function fetchAllTodos(
   client: MiniCrmClient,
   opts: { status?: string; categoryId?: number; filterUserId?: number }
 ): Promise<(ToDo & { _projectId: number })[]> {
-  const searchPath = opts.categoryId
-    ? `/Api/R3/Project?CategoryId=${opts.categoryId}`
-    : `/Api/R3/Project`;
-  const projects = await client.search(searchPath, {}, true);
-  const projectIds = Object.keys(projects.Results || {}).map(Number).filter(Boolean);
+  let projectIds: number[] = [];
+
+  if (opts.categoryId) {
+    // Single category
+    const projects = await client.search("/Api/R3/Project", { CategoryId: opts.categoryId }, true);
+    projectIds = Object.keys(projects.Results || {}).map(Number).filter(Boolean);
+  } else {
+    // All categories - fetch category list first, then projects per category in parallel
+    const categories = await client.request<Record<string, unknown>>("GET", "/Api/R3/Category");
+    const catIds = Object.keys(categories || {}).map(Number).filter(Boolean);
+
+    const catBatches = [];
+    for (let i = 0; i < catIds.length; i += 5) {
+      const batch = catIds.slice(i, i + 5).map(async (catId) => {
+        try {
+          const projects = await client.search("/Api/R3/Project", { CategoryId: catId }, true);
+          return Object.keys(projects.Results || {}).map(Number).filter(Boolean);
+        } catch { return []; }
+      });
+      const results = await Promise.all(batch);
+      for (const ids of results) catBatches.push(...ids);
+    }
+    projectIds = catBatches;
+  }
 
   const BATCH = 10;
   const allTodos: (ToDo & { _projectId: number })[] = [];
