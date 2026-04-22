@@ -3,6 +3,47 @@ import { z } from "zod";
 import { MiniCrmClient } from "../client.js";
 
 export function registerOrderTools(server: McpServer, client: MiniCrmClient) {
+
+  // === AGGREGATING TOOL ===
+
+  server.tool(
+    "minicrm_list_orders_detailed",
+    "Megrendelesek listazasa RESZLETES adatokkal (tetelekkel, osszegekkel, statuszokkal). A sima list_orders csak ID-kat ad, ez viszont egybol visszaadja a teljes megrendeles adatokat. HASZNALD EZT a minicrm_list_orders HELYETT!",
+    {
+      updatedSince: z.string().optional().describe("Modositasi datum szuro (formatum: yyyy-mm-dd hh:mm:ss)"),
+      statusGroup: z.enum(["Draft", "InProgress", "Completed", "Successful", "Failed"]).optional().describe("Statusz csoport szuro"),
+    },
+    async ({ updatedSince, statusGroup }) => {
+      try {
+        const params: Record<string, string | number | undefined> = {};
+        if (updatedSince) params.UpdatedSince = updatedSince;
+        if (statusGroup) params.StatusGroup = statusGroup;
+
+        const searchResult = await client.search("/Api/Order/List", params, true);
+        const ids = Object.keys(searchResult.Results || {}).map(Number).filter(Boolean);
+
+        if (ids.length === 0) {
+          return { content: [{ type: "text" as const, text: JSON.stringify({ count: 0, orders: [] }) }] };
+        }
+
+        const fetchIds = ids.slice(0, 50);
+        const details = await client.fetchMany("/Api/Order", fetchIds);
+        const orders = fetchIds.map(id => details.get(id)).filter(Boolean);
+
+        return {
+          content: [{
+            type: "text" as const,
+            text: JSON.stringify({ count: searchResult.Count, returned: orders.length, truncated: ids.length > 50, orders }, null, 2),
+          }],
+        };
+      } catch (error) {
+        return { content: [{ type: "text" as const, text: `Hiba: ${error instanceof Error ? error.message : String(error)}` }], isError: true };
+      }
+    }
+  );
+
+  // === EXISTING TOOLS ===
+
   server.tool(
     "minicrm_create_order",
     "Uj megrendeles letrehozasa. Kotelezo: CustomerId vagy ReferenceId, CurrencyCode es Items.",

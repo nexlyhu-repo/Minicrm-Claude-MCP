@@ -3,6 +3,47 @@ import { z } from "zod";
 import { MiniCrmClient } from "../client.js";
 
 export function registerInvoiceTools(server: McpServer, client: MiniCrmClient) {
+
+  // === AGGREGATING TOOL ===
+
+  server.tool(
+    "minicrm_list_invoices_detailed",
+    "Szamlak listazasa RESZLETES adatokkal (tetelekkel, osszegekkel). A sima list_invoices csak ID-kat ad, ez viszont egybol visszaadja a teljes szamla adatokat. HASZNALD EZT a minicrm_list_invoices HELYETT!",
+    {
+      updatedSince: z.string().optional().describe("Modositasi datum szuro (formatum: yyyy-mm-dd hh:mm:ss)"),
+      statusGroup: z.string().optional().describe("Statusz csoport szuro"),
+    },
+    async ({ updatedSince, statusGroup }) => {
+      try {
+        const params: Record<string, string | number | undefined> = {};
+        if (updatedSince) params.UpdatedSince = updatedSince;
+        if (statusGroup) params.StatusGroup = statusGroup;
+
+        const searchResult = await client.search("/Api/Invoice/List", params, true);
+        const ids = Object.keys(searchResult.Results || {}).map(Number).filter(Boolean);
+
+        if (ids.length === 0) {
+          return { content: [{ type: "text" as const, text: JSON.stringify({ count: 0, invoices: [] }) }] };
+        }
+
+        const fetchIds = ids.slice(0, 50);
+        const details = await client.fetchMany("/Api/Invoice", fetchIds);
+        const invoices = fetchIds.map(id => details.get(id)).filter(Boolean);
+
+        return {
+          content: [{
+            type: "text" as const,
+            text: JSON.stringify({ count: searchResult.Count, returned: invoices.length, truncated: ids.length > 50, invoices }, null, 2),
+          }],
+        };
+      } catch (error) {
+        return { content: [{ type: "text" as const, text: `Hiba: ${error instanceof Error ? error.message : String(error)}` }], isError: true };
+      }
+    }
+  );
+
+  // === EXISTING TOOLS ===
+
   server.tool(
     "minicrm_create_invoice",
     "Uj szamla vagy dijbekero letrehozasa es kiallitasa. Kotelezo: CustomerId vagy ReferenceId. A szamlazasi endpoint-ra nincs sebessegkorlat.",

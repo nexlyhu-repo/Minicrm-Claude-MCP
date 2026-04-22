@@ -3,6 +3,47 @@ import { z } from "zod";
 import { MiniCrmClient } from "../client.js";
 
 export function registerOfferTools(server: McpServer, client: MiniCrmClient) {
+
+  // === AGGREGATING TOOL ===
+
+  server.tool(
+    "minicrm_list_offers_detailed",
+    "Ajanlatok listazasa RESZLETES adatokkal (tetelekkel, osszegekkel). A sima list_offers csak ID-kat ad, ez viszont egybol visszaadja a teljes ajanlat adatokat. HASZNALD EZT a minicrm_list_offers HELYETT!",
+    {
+      updatedSince: z.string().optional().describe("Modositasi datum szuro (formatum: yyyy-mm-dd hh:mm:ss)"),
+      statusGroup: z.string().optional().describe("Statusz csoport szuro"),
+    },
+    async ({ updatedSince, statusGroup }) => {
+      try {
+        const params: Record<string, string | number | undefined> = {};
+        if (updatedSince) params.UpdatedSince = updatedSince;
+        if (statusGroup) params.StatusGroup = statusGroup;
+
+        const searchResult = await client.search("/Api/Offer/List", params, true);
+        const ids = Object.keys(searchResult.Results || {}).map(Number).filter(Boolean);
+
+        if (ids.length === 0) {
+          return { content: [{ type: "text" as const, text: JSON.stringify({ count: 0, offers: [] }) }] };
+        }
+
+        const fetchIds = ids.slice(0, 50);
+        const details = await client.fetchMany("/Api/Offer", fetchIds);
+        const offers = fetchIds.map(id => details.get(id)).filter(Boolean);
+
+        return {
+          content: [{
+            type: "text" as const,
+            text: JSON.stringify({ count: searchResult.Count, returned: offers.length, truncated: ids.length > 50, offers }, null, 2),
+          }],
+        };
+      } catch (error) {
+        return { content: [{ type: "text" as const, text: `Hiba: ${error instanceof Error ? error.message : String(error)}` }], isError: true };
+      }
+    }
+  );
+
+  // === EXISTING TOOLS ===
+
   server.tool(
     "minicrm_create_offer",
     "Uj ajanlat letrehozasa es kiallitasa. Kotelezo: CustomerId vagy ReferenceId.",
