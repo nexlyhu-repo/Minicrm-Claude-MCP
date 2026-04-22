@@ -165,10 +165,9 @@ export function registerToDoTools(server: McpServer, client: MiniCrmClient) {
 
   server.tool(
     "minicrm_list_all_todos",
-    "Az OSSZES teendo lekerdezese egyszerre, az osszes projektbol. Nev vagy userId alapjan szurheto. MINDIG EZT hasznald ha valakinek a teendoit kerdezik! Pl. 'Mik Kovacs Janos teendoi?' → hasznald userName='Kovacs Janos'.",
+    "Az OSSZES teendo lekerdezese egyszerre, az osszes projektbol. FONTOS: Ha a felhasznalo nevet mond, ELOSZOR hivd meg a minicrm_list_users toolt hogy megtudd a userId-jat, es UTANA hivd ezt a toolt a userId-val! Nev nelkul is hivhato (az osszes felhasznalo teendoi).",
     {
-      userName: z.string().optional().describe("A felhasznalo neve akinek a teendoit keresed (pl. 'Kovacs Janos'). A rendszer automatikusan megkeresi az ID-jat."),
-      userId: z.number().optional().describe("A felhasznalo ID-ja (ha mar tudod). Ha userName-t adsz meg, ez nem kell."),
+      userId: z.number().optional().describe("A felhasznalo ID-ja. ELOSZOR hivd meg a minicrm_list_users toolt hogy megtudd az ID-t nevbol!"),
       status: z
         .enum(["Open", "Closed", "All"])
         .optional()
@@ -176,14 +175,12 @@ export function registerToDoTools(server: McpServer, client: MiniCrmClient) {
         .describe("Szuro: Open (nyitott), Closed (lezart) vagy All (mind)"),
       categoryId: z.number().optional().describe("Csak ebbol a modulbol (CategoryId)."),
     },
-    async ({ userName, userId, status, categoryId }) => {
+    async ({ userId, status, categoryId }) => {
       try {
-        const resolvedUserId = await resolveUserId(client, userName, userId);
-
         const todos = await fetchAllTodos(client, {
           status,
           categoryId,
-          filterUserId: resolvedUserId,
+          filterUserId: userId,
         });
 
         return {
@@ -191,8 +188,7 @@ export function registerToDoTools(server: McpServer, client: MiniCrmClient) {
             type: "text" as const,
             text: JSON.stringify({
               count: todos.length,
-              userName: userName || undefined,
-              userId: resolvedUserId || undefined,
+              userId: userId || undefined,
               todos,
             }, null, 2),
           }],
@@ -209,24 +205,13 @@ export function registerToDoTools(server: McpServer, client: MiniCrmClient) {
 
   server.tool(
     "minicrm_my_day",
-    "Napi osszefoglalo: mai hatarideju, lejart es kovetkezo teendok. Nev vagy userId alapjan. HASZNALD EZT ha valaki a mai napjat, teendoit vagy napi osszefoglalojat kerdezi! Pl. 'Mi van mara?' → hasznald userName-mel.",
+    "Napi osszefoglalo: mai hatarideju, lejart es kovetkezo teendok. FONTOS: Ha a felhasznalo nevet mond, ELOSZOR hivd meg a minicrm_list_users toolt hogy megtudd a userId-jat! Pl. 'Mi van mara?' → eloszor list_users, utana my_day a userId-val.",
     {
-      userName: z.string().optional().describe("A felhasznalo neve (pl. 'Ducsai Marcell'). A rendszer automatikusan megkeresi az ID-jat."),
-      userId: z.number().optional().describe("A felhasznalo ID-ja (ha mar tudod). Ha userName-t adsz meg, ez nem kell."),
+      userId: z.number().describe("A felhasznalo ID-ja. ELOSZOR hivd meg a minicrm_list_users toolt hogy megtudd az ID-t nevbol!"),
     },
-    async ({ userName, userId }) => {
+    async ({ userId }) => {
       try {
-        const resolvedUserId = await resolveUserId(client, userName, userId);
-        if (!resolvedUserId) {
-          return {
-            content: [{ type: "text" as const, text: userName
-              ? `Nem talaltam felhasznalot '${userName}' neven. Kerdezz ra pontosabb nevre.`
-              : "userId vagy userName megadasa kotelezo." }],
-            isError: true,
-          };
-        }
-
-        const allTodos = await fetchAllTodos(client, { filterUserId: resolvedUserId });
+        const allTodos = await fetchAllTodos(client, { filterUserId: userId });
 
         const now = new Date();
         const todayStr = now.toISOString().split("T")[0];
@@ -247,8 +232,7 @@ export function registerToDoTools(server: McpServer, client: MiniCrmClient) {
           content: [{
             type: "text" as const,
             text: JSON.stringify({
-              userName: userName || undefined,
-              userId: resolvedUserId,
+              userId,
               date: todayStr,
               summary: {
                 today: today.length,
