@@ -16,32 +16,44 @@ interface ToDo {
 
 // Helper: resolve user name to MiniCRM UserId
 // MiniCRM UserId (for todos/projects) is NOT the same as Contact Id.
-// Strategy: search projects by query to find ones matching the name, then extract UserId from a project.
+// Strategy: get project schema, find UserId field, match name.
 async function resolveUserId(client: MiniCrmClient, userName?: string, userId?: number): Promise<number | undefined> {
   if (userId) return userId;
   if (!userName) return undefined;
 
+  const searchName = userName.toLowerCase();
+
   try {
-    // Try searching projects where this person is the responsible user
-    // We check a few categories to find any project with this user's name
     const categories = await client.request<Record<string, unknown>>("GET", "/Api/R3/Category");
     const catIds = Object.keys(categories || {}).map(Number).filter(Boolean);
 
-    for (const catId of catIds.slice(0, 10)) {
+    for (const catId of catIds.slice(0, 5)) {
       try {
-        // Get project schema to find UserIds
         const schema = await client.request<Record<string, unknown>>("GET", `/Api/R3/Schema/Project/${catId}`);
-        const userField = (schema as any)?.UserId;
-        if (userField && typeof userField === 'object') {
-          // userField contains { "Values": { "12345": "Ducsai Marcell", ... } }
-          const values = (userField as any).Values || (userField as any).options || {};
-          for (const [id, name] of Object.entries(values)) {
-            if (typeof name === 'string' && name.toLowerCase().includes(userName.toLowerCase())) {
-              const resolved = parseInt(id, 10);
-              if (resolved) {
-                console.log(`[resolveUserId] '${userName}' → ${resolved} (from schema cat ${catId})`);
-                return resolved;
-              }
+
+        // Log the full UserId field structure so we can see what format it has
+        const userField = schema?.UserId;
+        if (!userField || typeof userField !== 'object') {
+          console.log(`[resolveUserId] cat ${catId}: UserId field is ${typeof userField}`);
+          continue;
+        }
+
+        // Dump all keys of the UserId object for debugging
+        const fieldKeys = Object.keys(userField as Record<string, unknown>);
+        console.log(`[resolveUserId] cat ${catId}: UserId field keys: ${fieldKeys.join(', ')}`);
+
+        // Try every possible sub-key that might contain the user list
+        const uf = userField as Record<string, unknown>;
+        const candidates = [uf.Values, uf.options, uf.Options, uf.Enum, uf];
+
+        for (const values of candidates) {
+          if (!values || typeof values !== 'object') continue;
+          for (const [id, name] of Object.entries(values as Record<string, unknown>)) {
+            const numId = parseInt(id, 10);
+            if (!numId || typeof name !== 'string') continue;
+            if (name.toLowerCase().includes(searchName) || searchName.includes(name.toLowerCase())) {
+              console.log(`[resolveUserId] '${userName}' → ${numId} (name: '${name}', cat ${catId})`);
+              return numId;
             }
           }
         }
