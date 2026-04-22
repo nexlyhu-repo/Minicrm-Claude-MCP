@@ -3,6 +3,115 @@ import { z } from "zod";
 import { MiniCrmClient } from "../client.js";
 
 export function registerContactTools(server: McpServer, client: MiniCrmClient) {
+
+  // === AGGREGATING TOOLS ===
+
+  server.tool(
+    "minicrm_search_contacts_detailed",
+    "Kontaktok keresese RESZLETES adatokkal. A sima search csak ID-kat ad, ez viszont egybol visszaadja minden talalat teljes adatait (nev, email, telefon, cim, egyedi mezok). HASZNALD EZT a minicrm_search_contacts HELYETT!",
+    {
+      email: z.string().optional().describe("Email cim alapjan kereses"),
+      phone: z.string().optional().describe("Telefonszam alapjan kereses"),
+      name: z.string().optional().describe("Nev alapjan kereses (reszleges egyezes)"),
+      query: z.string().optional().describe("Szabad szoveges kereses"),
+      mainContactId: z.number().optional().describe("Ceg ID - az adott ceghez tartozo kontaktok"),
+    },
+    async ({ email, phone, name, query, mainContactId }) => {
+      try {
+        const params: Record<string, string | number | undefined> = {};
+        if (email) params.Email = email;
+        if (phone) params.Phone = phone;
+        if (name) params.Name = name;
+        if (query) params.Query = query;
+        if (mainContactId) params.MainContactId = mainContactId;
+
+        const searchResult = await client.search("/Api/R3/Contact", params, true);
+        const ids = Object.keys(searchResult.Results || {}).map(Number).filter(Boolean);
+
+        if (ids.length === 0) {
+          return { content: [{ type: "text" as const, text: JSON.stringify({ count: 0, contacts: [] }) }] };
+        }
+
+        // Fetch details in parallel (max 50)
+        const fetchIds = ids.slice(0, 50);
+        const details = await client.fetchMany("/Api/R3/Contact", fetchIds);
+        const contacts = fetchIds.map(id => details.get(id)).filter(Boolean);
+
+        return {
+          content: [{
+            type: "text" as const,
+            text: JSON.stringify({
+              count: searchResult.Count,
+              returned: contacts.length,
+              truncated: ids.length > 50,
+              contacts,
+            }, null, 2),
+          }],
+        };
+      } catch (error) {
+        return { content: [{ type: "text" as const, text: `Hiba: ${error instanceof Error ? error.message : String(error)}` }], isError: true };
+      }
+    }
+  );
+
+  server.tool(
+    "minicrm_get_contact_full",
+    "Kontakt TELJES profil: szemelyes adatok + az osszes hozzatartozo projekt (adatlap) reszletekkel + nyitott teendok. Egyetlen hivassal kapod meg amit egyebkent 5-10 tool call lenne!",
+    { contactId: z.number().describe("A kontakt ID-ja") },
+    async ({ contactId }) => {
+      try {
+        // Parallel: contact details + projects search
+        const [contact, projectSearch] = await Promise.all([
+          client.request("GET", `/Api/R3/Contact/${contactId}`),
+          client.search("/Api/R3/Project", { MainContactId: contactId }, true),
+        ]);
+
+        const projectIds = Object.keys(projectSearch.Results || {}).map(Number).filter(Boolean);
+
+        // Fetch project details + todos in parallel
+        const projectDetails = projectIds.length > 0
+          ? await client.fetchMany("/Api/R3/Project", projectIds.slice(0, 20))
+          : new Map();
+
+        // Fetch todos for each project
+        const todosMap = new Map<number, unknown[]>();
+        if (projectIds.length > 0) {
+          const BATCH = 10;
+          for (let i = 0; i < Math.min(projectIds.length, 20); i += BATCH) {
+            const batch = projectIds.slice(i, i + BATCH).map(async (pid) => {
+              try {
+                const data = await client.request<Record<string, unknown>>("GET", `/Api/R3/ToDoList/${pid}?Status=Open`);
+                const todos = Object.values(data || {}).filter((t): t is Record<string, unknown> => typeof t === "object" && t !== null && "Id" in t);
+                if (todos.length > 0) todosMap.set(pid, todos);
+              } catch { /* skip */ }
+            });
+            await Promise.all(batch);
+          }
+        }
+
+        const projects = projectIds.slice(0, 20).map(id => ({
+          ...projectDetails.get(id) as Record<string, unknown>,
+          _todos: todosMap.get(id) || [],
+        }));
+
+        return {
+          content: [{
+            type: "text" as const,
+            text: JSON.stringify({
+              contact,
+              projectCount: projectSearch.Count,
+              projects,
+            }, null, 2),
+          }],
+        };
+      } catch (error) {
+        return { content: [{ type: "text" as const, text: `Hiba: ${error instanceof Error ? error.message : String(error)}` }], isError: true };
+      }
+    }
+  );
+
+  // === EXISTING TOOLS ===
+
   server.tool(
     "minicrm_search_contacts",
     "Kontaktok (szemelyek es cegek) keresese. Kereses nev, email, telefon, kulcsszo vagy egyedi mezo alapjan. Oldalankent 100 eredmeny.",

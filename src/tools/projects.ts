@@ -3,6 +3,103 @@ import { z } from "zod";
 import { MiniCrmClient } from "../client.js";
 
 export function registerProjectTools(server: McpServer, client: MiniCrmClient) {
+
+  // === AGGREGATING TOOLS ===
+
+  server.tool(
+    "minicrm_search_projects_detailed",
+    "Projektek keresese RESZLETES adatokkal. A sima search csak ID-kat ad, ez viszont egybol visszaadja minden talalat teljes adatait (mezok, statusz, kontakt). HASZNALD EZT a minicrm_search_projects HELYETT!",
+    {
+      categoryId: z.number().optional().describe("Modul (kategoria) ID"),
+      statusId: z.number().optional().describe("Statusz ID"),
+      statusGroup: z.enum(["Lead", "Open", "Success", "Failed"]).optional().describe("Statusz csoport"),
+      userId: z.number().optional().describe("Felelos felhasznalo ID-ja"),
+      query: z.string().optional().describe("Szabad szoveges kereses"),
+      mainContactId: z.number().optional().describe("Ceg ID"),
+      extraFilters: z.record(z.string()).optional().describe("Egyedi mezo szurok"),
+    },
+    async ({ categoryId, statusId, statusGroup, userId, query, mainContactId, extraFilters }) => {
+      try {
+        const params: Record<string, string | number | undefined> = {};
+        if (categoryId) params.CategoryId = categoryId;
+        if (statusId) params.StatusId = statusId;
+        if (statusGroup) params.StatusGroup = statusGroup;
+        if (userId) params.UserId = userId;
+        if (query) params.Query = query;
+        if (mainContactId) params.MainContactId = mainContactId;
+        if (extraFilters) for (const [k, v] of Object.entries(extraFilters)) params[k] = v;
+
+        const searchResult = await client.search("/Api/R3/Project", params, true);
+        const ids = Object.keys(searchResult.Results || {}).map(Number).filter(Boolean);
+
+        if (ids.length === 0) {
+          return { content: [{ type: "text" as const, text: JSON.stringify({ count: 0, projects: [] }) }] };
+        }
+
+        const fetchIds = ids.slice(0, 50);
+        const details = await client.fetchMany("/Api/R3/Project", fetchIds);
+        const projects = fetchIds.map(id => details.get(id)).filter(Boolean);
+
+        return {
+          content: [{
+            type: "text" as const,
+            text: JSON.stringify({
+              count: searchResult.Count,
+              returned: projects.length,
+              truncated: ids.length > 50,
+              projects,
+            }, null, 2),
+          }],
+        };
+      } catch (error) {
+        return { content: [{ type: "text" as const, text: `Hiba: ${error instanceof Error ? error.message : String(error)}` }], isError: true };
+      }
+    }
+  );
+
+  server.tool(
+    "minicrm_get_project_full",
+    "Projekt TELJES adatai: minden mezo + kontakt adatok + teendok + statusz tortenelem. Egyetlen hivassal kapod meg amit egyebkent 3-4 tool call lenne!",
+    { projectId: z.number().describe("A projekt (adatlap) ID-ja") },
+    async ({ projectId }) => {
+      try {
+        // All 3 requests in parallel
+        const [project, todos, history] = await Promise.all([
+          client.request("GET", `/Api/R3/Project/${projectId}`),
+          client.request<Record<string, unknown>>("GET", `/Api/R3/ToDoList/${projectId}`).catch(() => ({})),
+          client.request("GET", `/Api/R3/ProjectHistory/${projectId}?Type=StatusHistory`).catch(() => ({})),
+        ]);
+
+        // Fetch contact details if available
+        const proj = project as Record<string, unknown>;
+        let contact = null;
+        if (proj.ContactId) {
+          try {
+            contact = await client.request("GET", `/Api/R3/Contact/${proj.ContactId}`);
+          } catch { /* skip */ }
+        }
+
+        const todoList = Object.values(todos || {}).filter((t): t is Record<string, unknown> => typeof t === "object" && t !== null && "Id" in t);
+
+        return {
+          content: [{
+            type: "text" as const,
+            text: JSON.stringify({
+              project: proj,
+              contact,
+              todos: todoList,
+              statusHistory: history,
+            }, null, 2),
+          }],
+        };
+      } catch (error) {
+        return { content: [{ type: "text" as const, text: `Hiba: ${error instanceof Error ? error.message : String(error)}` }], isError: true };
+      }
+    }
+  );
+
+  // === EXISTING TOOLS ===
+
   server.tool(
     "minicrm_search_projects",
     "Projektek (adatlapok) keresese es szurese. Szurheto modul, statusz, statusz csoport, felhasznalo, kulcsszo vagy egyedi mezo alapjan. Oldalankent 100 eredmeny.",

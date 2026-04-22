@@ -161,6 +161,30 @@ export class MiniCrmClient {
     return result;
   }
 
+  /**
+   * Fetch full details for multiple IDs in parallel batches.
+   * Used by aggregating tools to resolve search results into full objects.
+   */
+  async fetchMany<T = Record<string, unknown>>(
+    pathPrefix: string,
+    ids: number[],
+    batchSize = 10
+  ): Promise<Map<number, T>> {
+    const results = new Map<number, T>();
+    for (let i = 0; i < ids.length; i += batchSize) {
+      const batch = ids.slice(i, i + batchSize).map(async (id) => {
+        try {
+          const data = await this.request<T>("GET", `${pathPrefix}/${id}`);
+          results.set(id, data);
+        } catch {
+          // Skip failed fetches
+        }
+      });
+      await Promise.all(batch);
+    }
+    return results;
+  }
+
   get voipApiKey(): string | undefined {
     return this.config.voipApiKey;
   }
