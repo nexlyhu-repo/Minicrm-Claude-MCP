@@ -19,14 +19,19 @@ async function resolveUserId(client: MiniCrmClient, userName?: string, userId?: 
   if (userId) return userId;
   if (!userName) return undefined;
 
-  // Search contacts by name to find the user
-  const searchResult = await client.search("/Api/R3/Contact", { Name: userName });
-  const ids = Object.keys(searchResult.Results || {}).map(Number).filter(Boolean);
-  if (ids.length === 0) return undefined;
+  try {
+    const searchResult = await client.search("/Api/R3/Contact", { Name: userName });
+    const ids = Object.keys(searchResult.Results || {}).map(Number).filter(Boolean);
+    if (ids.length === 0) return undefined;
 
-  // Get the first matching contact to extract their ID (which is also their UserId in todos)
-  const contact = await client.request<Record<string, unknown>>("GET", `/Api/R3/Contact/${ids[0]}`);
-  return (contact as any).Id || ids[0];
+    const contact = await client.request<Record<string, unknown>>("GET", `/Api/R3/Contact/${ids[0]}`);
+    const resolved = (contact as any).Id || ids[0];
+    console.log(`[resolveUserId] '${userName}' → ${resolved}`);
+    return resolved;
+  } catch (err) {
+    console.error(`[resolveUserId] error for '${userName}':`, err);
+    return undefined;
+  }
 }
 
 // Helper: fetch all todos from all projects in parallel
@@ -44,19 +49,26 @@ async function fetchAllTodos(
     // All categories - fetch category list first, then projects per category in parallel
     const categories = await client.request<Record<string, unknown>>("GET", "/Api/R3/Category");
     const catIds = Object.keys(categories || {}).map(Number).filter(Boolean);
+    console.log(`[fetchAllTodos] Found ${catIds.length} categories: ${catIds.join(', ')}`);
 
     const allProjectIds: number[] = [];
     for (let i = 0; i < catIds.length; i += 5) {
       const batch = catIds.slice(i, i + 5).map(async (catId) => {
         try {
           const projects = await client.request<SearchResponse>("GET", `/Api/R3/Project?CategoryId=${catId}`);
-          return Object.keys(projects.Results || {}).map(Number).filter(Boolean);
-        } catch { return []; }
+          const ids = Object.keys(projects.Results || {}).map(Number).filter(Boolean);
+          console.log(`[fetchAllTodos] Category ${catId}: ${ids.length} projects`);
+          return ids;
+        } catch (err) {
+          console.error(`[fetchAllTodos] Category ${catId} error:`, err);
+          return [];
+        }
       });
       const results = await Promise.all(batch);
       for (const ids of results) allProjectIds.push(...ids);
     }
     projectIds = allProjectIds;
+    console.log(`[fetchAllTodos] Total projects: ${projectIds.length}`);
   }
 
   const BATCH = 10;
@@ -123,6 +135,7 @@ export function registerToDoTools(server: McpServer, client: MiniCrmClient) {
           }],
         };
       } catch (error) {
+        console.error("[minicrm_list_all_todos] error:", error);
         return {
           content: [{ type: "text" as const, text: `Hiba: ${error instanceof Error ? error.message : String(error)}` }],
           isError: true,
