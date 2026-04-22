@@ -107,19 +107,16 @@ export function registerSchemaTools(server: McpServer, client: MiniCrmClient) {
         for (const catId of catIds.slice(0, 5)) {
           try {
             const schema = await client.request<Record<string, unknown>>("GET", `/Api/R3/Schema/Project/${catId}`);
-            const userField = schema?.UserId as Record<string, unknown> | undefined;
-            if (userField) {
-              // Could be in Values, options, or directly as an enum-like structure
-              const values = (userField as any).Values || (userField as any).options || {};
-              if (typeof values === 'object') {
-                for (const [id, name] of Object.entries(values)) {
-                  if (typeof name === 'string' && parseInt(id, 10)) {
-                    users[id] = name;
-                  }
+            const userField = schema?.UserId;
+            if (userField && typeof userField === 'object') {
+              // MiniCRM stores users directly as { "165405": "Ducsai Marcell", ... }
+              for (const [id, name] of Object.entries(userField as Record<string, unknown>)) {
+                if (typeof name === 'string' && parseInt(id, 10)) {
+                  users[id] = name;
                 }
               }
             }
-            if (Object.keys(users).length > 0) break; // Found users, stop searching
+            if (Object.keys(users).length > 0) break;
           } catch { continue; }
         }
 
