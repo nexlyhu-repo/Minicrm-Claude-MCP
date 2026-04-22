@@ -14,68 +14,92 @@ interface ToDo {
   [key: string]: unknown;
 }
 
+// Helper: resolve user name to userId by searching contacts
+async function resolveUserId(client: MiniCrmClient, userName?: string, userId?: number): Promise<number | undefined> {
+  if (userId) return userId;
+  if (!userName) return undefined;
+
+  // Search contacts by name to find the user
+  const searchResult = await client.search("/Api/R3/Contact", { Name: userName });
+  const ids = Object.keys(searchResult.Results || {}).map(Number).filter(Boolean);
+  if (ids.length === 0) return undefined;
+
+  // Get the first matching contact to extract their ID (which is also their UserId in todos)
+  const contact = await client.request<Record<string, unknown>>("GET", `/Api/R3/Contact/${ids[0]}`);
+  return (contact as any).Id || ids[0];
+}
+
+// Helper: fetch all todos from all projects in parallel
+async function fetchAllTodos(
+  client: MiniCrmClient,
+  opts: { status?: string; categoryId?: number; filterUserId?: number }
+): Promise<(ToDo & { _projectId: number })[]> {
+  const searchPath = opts.categoryId
+    ? `/Api/R3/Project?CategoryId=${opts.categoryId}`
+    : `/Api/R3/Project`;
+  const projects = await client.search(searchPath, {}, true);
+  const projectIds = Object.keys(projects.Results || {}).map(Number).filter(Boolean);
+
+  const BATCH = 10;
+  const allTodos: (ToDo & { _projectId: number })[] = [];
+
+  for (let i = 0; i < projectIds.length; i += BATCH) {
+    const batch = projectIds.slice(i, i + BATCH).map(async (pid) => {
+      try {
+        let path = `/Api/R3/ToDoList/${pid}`;
+        const statusFilter = opts.status && opts.status !== "All" ? opts.status : "Open";
+        path += `?Status=${statusFilter}`;
+        const data = await client.request<Record<string, ToDo>>("GET", path);
+        return Object.values(data || {})
+          .filter((t): t is ToDo => typeof t === "object" && t !== null && "Id" in t)
+          .filter((t) => !opts.filterUserId || t.UserId === opts.filterUserId)
+          .map((t) => ({ ...t, _projectId: pid }));
+      } catch {
+        return [];
+      }
+    });
+    const results = await Promise.all(batch);
+    for (const todos of results) allTodos.push(...todos);
+  }
+
+  return allTodos;
+}
+
 export function registerToDoTools(server: McpServer, client: MiniCrmClient) {
 
   // === AGGREGATING TOOLS ===
 
   server.tool(
     "minicrm_list_all_todos",
-    "Az osszes teendo lekerdezese az osszes projektbol egyszerre. Szurheto felhasznalo (userId) es statusz alapjan. HASZNALD EZT a minicrm_list_todos HELYETT, ha tobb projekt teendoire vagy kivancsi!",
+    "Az OSSZES teendo lekerdezese egyszerre, az osszes projektbol. Nev vagy userId alapjan szurheto. MINDIG EZT hasznald ha valakinek a teendoit kerdezik! Pl. 'Mik Kovacs Janos teendoi?' → hasznald userName='Kovacs Janos'.",
     {
-      userId: z.number().optional().describe("Csak ennek a felhasznalonak a teendoi (UserId). Ha nincs megadva, az osszes felhasznalo teendoi jonnek."),
+      userName: z.string().optional().describe("A felhasznalo neve akinek a teendoit keresed (pl. 'Kovacs Janos'). A rendszer automatikusan megkeresi az ID-jat."),
+      userId: z.number().optional().describe("A felhasznalo ID-ja (ha mar tudod). Ha userName-t adsz meg, ez nem kell."),
       status: z
         .enum(["Open", "Closed", "All"])
         .optional()
         .default("Open")
         .describe("Szuro: Open (nyitott), Closed (lezart) vagy All (mind)"),
-      categoryId: z.number().optional().describe("Csak ebbol a modulbol (CategoryId). Ha nincs megadva, az osszes modulbol."),
+      categoryId: z.number().optional().describe("Csak ebbol a modulbol (CategoryId)."),
     },
-    async ({ userId, status, categoryId }) => {
+    async ({ userName, userId, status, categoryId }) => {
       try {
-        // 1. Get all projects (or filtered by category)
-        const searchPath = categoryId
-          ? `/Api/R3/Project?CategoryId=${categoryId}`
-          : `/Api/R3/Project`;
-        const projects = await client.search(searchPath, {}, true);
-        const projectIds = Object.keys(projects.Results || {}).map(Number).filter(Boolean);
+        const resolvedUserId = await resolveUserId(client, userName, userId);
 
-        if (projectIds.length === 0) {
-          return { content: [{ type: "text" as const, text: JSON.stringify({ count: 0, todos: [] }) }] };
-        }
-
-        // 2. Fetch todos for all projects in parallel (batches of 10)
-        const BATCH = 10;
-        const allTodos: (ToDo & { _projectId: number })[] = [];
-
-        for (let i = 0; i < projectIds.length; i += BATCH) {
-          const batch = projectIds.slice(i, i + BATCH).map(async (pid) => {
-            try {
-              let path = `/Api/R3/ToDoList/${pid}`;
-              if (status && status !== "All") path += `?Status=${status}`;
-              const data = await client.request<Record<string, ToDo>>("GET", path);
-              return Object.values(data || {})
-                .filter((t): t is ToDo => typeof t === "object" && t !== null && "Id" in t)
-                .map((t) => ({ ...t, _projectId: pid }));
-            } catch {
-              return [];
-            }
-          });
-          const results = await Promise.all(batch);
-          for (const todos of results) allTodos.push(...todos);
-        }
-
-        // 3. Filter by userId if specified
-        const filtered = userId
-          ? allTodos.filter((t) => t.UserId === userId)
-          : allTodos;
+        const todos = await fetchAllTodos(client, {
+          status,
+          categoryId,
+          filterUserId: resolvedUserId,
+        });
 
         return {
           content: [{
             type: "text" as const,
             text: JSON.stringify({
-              count: filtered.length,
-              projectsScanned: projectIds.length,
-              todos: filtered,
+              count: todos.length,
+              userName: userName || undefined,
+              userId: resolvedUserId || undefined,
+              todos,
             }, null, 2),
           }],
         };
@@ -90,33 +114,24 @@ export function registerToDoTools(server: McpServer, client: MiniCrmClient) {
 
   server.tool(
     "minicrm_my_day",
-    "Mai nap teendoi: mai hatarideju, lejartak (overdue) es elnapolt teendok egy felhasznalohoz. Egy hivassal megkapod a teljes napi osszefoglalot!",
+    "Napi osszefoglalo: mai hatarideju, lejart es kovetkezo teendok. Nev vagy userId alapjan. HASZNALD EZT ha valaki a mai napjat, teendoit vagy napi osszefoglalojat kerdezi! Pl. 'Mi van mara?' → hasznald userName-mel.",
     {
-      userId: z.number().describe("A felhasznalo ID-ja (UserId) akinek a napjat latni akarod"),
+      userName: z.string().optional().describe("A felhasznalo neve (pl. 'Ducsai Marcell'). A rendszer automatikusan megkeresi az ID-jat."),
+      userId: z.number().optional().describe("A felhasznalo ID-ja (ha mar tudod). Ha userName-t adsz meg, ez nem kell."),
     },
-    async ({ userId }) => {
+    async ({ userName, userId }) => {
       try {
-        // Reuse the list_all_todos logic
-        const projects = await client.search("/Api/R3/Project", {}, true);
-        const projectIds = Object.keys(projects.Results || {}).map(Number).filter(Boolean);
-
-        const BATCH = 10;
-        const allTodos: (ToDo & { _projectId: number })[] = [];
-
-        for (let i = 0; i < projectIds.length; i += BATCH) {
-          const batch = projectIds.slice(i, i + BATCH).map(async (pid) => {
-            try {
-              const data = await client.request<Record<string, ToDo>>("GET", `/Api/R3/ToDoList/${pid}?Status=Open`);
-              return Object.values(data || {})
-                .filter((t): t is ToDo => typeof t === "object" && t !== null && "Id" in t && t.UserId === userId)
-                .map((t) => ({ ...t, _projectId: pid }));
-            } catch {
-              return [];
-            }
-          });
-          const results = await Promise.all(batch);
-          for (const todos of results) allTodos.push(...todos);
+        const resolvedUserId = await resolveUserId(client, userName, userId);
+        if (!resolvedUserId) {
+          return {
+            content: [{ type: "text" as const, text: userName
+              ? `Nem talaltam felhasznalot '${userName}' neven. Kerdezz ra pontosabb nevre.`
+              : "userId vagy userName megadasa kotelezo." }],
+            isError: true,
+          };
         }
+
+        const allTodos = await fetchAllTodos(client, { filterUserId: resolvedUserId });
 
         const now = new Date();
         const todayStr = now.toISOString().split("T")[0];
@@ -137,7 +152,8 @@ export function registerToDoTools(server: McpServer, client: MiniCrmClient) {
           content: [{
             type: "text" as const,
             text: JSON.stringify({
-              userId,
+              userName: userName || undefined,
+              userId: resolvedUserId,
               date: todayStr,
               summary: {
                 today: today.length,
