@@ -39,7 +39,8 @@ export function getAdminDashboardHtml(): string {
   .badge.inactive { background:#f0606020; color:var(--red); }
   .badge.expired { background:#e8a04020; color:var(--amber); }
   .badge.trial { background:#4f7df520; color:var(--accent); }
-  .key-cell { font-family:monospace; font-size:11px; color:var(--text2); max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .key-cell { font-family:monospace; font-size:11px; color:var(--text2); word-break:break-all; cursor:pointer; }
+  .key-cell:hover { color:var(--accent-bright); }
   .note-cell { font-size:12px; color:var(--text2); max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .actions { display:flex; gap:6px; }
   .btn-sm { padding:4px 10px; border:1px solid var(--border); border-radius:4px; font-size:11px; cursor:pointer; background:transparent; color:var(--text2); }
@@ -220,7 +221,7 @@ function renderLicenses(licenses) {
       '<td>' + badge + '</td>' +
       '<td>' + esc(userName) + '</td>' +
       '<td style="font-size:12px;color:var(--text2)">' + esc(l.email) + '</td>' +
-      '<td class="key-cell" title="' + esc(l.key) + '">' + esc(l.key) + '</td>' +
+      '<td class="key-cell" onclick="navigator.clipboard.writeText(\\'' + l.key + '\\');this.style.color=\\'#3dd68c\\';setTimeout(()=>this.style.color=\\'\\',1000)" title="Kattints a másoláshoz">' + esc(l.key) + '</td>' +
       '<td style="font-size:12px">' + (l.boundSystemId || '-') + '</td>' +
       '<td style="font-weight:600">' + (l.total_calls || 0) + '</td>' +
       '<td style="font-size:12px;color:var(--text2)">' + lastUsed + '</td>' +
