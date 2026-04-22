@@ -21,48 +21,33 @@ async function fetchAllTodos(
 ): Promise<(ToDo & { _projectId: number })[]> {
   let projectIds: number[] = [];
 
-  // Strategy: if we have a userId, search projects where they're responsible (much faster)
-  // This reduces 1500+ projects to typically 10-30
-  if (opts.filterUserId && !opts.categoryId) {
-    // Get categories first, then search per category with UserId filter
-    const categories = await client.request<Record<string, unknown>>("GET", "/Api/R3/Category");
-    const catIds = Object.keys(categories || {}).map(Number).filter(Boolean);
-    console.log(`[fetchAllTodos] ${catIds.length} categories, filtering by UserId=${opts.filterUserId}`);
+  // Get all categories, then fetch projects per category
+  // Note: we DON'T filter projects by UserId because todos can be assigned
+  // to a user on ANY project, not just ones they're responsible for.
+  // Instead, we filter at the todo level.
+  const categories = await client.request<Record<string, unknown>>("GET", "/Api/R3/Category");
+  const catIds = opts.categoryId
+    ? [opts.categoryId]
+    : Object.keys(categories || {}).map(Number).filter(Boolean);
 
-    const allProjectIds: number[] = [];
-    for (let i = 0; i < catIds.length; i += 5) {
-      const batch = catIds.slice(i, i + 5).map(async (catId) => {
-        try {
-          const projects = await client.request<SearchResponse>("GET",
-            `/Api/R3/Project?CategoryId=${catId}&UserId=${opts.filterUserId}`);
-          return Object.keys(projects.Results || {}).map(Number).filter(Boolean);
-        } catch { return []; }
-      });
-      const results = await Promise.all(batch);
-      for (const ids of results) allProjectIds.push(...ids);
-    }
+  console.log(`[fetchAllTodos] Scanning ${catIds.length} categories`);
 
-    // Also search projects where they're the contact (not just responsible)
-    try {
-      const contactProjects = await client.request<SearchResponse>("GET",
-        `/Api/R3/Project?MainContactId=${opts.filterUserId}`);
-      const contactIds = Object.keys(contactProjects.Results || {}).map(Number).filter(Boolean);
-      for (const id of contactIds) {
-        if (!allProjectIds.includes(id)) allProjectIds.push(id);
-      }
-    } catch { /* skip */ }
-
-    projectIds = allProjectIds;
-    console.log(`[fetchAllTodos] User-filtered projects: ${projectIds.length}`);
-  } else if (opts.categoryId) {
-    const projects = await client.request<SearchResponse>("GET",
-      `/Api/R3/Project?CategoryId=${opts.categoryId}${opts.filterUserId ? `&UserId=${opts.filterUserId}` : ''}`);
-    projectIds = Object.keys(projects.Results || {}).map(Number).filter(Boolean);
-    console.log(`[fetchAllTodos] Category ${opts.categoryId}: ${projectIds.length} projects`);
-  } else {
-    // No userId and no categoryId - refuse to scan everything
-    throw new Error("userId vagy categoryId megadasa kotelezo. Hasznald a minicrm_list_users toolt a userId megtalalasahoz!");
+  const allProjectIds: number[] = [];
+  for (let i = 0; i < catIds.length; i += 5) {
+    const batch = catIds.slice(i, i + 5).map(async (catId) => {
+      try {
+        const projects = await client.request<SearchResponse>("GET", `/Api/R3/Project?CategoryId=${catId}`);
+        return Object.keys(projects.Results || {}).map(Number).filter(Boolean);
+      } catch { return []; }
+    });
+    const results = await Promise.all(batch);
+    for (const ids of results) allProjectIds.push(...ids);
   }
+  // Cap at 300 projects to avoid timeout (rate limit: 60/min)
+  const MAX_PROJECTS = 300;
+  projectIds = allProjectIds.slice(0, MAX_PROJECTS);
+  const truncated = allProjectIds.length > MAX_PROJECTS;
+  console.log(`[fetchAllTodos] Scanning ${projectIds.length}/${allProjectIds.length} projects${truncated ? ' (TRUNCATED)' : ''}`);
 
   const BATCH = 10;
   const allTodos: (ToDo & { _projectId: number })[] = [];
