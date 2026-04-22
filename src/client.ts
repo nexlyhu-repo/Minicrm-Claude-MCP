@@ -56,33 +56,60 @@ export class MiniCrmClient {
     }
 
     let retries = 0;
-    while (retries <= 2) {
-      const response = await fetch(url, options);
-
-      if (response.status === 429) {
-        retries++;
-        if (retries > 2) {
-          throw new Error("MiniCRM API sebessegkorlat tullepve (429). Probalja ujra kesobb.");
-        }
-        const waitMs = Math.min(retries * 5000, 15000);
-        await new Promise((resolve) => setTimeout(resolve, waitMs));
-        continue;
-      }
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(
-          `MiniCRM API hiba (${response.status}): ${errorText}`
-        );
-      }
-
-      const text = await response.text();
-      if (!text) return {} as T;
-
+    const MAX_RETRIES = 3;
+    while (retries <= MAX_RETRIES) {
       try {
-        return JSON.parse(text) as T;
-      } catch {
-        throw new Error(`MiniCRM API ervenytelen valasz: ${text.substring(0, 200)}`);
+        const response = await fetch(url, options);
+
+        if (response.status === 429) {
+          retries++;
+          if (retries > MAX_RETRIES) {
+            throw new Error("MiniCRM API sebessegkorlat tullepve (429). Probalja ujra kesobb.");
+          }
+          const waitMs = Math.min(retries * 5000, 15000);
+          await new Promise((resolve) => setTimeout(resolve, waitMs));
+          continue;
+        }
+
+        // Retry on server errors (5xx)
+        if (response.status >= 500) {
+          retries++;
+          if (retries > MAX_RETRIES) {
+            const errorText = await response.text();
+            throw new Error(`MiniCRM API szerverhiba (${response.status}): ${errorText}`);
+          }
+          const waitMs = Math.min(retries * 2000, 10000);
+          await new Promise((resolve) => setTimeout(resolve, waitMs));
+          continue;
+        }
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(
+            `MiniCRM API hiba (${response.status}): ${errorText}`
+          );
+        }
+
+        const text = await response.text();
+        if (!text) return {} as T;
+
+        try {
+          return JSON.parse(text) as T;
+        } catch {
+          throw new Error(`MiniCRM API ervenytelen valasz: ${text.substring(0, 200)}`);
+        }
+      } catch (err) {
+        // Retry on network errors (timeout, connection reset)
+        if (err instanceof TypeError || (err instanceof DOMException && err.name === "AbortError")) {
+          retries++;
+          if (retries > MAX_RETRIES) {
+            throw new Error(`MiniCRM API halozati hiba ${MAX_RETRIES} ujraproba utan: ${err.message}`);
+          }
+          const waitMs = Math.min(retries * 2000, 10000);
+          await new Promise((resolve) => setTimeout(resolve, waitMs));
+          continue;
+        }
+        throw err;
       }
     }
 
@@ -110,12 +137,20 @@ export class MiniCrmClient {
     const totalPages = Math.min(Math.ceil(first.Count / 100), MAX_PAGES);
     const allResults = { ...first.Results };
 
-    for (let page = 1; page < totalPages; page++) {
-      const pagePath = query
-        ? `${basePath}?${query}&Page=${page}`
-        : `${basePath}?Page=${page}`;
-      const pageData = await this.request<SearchResponse>("GET", pagePath);
-      Object.assign(allResults, pageData.Results);
+    // Fetch remaining pages in parallel (batches of 5)
+    const BATCH_SIZE = 5;
+    for (let batchStart = 1; batchStart < totalPages; batchStart += BATCH_SIZE) {
+      const batch = [];
+      for (let page = batchStart; page < Math.min(batchStart + BATCH_SIZE, totalPages); page++) {
+        const pagePath = query
+          ? `${basePath}?${query}&Page=${page}`
+          : `${basePath}?Page=${page}`;
+        batch.push(this.request<SearchResponse>("GET", pagePath));
+      }
+      const results = await Promise.all(batch);
+      for (const pageData of results) {
+        Object.assign(allResults, pageData.Results);
+      }
     }
 
     const result = { Count: first.Count, Results: allResults } as SearchResponse & { truncated?: boolean; fetchedCount?: number };

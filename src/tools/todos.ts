@@ -1,8 +1,167 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { MiniCrmClient } from "../client.js";
+import { SearchResponse } from "../types.js";
+
+interface ToDo {
+  Id: number;
+  ProjectId: number;
+  UserId: number;
+  Comment: string;
+  Deadline: string;
+  Status: string;
+  Type?: string;
+  [key: string]: unknown;
+}
 
 export function registerToDoTools(server: McpServer, client: MiniCrmClient) {
+
+  // === AGGREGATING TOOLS ===
+
+  server.tool(
+    "minicrm_list_all_todos",
+    "Az osszes teendo lekerdezese az osszes projektbol egyszerre. Szurheto felhasznalo (userId) es statusz alapjan. HASZNALD EZT a minicrm_list_todos HELYETT, ha tobb projekt teendoire vagy kivancsi!",
+    {
+      userId: z.number().optional().describe("Csak ennek a felhasznalonak a teendoi (UserId). Ha nincs megadva, az osszes felhasznalo teendoi jonnek."),
+      status: z
+        .enum(["Open", "Closed", "All"])
+        .optional()
+        .default("Open")
+        .describe("Szuro: Open (nyitott), Closed (lezart) vagy All (mind)"),
+      categoryId: z.number().optional().describe("Csak ebbol a modulbol (CategoryId). Ha nincs megadva, az osszes modulbol."),
+    },
+    async ({ userId, status, categoryId }) => {
+      try {
+        // 1. Get all projects (or filtered by category)
+        const searchPath = categoryId
+          ? `/Api/R3/Project?CategoryId=${categoryId}`
+          : `/Api/R3/Project`;
+        const projects = await client.search(searchPath, {}, true);
+        const projectIds = Object.keys(projects.Results || {}).map(Number).filter(Boolean);
+
+        if (projectIds.length === 0) {
+          return { content: [{ type: "text" as const, text: JSON.stringify({ count: 0, todos: [] }) }] };
+        }
+
+        // 2. Fetch todos for all projects in parallel (batches of 10)
+        const BATCH = 10;
+        const allTodos: (ToDo & { _projectId: number })[] = [];
+
+        for (let i = 0; i < projectIds.length; i += BATCH) {
+          const batch = projectIds.slice(i, i + BATCH).map(async (pid) => {
+            try {
+              let path = `/Api/R3/ToDoList/${pid}`;
+              if (status && status !== "All") path += `?Status=${status}`;
+              const data = await client.request<Record<string, ToDo>>("GET", path);
+              return Object.values(data || {})
+                .filter((t): t is ToDo => typeof t === "object" && t !== null && "Id" in t)
+                .map((t) => ({ ...t, _projectId: pid }));
+            } catch {
+              return [];
+            }
+          });
+          const results = await Promise.all(batch);
+          for (const todos of results) allTodos.push(...todos);
+        }
+
+        // 3. Filter by userId if specified
+        const filtered = userId
+          ? allTodos.filter((t) => t.UserId === userId)
+          : allTodos;
+
+        return {
+          content: [{
+            type: "text" as const,
+            text: JSON.stringify({
+              count: filtered.length,
+              projectsScanned: projectIds.length,
+              todos: filtered,
+            }, null, 2),
+          }],
+        };
+      } catch (error) {
+        return {
+          content: [{ type: "text" as const, text: `Hiba: ${error instanceof Error ? error.message : String(error)}` }],
+          isError: true,
+        };
+      }
+    }
+  );
+
+  server.tool(
+    "minicrm_my_day",
+    "Mai nap teendoi: mai hatarideju, lejartak (overdue) es elnapolt teendok egy felhasznalohoz. Egy hivassal megkapod a teljes napi osszefoglalot!",
+    {
+      userId: z.number().describe("A felhasznalo ID-ja (UserId) akinek a napjat latni akarod"),
+    },
+    async ({ userId }) => {
+      try {
+        // Reuse the list_all_todos logic
+        const projects = await client.search("/Api/R3/Project", {}, true);
+        const projectIds = Object.keys(projects.Results || {}).map(Number).filter(Boolean);
+
+        const BATCH = 10;
+        const allTodos: (ToDo & { _projectId: number })[] = [];
+
+        for (let i = 0; i < projectIds.length; i += BATCH) {
+          const batch = projectIds.slice(i, i + BATCH).map(async (pid) => {
+            try {
+              const data = await client.request<Record<string, ToDo>>("GET", `/Api/R3/ToDoList/${pid}?Status=Open`);
+              return Object.values(data || {})
+                .filter((t): t is ToDo => typeof t === "object" && t !== null && "Id" in t && t.UserId === userId)
+                .map((t) => ({ ...t, _projectId: pid }));
+            } catch {
+              return [];
+            }
+          });
+          const results = await Promise.all(batch);
+          for (const todos of results) allTodos.push(...todos);
+        }
+
+        const now = new Date();
+        const todayStr = now.toISOString().split("T")[0];
+
+        const today: typeof allTodos = [];
+        const overdue: typeof allTodos = [];
+        const upcoming: typeof allTodos = [];
+
+        for (const todo of allTodos) {
+          if (!todo.Deadline) { upcoming.push(todo); continue; }
+          const deadlineDate = todo.Deadline.split(" ")[0];
+          if (deadlineDate === todayStr) today.push(todo);
+          else if (deadlineDate < todayStr) overdue.push(todo);
+          else upcoming.push(todo);
+        }
+
+        return {
+          content: [{
+            type: "text" as const,
+            text: JSON.stringify({
+              userId,
+              date: todayStr,
+              summary: {
+                today: today.length,
+                overdue: overdue.length,
+                upcoming: upcoming.length,
+                total: allTodos.length,
+              },
+              today,
+              overdue,
+              upcoming,
+            }, null, 2),
+          }],
+        };
+      } catch (error) {
+        return {
+          content: [{ type: "text" as const, text: `Hiba: ${error instanceof Error ? error.message : String(error)}` }],
+          isError: true,
+        };
+      }
+    }
+  );
+
+  // === EXISTING TOOLS ===
+
   server.tool(
     "minicrm_list_todos",
     "Teendok listazasa egy projekthez (adatlaphoz). Szurheto statusz alapjan.",
