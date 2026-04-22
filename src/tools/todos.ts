@@ -14,60 +14,6 @@ interface ToDo {
   [key: string]: unknown;
 }
 
-// Helper: resolve user name to MiniCRM UserId
-// MiniCRM UserId (for todos/projects) is NOT the same as Contact Id.
-// Strategy: get project schema, find UserId field, match name.
-async function resolveUserId(client: MiniCrmClient, userName?: string, userId?: number): Promise<number | undefined> {
-  if (userId) return userId;
-  if (!userName) return undefined;
-
-  const searchName = userName.toLowerCase();
-
-  try {
-    const categories = await client.request<Record<string, unknown>>("GET", "/Api/R3/Category");
-    const catIds = Object.keys(categories || {}).map(Number).filter(Boolean);
-
-    for (const catId of catIds.slice(0, 5)) {
-      try {
-        const schema = await client.request<Record<string, unknown>>("GET", `/Api/R3/Schema/Project/${catId}`);
-
-        // Log the full UserId field structure so we can see what format it has
-        const userField = schema?.UserId;
-        if (!userField || typeof userField !== 'object') {
-          console.log(`[resolveUserId] cat ${catId}: UserId field is ${typeof userField}`);
-          continue;
-        }
-
-        // Dump all keys of the UserId object for debugging
-        const fieldKeys = Object.keys(userField as Record<string, unknown>);
-        console.log(`[resolveUserId] cat ${catId}: UserId field keys: ${fieldKeys.join(', ')}`);
-
-        // Try every possible sub-key that might contain the user list
-        const uf = userField as Record<string, unknown>;
-        const candidates = [uf.Values, uf.options, uf.Options, uf.Enum, uf];
-
-        for (const values of candidates) {
-          if (!values || typeof values !== 'object') continue;
-          for (const [id, name] of Object.entries(values as Record<string, unknown>)) {
-            const numId = parseInt(id, 10);
-            if (!numId || typeof name !== 'string') continue;
-            if (name.toLowerCase().includes(searchName) || searchName.includes(name.toLowerCase())) {
-              console.log(`[resolveUserId] '${userName}' → ${numId} (name: '${name}', cat ${catId})`);
-              return numId;
-            }
-          }
-        }
-      } catch { continue; }
-    }
-
-    console.log(`[resolveUserId] '${userName}' not found in any schema`);
-    return undefined;
-  } catch (err) {
-    console.error(`[resolveUserId] error for '${userName}':`, err);
-    return undefined;
-  }
-}
-
 // Helper: fetch all todos from all projects in parallel
 async function fetchAllTodos(
   client: MiniCrmClient,
@@ -114,24 +60,8 @@ async function fetchAllTodos(
     projectIds = Object.keys(projects.Results || {}).map(Number).filter(Boolean);
     console.log(`[fetchAllTodos] Category ${opts.categoryId}: ${projectIds.length} projects`);
   } else {
-    // No userId, no categoryId - scan all (slow but complete)
-    const categories = await client.request<Record<string, unknown>>("GET", "/Api/R3/Category");
-    const catIds = Object.keys(categories || {}).map(Number).filter(Boolean);
-    console.log(`[fetchAllTodos] WARNING: scanning ALL ${catIds.length} categories (no userId filter)`);
-
-    const allProjectIds: number[] = [];
-    for (let i = 0; i < catIds.length; i += 5) {
-      const batch = catIds.slice(i, i + 5).map(async (catId) => {
-        try {
-          const projects = await client.request<SearchResponse>("GET", `/Api/R3/Project?CategoryId=${catId}`);
-          return Object.keys(projects.Results || {}).map(Number).filter(Boolean);
-        } catch { return []; }
-      });
-      const results = await Promise.all(batch);
-      for (const ids of results) allProjectIds.push(...ids);
-    }
-    projectIds = allProjectIds;
-    console.log(`[fetchAllTodos] Total projects: ${projectIds.length}`);
+    // No userId and no categoryId - refuse to scan everything
+    throw new Error("userId vagy categoryId megadasa kotelezo. Hasznald a minicrm_list_users toolt a userId megtalalasahoz!");
   }
 
   const BATCH = 10;
