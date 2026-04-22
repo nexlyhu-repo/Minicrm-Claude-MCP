@@ -62,3 +62,15 @@
   to = "http://49.12.196.186:4002/health"
   status = 200
   force = true
+
+[[redirects]]
+  from = "/admin"
+  to = "http://49.12.196.186:4002/admin"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/admin/*"
+  to = "http://49.12.196.186:4002/admin/:splat"
+  status = 200
+  force = true
