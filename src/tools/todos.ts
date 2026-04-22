@@ -37,26 +37,26 @@ async function fetchAllTodos(
   let projectIds: number[] = [];
 
   if (opts.categoryId) {
-    // Single category
-    const projects = await client.search("/Api/R3/Project", { CategoryId: opts.categoryId }, true);
+    // Single category - just first page (max 100 projects)
+    const projects = await client.request<SearchResponse>("GET", `/Api/R3/Project?CategoryId=${opts.categoryId}`);
     projectIds = Object.keys(projects.Results || {}).map(Number).filter(Boolean);
   } else {
     // All categories - fetch category list first, then projects per category in parallel
     const categories = await client.request<Record<string, unknown>>("GET", "/Api/R3/Category");
     const catIds = Object.keys(categories || {}).map(Number).filter(Boolean);
 
-    const catBatches = [];
+    const allProjectIds: number[] = [];
     for (let i = 0; i < catIds.length; i += 5) {
       const batch = catIds.slice(i, i + 5).map(async (catId) => {
         try {
-          const projects = await client.search("/Api/R3/Project", { CategoryId: catId }, true);
+          const projects = await client.request<SearchResponse>("GET", `/Api/R3/Project?CategoryId=${catId}`);
           return Object.keys(projects.Results || {}).map(Number).filter(Boolean);
         } catch { return []; }
       });
       const results = await Promise.all(batch);
-      for (const ids of results) catBatches.push(...ids);
+      for (const ids of results) allProjectIds.push(...ids);
     }
-    projectIds = catBatches;
+    projectIds = allProjectIds;
   }
 
   const BATCH = 10;
