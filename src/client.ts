@@ -4,7 +4,7 @@ export class MiniCrmClient {
   private config: MiniCrmConfig;
   private authHeader: string;
   private requestTimestamps: number[] = [];
-  private readonly RATE_LIMIT = 55; // 60/min limit, keep 5 buffer
+  private readonly RATE_LIMIT = 59; // 60/min limit, keep 1 buffer
   private readonly RATE_WINDOW = 60_000;
 
   constructor(config: MiniCrmConfig) {
@@ -34,9 +34,9 @@ export class MiniCrmClient {
     path: string,
     body?: Record<string, unknown>
   ): Promise<T> {
-    // Invoice endpoints have no rate limit
-    const isInvoice = path.startsWith("/Api/Invoice");
-    if (!isInvoice) {
+    // Invoice and ToDoList endpoints: skip throttle for batch performance
+    const skipThrottle = path.startsWith("/Api/Invoice") || path.includes("/ToDoList/");
+    if (!skipThrottle) {
       await this.throttle();
     }
 

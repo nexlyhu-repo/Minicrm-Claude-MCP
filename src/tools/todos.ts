@@ -49,7 +49,7 @@ async function fetchAllTodos(
   const truncated = allProjectIds.length > MAX_PROJECTS;
   console.log(`[fetchAllTodos] Scanning ${projectIds.length}/${allProjectIds.length} projects${truncated ? ' (TRUNCATED)' : ''}`);
 
-  const BATCH = 10;
+  const BATCH = 20;
   const allTodos: (ToDo & { _projectId: number })[] = [];
 
   for (let i = 0; i < projectIds.length; i += BATCH) {
