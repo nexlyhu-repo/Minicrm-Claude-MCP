@@ -49,7 +49,7 @@ async function fetchAllTodos(
   const truncated = allProjectIds.length > MAX_PROJECTS;
   console.log(`[fetchAllTodos] Scanning ${projectIds.length}/${allProjectIds.length} projects${truncated ? ' (TRUNCATED)' : ''}`);
 
-  const BATCH = 20;
+  const BATCH = 10;
   const allTodos: (ToDo & { _projectId: number })[] = [];
 
   for (let i = 0; i < projectIds.length; i += BATCH) {
@@ -69,6 +69,10 @@ async function fetchAllTodos(
     });
     const results = await Promise.all(batch);
     for (const todos of results) allTodos.push(...todos);
+    // Small delay between batches to avoid MiniCRM 429
+    if (i + BATCH < projectIds.length) {
+      await new Promise(r => setTimeout(r, 200));
+    }
   }
 
   return allTodos;
