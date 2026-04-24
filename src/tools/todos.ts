@@ -58,9 +58,17 @@ async function fetchAllTodos(
         let path = `/Api/R3/ToDoList/${pid}`;
         const statusFilter = opts.status && opts.status !== "All" ? opts.status : "Open";
         path += `?Status=${statusFilter}`;
-        const data = await client.request<Record<string, ToDo>>("GET", path);
-        return Object.values(data || {})
-          .filter((t): t is ToDo => typeof t === "object" && t !== null && "Id" in t)
+        const data = await client.request<any>("GET", path);
+        // API returns either { Count, Results: [...] } or { "id": {...}, ... }
+        let todos: ToDo[] = [];
+        if (Array.isArray(data?.Results)) {
+          todos = data.Results;
+        } else if (data && typeof data === "object") {
+          todos = Object.values(data).filter(
+            (t): t is ToDo => typeof t === "object" && t !== null && "Id" in t
+          );
+        }
+        return todos
           .filter((t) => !opts.filterUserId || t.UserId === opts.filterUserId)
           .map((t) => ({ ...t, _projectId: pid }));
       } catch {
