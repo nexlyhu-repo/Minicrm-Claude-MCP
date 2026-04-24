@@ -43,8 +43,8 @@ async function fetchAllTodos(
     const results = await Promise.all(batch);
     for (const ids of results) allProjectIds.push(...ids);
   }
-  // Cap at 100 projects to avoid timeout (rate limit: 60/min)
-  const MAX_PROJECTS = 100;
+  // With nginx 120s timeout we can scan more projects
+  const MAX_PROJECTS = 500;
   projectIds = allProjectIds.slice(0, MAX_PROJECTS);
   const truncated = allProjectIds.length > MAX_PROJECTS;
   console.log(`[fetchAllTodos] Scanning ${projectIds.length}/${allProjectIds.length} projects${truncated ? ' (TRUNCATED)' : ''}`);
@@ -84,10 +84,10 @@ export function registerToDoTools(server: McpServer, client: MiniCrmClient) {
 
   server.tool(
     "minicrm_list_all_todos",
-    "Teendok lekerdezese egy adott modulbol. FONTOS SZABALYOK: 1) ELOSZOR hivd meg minicrm_list_users-t a userId-hoz. 2) ELOSZOR hivd meg minicrm_list_categories-t a categoryId-hoz. 3) UTANA hivd ezt a toolt categoryId-val es userId-val. Ha a felhasznalo nem mondja melyik modul, KERDEZD MEG tole! Ne probald az osszes modult egyszerre lekerdezni!",
+    "Az OSSZES teendo lekerdezese az osszes modulbol EGYSZERRE, egyetlen hivassal. ELOSZOR hivd meg a minicrm_list_users toolt a userId megtalalasahoz, UTANA hivd ezt. Opcionalisan szurheto egy modulra (categoryId).",
     {
-      categoryId: z.number().describe("A modul (kategoria) ID-ja. KOTELEZO! Hasznald a minicrm_list_categories toolt a megtudasahoz."),
-      userId: z.number().optional().describe("A felhasznalo ID-ja. Hasznald a minicrm_list_users toolt a megtudasahoz."),
+      userId: z.number().optional().describe("A felhasznalo ID-ja. ELOSZOR hivd meg a minicrm_list_users toolt!"),
+      categoryId: z.number().optional().describe("Opcionalis: csak egy adott modul teendoi."),
       status: z
         .enum(["Open", "Closed", "All"])
         .optional()
@@ -124,10 +124,10 @@ export function registerToDoTools(server: McpServer, client: MiniCrmClient) {
 
   server.tool(
     "minicrm_my_day",
-    "Napi osszefoglalo egy adott modulbol: mai hatarideju, lejart es kovetkezo teendok. FONTOS: categoryId KOTELEZO! Ha a felhasznalo nem mondja melyik modul, KERDEZD MEG. ELOSZOR: minicrm_list_users (userId) + minicrm_list_categories (categoryId), UTANA hivd ezt.",
+    "Napi osszefoglalo az OSSZES modulbol: mai hatarideju, lejart es kovetkezo teendok. ELOSZOR hivd meg a minicrm_list_users toolt a userId-hoz, UTANA hivd ezt.",
     {
-      categoryId: z.number().describe("A modul (kategoria) ID-ja. KOTELEZO!"),
-      userId: z.number().describe("A felhasznalo ID-ja."),
+      userId: z.number().describe("A felhasznalo ID-ja. ELOSZOR hivd meg a minicrm_list_users toolt!"),
+      categoryId: z.number().optional().describe("Opcionalis: csak egy modul teendoi."),
     },
     async ({ categoryId, userId }) => {
       try {
