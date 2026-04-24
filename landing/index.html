@@ -795,6 +795,148 @@
         .footer-legal a { color: var(--dim); transition: color 0.2s; }
         .footer-legal a:hover { color: var(--text2); }
 
+        /* === PRICING === */
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            max-width: 820px;
+            margin: 0 auto;
+        }
+        .pricing-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 36px;
+            position: relative;
+            transition: border-color 0.3s, transform 0.3s;
+        }
+        .pricing-card:hover { border-color: var(--border-light); transform: translateY(-2px); }
+        .pricing-card.featured {
+            border-color: var(--accent);
+            box-shadow: 0 0 30px #4f7df515;
+        }
+        .pricing-card.featured::before {
+            content: 'Legjobb ajánlat';
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 4px 16px;
+            border-radius: 20px;
+            white-space: nowrap;
+        }
+        .pricing-period {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+        }
+        .pricing-card h3 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+        .pricing-amount {
+            display: flex;
+            align-items: baseline;
+            gap: 4px;
+            margin-bottom: 4px;
+        }
+        .pricing-amount .price {
+            font-family: 'Sora', sans-serif;
+            font-size: 40px;
+            font-weight: 800;
+            color: var(--text);
+        }
+        .pricing-amount .currency {
+            font-size: 18px;
+            color: var(--text2);
+            font-weight: 600;
+        }
+        .pricing-amount .per {
+            font-size: 15px;
+            color: var(--dim);
+        }
+        .pricing-original {
+            font-size: 14px;
+            color: var(--dim);
+            text-decoration: line-through;
+            margin-bottom: 4px;
+        }
+        .pricing-save {
+            display: inline-block;
+            background: #3dd68c18;
+            color: var(--green);
+            font-size: 13px;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        .pricing-note {
+            font-size: 14px;
+            color: var(--dim);
+            margin-bottom: 20px;
+        }
+        .pricing-features {
+            list-style: none;
+            margin: 0 0 28px;
+            padding: 0;
+        }
+        .pricing-features li {
+            padding: 8px 0;
+            font-size: 14px;
+            color: var(--text2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        .pricing-features li:last-child { border-bottom: none; }
+        .pricing-features li::before {
+            content: '';
+            width: 18px;
+            height: 18px;
+            background: #3dd68c18;
+            border-radius: 50%;
+            flex-shrink: 0;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%233dd68c' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 10px;
+        }
+        .pricing-cta {
+            display: block;
+            width: 100%;
+            text-align: center;
+            padding: 14px;
+            border-radius: 10px;
+            font-family: 'Sora', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .pricing-cta.primary {
+            background: var(--accent);
+            color: #fff;
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+        .pricing-cta.primary:hover { background: var(--accent-bright); transform: translateY(-1px); }
+        .pricing-cta.secondary {
+            background: transparent;
+            color: var(--text2);
+            border: 1px solid var(--border);
+        }
+        .pricing-cta.secondary:hover { border-color: var(--accent); color: var(--accent); }
+
         /* === ANIMATIONS === */
         @keyframes pulse {
             0%, 100% { opacity: 1; }
@@ -826,6 +968,7 @@
             .security-grid { grid-template-columns: 1fr; }
             .support-grid { grid-template-columns: 1fr; }
             .ref-grid { grid-template-columns: 1fr; }
+            .pricing-grid { grid-template-columns: 1fr; max-width: 420px; }
             .footer-grid { grid-template-columns: 1fr 1fr; gap: 24px; }
             .nav-links { display: none; }
             .mobile-menu-btn { display: block; }
@@ -856,6 +999,7 @@
             <a href="#security">Biztonság</a>
             <a href="#support">Támogatás</a>
             <a href="#references">Referenciák</a>
+            <a href="#pricing">Árazás</a>
             <a href="/setup" style="color:var(--amber);font-weight:600;">Beállítás</a>
             <a href="#demo-form" class="nav-cta">Ingyenes bemutató</a>
         </div>
@@ -869,8 +1013,9 @@
     <a href="#security" onclick="closeMenu()">Biztonság</a>
     <a href="#support" onclick="closeMenu()">Támogatás</a>
     <a href="#references" onclick="closeMenu()">Referenciák</a>
+    <a href="#pricing" onclick="closeMenu()">Árazás</a>
     <a href="/setup" onclick="closeMenu()" style="color:var(--amber);font-weight:600;">Beállítási útmutató</a>
-    <a href="#demo-form" onclick="closeMenu()">Ingyenes bemutató</a>
+    <a href="#demo-form" onclick="closeMenu()">Ingyenes próba</a>
 </div>
 
 <!-- HERO -->
@@ -1355,6 +1500,65 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+    <div class="container">
+        <div class="section-header section-header-center reveal">
+            <div class="section-label">Árazás</div>
+            <h2 class="section-title">Egyszerű, átlátható árazás</h2>
+            <p class="section-desc">Egy csomag, minden benne van. Válasszon havi vagy éves számlázást.</p>
+        </div>
+        <div class="pricing-grid">
+
+            <!-- Monthly -->
+            <div class="pricing-card reveal reveal-delay-1">
+                <div class="pricing-period">Havi</div>
+                <h3>MiniCRM MCP</h3>
+                <div class="pricing-amount">
+                    <span class="price">30 000</span>
+                    <span class="currency">Ft</span>
+                    <span class="per">/ hó</span>
+                </div>
+                <p class="pricing-note">Havi számlázás, bármikor lemondható.</p>
+                <ul class="pricing-features">
+                    <li>Mind az 54 CRM eszköz</li>
+                    <li>Korlátlan AI lekérdezés</li>
+                    <li>Kontaktok, projektek, teendők kezelése</li>
+                    <li>Számlák, rendelések, ajánlatok</li>
+                    <li>Természetes nyelvű CRM vezérlés</li>
+                    <li>E-mailes ügyfélszolgálat</li>
+                    <li>14 napos ingyenes próba</li>
+                </ul>
+                <a href="#demo-form" class="pricing-cta secondary">Ingyenes próba indítása</a>
+            </div>
+
+            <!-- Yearly -->
+            <div class="pricing-card featured reveal reveal-delay-2">
+                <div class="pricing-period">Éves</div>
+                <h3>MiniCRM MCP</h3>
+                <div class="pricing-amount">
+                    <span class="price">234 000</span>
+                    <span class="currency">Ft</span>
+                    <span class="per">/ év</span>
+                </div>
+                <p class="pricing-original">360 000 Ft / év</p>
+                <div class="pricing-save">35% kedvezmény - 126 000 Ft megtakarítás</div>
+                <ul class="pricing-features">
+                    <li>Mind az 54 CRM eszköz</li>
+                    <li>Korlátlan AI lekérdezés</li>
+                    <li>Kontaktok, projektek, teendők kezelése</li>
+                    <li>Számlák, rendelések, ajánlatok</li>
+                    <li>Természetes nyelvű CRM vezérlés</li>
+                    <li>Kiemelt ügyfélszolgálat</li>
+                    <li>14 napos ingyenes próba</li>
+                </ul>
+                <a href="#demo-form" class="pricing-cta primary">Ingyenes próba indítása</a>
+            </div>
+
         </div>
     </div>
 </section>
