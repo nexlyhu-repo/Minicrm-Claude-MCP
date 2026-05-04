@@ -220,17 +220,28 @@ async function api(path, opts = {}) {
   return res.json();
 }
 
+let TENANTS_BY_SID = {};
+
 async function fetchLicenses() {
   try {
-    const data = await api('/licenses');
+    const [data, tdata] = await Promise.all([api('/licenses'), api('/tenants').catch(() => ({tenants:[]}))]);
     if (data.error) { alert(data.error); return; }
     document.getElementById('loginBar').classList.add('hidden');
     document.getElementById('dashboard').classList.remove('hidden');
     document.getElementById('connStatus').textContent = 'Csatlakozva';
     document.getElementById('connStatus').style.color = '#3dd68c';
+    TENANTS_BY_SID = {};
+    for (const t of (tdata.tenants || [])) TENANTS_BY_SID[t.systemId] = t;
     renderLicenses(data.licenses);
     fetchLeads();
   } catch(e) { alert('Hiba: ' + e.message); }
+}
+
+async function resetTenantPassword(systemId, adminEmail) {
+  if (!confirm('Új admin jelszó generálása ehhez a tenanthoz?\\nSystem ID: ' + systemId + '\\nAdmin: ' + (adminEmail||'-') + '\\n\\nA régi jelszó azonnal érvénytelenné válik.')) return;
+  const data = await api('/tenants/' + encodeURIComponent(systemId) + '/reset-password', { method:'POST' });
+  if (data.error) { alert('Hiba: ' + data.error); return; }
+  prompt('Új admin jelszó (másold ki most, később már nem lesz látható):', data.newPassword);
 }
 
 async function fetchLeads() {
@@ -299,9 +310,24 @@ function renderLicenses(licenses) {
     const lastUsed = l.last_used ? new Date(l.last_used+'Z').toLocaleString('hu-HU') : '-';
     const expiry = l.expiresAt ? new Date(l.expiresAt).toLocaleDateString('hu-HU') : 'Végtelen';
 
+    // Customer admin vs employee badge
+    const tenant = l.boundSystemId ? TENANTS_BY_SID[l.boundSystemId] : null;
+    let roleBadge = '';
+    if (tenant && tenant.exists) {
+      if (tenant.adminLicenseKey === l.key) {
+        roleBadge = '<span class="badge" style="background:linear-gradient(135deg,#c8702a,#e8a040);color:#0a0c10;padding:2px 7px;border-radius:5px;font-size:10px;margin-left:6px;font-weight:700">CÉGADMIN</span>';
+      } else {
+        roleBadge = '<span class="badge" style="background:#4f7df520;color:var(--accent-bright);padding:2px 7px;border-radius:5px;font-size:10px;margin-left:6px;font-weight:600">Alkalmazott</span>';
+      }
+    }
+    const isAdminLicense = tenant && tenant.exists && tenant.adminLicenseKey === l.key;
+    const resetBtn = isAdminLicense
+      ? '<button class="btn-sm" style="margin-left:4px" onclick="resetTenantPassword(\\'' + l.boundSystemId + '\\',\\'' + esc(tenant.adminEmail||'') + '\\')" title="Új admin jelszó">🔑</button>'
+      : '';
+
     return '<tr>' +
       '<td>' + badge + '</td>' +
-      '<td>' + esc(userName) + '</td>' +
+      '<td>' + esc(userName) + roleBadge + '</td>' +
       '<td style="font-size:12px;color:var(--text2)">' + esc(l.email) + '</td>' +
       '<td class="key-cell" onclick="navigator.clipboard.writeText(\\'' + l.key + '\\');this.style.color=\\'#3dd68c\\';setTimeout(()=>this.style.color=\\'\\',1000)" title="Kattints a másoláshoz">' + esc(l.key) + '</td>' +
       '<td style="font-size:12px">' + (l.boundSystemId || '-') + '</td>' +
@@ -316,6 +342,7 @@ function renderLicenses(licenses) {
           '<button class="btn-sm danger" onclick="revokeLicense(\\'' + l.key + '\\')">Tiltás</button>' :
           '<button class="btn-sm green" onclick="reactivateLicense(\\'' + l.key + '\\')">Aktiválás</button>') +
         '<button class="btn-sm danger" onclick="purgeLicense(\\'' + l.key + '\\',\\'' + esc(l.email) + '\\')">Törlés</button>' +
+        resetBtn +
       '</td></tr>';
   }).join('');
 }

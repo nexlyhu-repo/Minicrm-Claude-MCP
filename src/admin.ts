@@ -140,6 +140,52 @@ router.delete("/api/licenses/:key/permanent", async (req: Request, res: Response
   }
 });
 
+// GET /admin/api/tenants - list all tenants with admin info, grouped by systemId
+router.get("/api/tenants", async (_req: Request, res: Response) => {
+  try {
+    // First fetch all licenses to know which systemIds exist
+    const licRes = await fetch(`${LICENSE_API_URL}/keys`, {
+      headers: { Authorization: `Bearer ${ADMIN_SECRET}` },
+    });
+    const licData = (await licRes.json()) as { keys: Array<{ key: string; boundSystemId?: string }> };
+    const systemIds = new Set<string>();
+    for (const k of licData.keys) {
+      if (k.boundSystemId) systemIds.add(k.boundSystemId);
+    }
+
+    const tenants: Array<{ systemId: string; exists: boolean; adminEmail?: string; adminLicenseKey?: string; createdAt?: string }> = [];
+    for (const systemId of systemIds) {
+      const tRes = await fetch(`${LICENSE_API_URL}/tenants/${encodeURIComponent(systemId)}`, {
+        headers: { Authorization: `Bearer ${ADMIN_SECRET}` },
+      });
+      if (tRes.ok) {
+        const t = await tRes.json() as any;
+        tenants.push({ systemId, ...t });
+      } else {
+        tenants.push({ systemId, exists: false });
+      }
+    }
+    res.json({ count: tenants.length, tenants });
+  } catch {
+    res.status(500).json({ error: "Failed to fetch tenants" });
+  }
+});
+
+// POST /admin/api/tenants/:systemId/reset-password - generate new admin password
+router.post("/api/tenants/:systemId/reset-password", async (req: Request, res: Response) => {
+  try {
+    const systemId = req.params.systemId as string;
+    const r = await fetch(`${LICENSE_API_URL}/tenants/${encodeURIComponent(systemId)}/reset-password`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${ADMIN_SECRET}` },
+    });
+    const data = await r.json();
+    res.status(r.status).json(data);
+  } catch {
+    res.status(500).json({ error: "Failed to reset tenant password" });
+  }
+});
+
 // GET /admin/api/leads - list all captured leads
 router.get("/api/leads", async (_req: Request, res: Response) => {
   try {

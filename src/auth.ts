@@ -63,6 +63,130 @@ export async function validateLicense(licenseKey: string, systemId?: string): Pr
   }
 }
 
+// === Tenant config helpers (proxied to license-worker with ADMIN_SECRET) ===
+
+export interface TenantInfo {
+  exists: boolean;
+  adminEmail?: string;
+  adminLicenseKey?: string;
+}
+
+function adminSecret(): string {
+  return process.env.ADMIN_SECRET || process.env.MINICRM_LICENSE_ADMIN_SECRET || "";
+}
+
+export async function getTenantInfo(systemId: string): Promise<TenantInfo> {
+  try {
+    const res = await fetch(`${LICENSE_API_URL}/tenants/${encodeURIComponent(systemId)}`, {
+      headers: { Authorization: `Bearer ${adminSecret()}` },
+    });
+    if (!res.ok) return { exists: false };
+    return (await res.json()) as TenantInfo;
+  } catch {
+    return { exists: false };
+  }
+}
+
+export async function setupTenant(opts: {
+  systemId: string;
+  adminPassword: string;
+  adminEmail: string;
+  adminLicenseKey: string;
+}): Promise<boolean> {
+  try {
+    const res = await fetch(`${LICENSE_API_URL}/tenants/${encodeURIComponent(opts.systemId)}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${adminSecret()}`,
+      },
+      body: JSON.stringify({
+        adminPassword: opts.adminPassword,
+        adminEmail: opts.adminEmail,
+        adminLicenseKey: opts.adminLicenseKey,
+      }),
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
+export async function verifyTenantPassword(systemId: string, password: string): Promise<{
+  valid: boolean;
+  adminEmail?: string;
+  adminLicenseKey?: string;
+}> {
+  try {
+    const res = await fetch(`${LICENSE_API_URL}/tenants/${encodeURIComponent(systemId)}/verify`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${adminSecret()}`,
+      },
+      body: JSON.stringify({ adminPassword: password }),
+    });
+    if (!res.ok) return { valid: false };
+    return (await res.json()) as { valid: boolean; adminEmail?: string; adminLicenseKey?: string };
+  } catch {
+    return { valid: false };
+  }
+}
+
+export async function listTenantLicenses(systemId: string): Promise<{
+  count: number;
+  adminLicenseKey: string | null;
+  licenses: Array<{
+    key: string;
+    active: boolean;
+    email: string;
+    createdAt: string;
+    expiresAt: string | null;
+    note?: string;
+    boundSystemId?: string;
+    allowedCategoryIds?: number[] | null;
+  }>;
+}> {
+  try {
+    const res = await fetch(`${LICENSE_API_URL}/tenants/${encodeURIComponent(systemId)}/licenses`, {
+      headers: { Authorization: `Bearer ${adminSecret()}` },
+    });
+    if (!res.ok) return { count: 0, adminLicenseKey: null, licenses: [] };
+    return (await res.json()) as any;
+  } catch {
+    return { count: 0, adminLicenseKey: null, licenses: [] };
+  }
+}
+
+export async function resetTenantPassword(systemId: string): Promise<{ newPassword: string; adminEmail: string } | null> {
+  try {
+    const res = await fetch(`${LICENSE_API_URL}/tenants/${encodeURIComponent(systemId)}/reset-password`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${adminSecret()}` },
+    });
+    if (!res.ok) return null;
+    return (await res.json()) as { newPassword: string; adminEmail: string };
+  } catch {
+    return null;
+  }
+}
+
+// Sign a short-lived team session token (24h) — used by the customer admin
+// /team panel to keep the user logged in without re-entering the password.
+export function signTeamToken(systemId: string): string {
+  return jwt.sign({ systemId, kind: "team" }, JWT_SECRET, { expiresIn: "24h" });
+}
+
+export function verifyTeamToken(token: string): { systemId: string } | null {
+  try {
+    const payload = jwt.verify(token, JWT_SECRET) as { systemId?: string; kind?: string };
+    if (payload.kind !== "team" || !payload.systemId) return null;
+    return { systemId: payload.systemId };
+  } catch {
+    return null;
+  }
+}
+
 // Update license metadata (used by self-service module-selection flow).
 // Authenticated server-to-server with ADMIN_SECRET — the user-facing OAuth
 // step has already verified ownership of the license + matching MiniCRM creds.

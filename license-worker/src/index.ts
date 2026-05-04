@@ -1,7 +1,62 @@
 interface Env {
   LICENSES: KVNamespace;
   LEADS: KVNamespace;
+  TENANTS: KVNamespace;
   ADMIN_SECRET: string;
+}
+
+interface TenantData {
+  // Tenant-level admin config. The MiniCRM API key is tenant-wide, so anyone
+  // who can use Claude already has it; the admin password is the extra factor
+  // that gates the customer-admin /team panel from regular employees.
+  adminPasswordHash: string; // PBKDF2-SHA256, 100k iterations
+  adminPasswordSalt: string; // hex-encoded random
+  adminEmail: string;
+  adminLicenseKey: string;   // the license that did the first setup — labels admin vs employee
+  createdAt: string;
+  updatedAt: string;
+}
+
+async function hashPassword(password: string, salt: string): Promise<string> {
+  const enc = new TextEncoder();
+  const keyMaterial = await crypto.subtle.importKey(
+    "raw",
+    enc.encode(password),
+    { name: "PBKDF2" },
+    false,
+    ["deriveBits"]
+  );
+  const bits = await crypto.subtle.deriveBits(
+    { name: "PBKDF2", salt: enc.encode(salt), iterations: 100_000, hash: "SHA-256" },
+    keyMaterial,
+    256
+  );
+  return Array.from(new Uint8Array(bits))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+function generateSalt(): string {
+  const bytes = new Uint8Array(16);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+function timingSafeEqualHex(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let result = 0;
+  for (let i = 0; i < a.length; i++) {
+    result |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return result === 0;
+}
+
+function generateRandomPassword(): string {
+  // 12 char alphanumeric, easy to read aloud / type. ~71 bits of entropy.
+  const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789";
+  const bytes = new Uint8Array(12);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes).map((b) => alphabet[b % alphabet.length]).join("");
 }
 
 interface LicenseData {
@@ -306,6 +361,121 @@ export default {
       await env.LICENSES.put(key, JSON.stringify(data));
 
       return json({ key, ...data, message: "Licenc ujraaktivalva." });
+    }
+
+    // === Tenant config endpoints (admin-secret protected) =================
+    // Used by the MCP server to set up customer admin credentials and gate the
+    // /team panel. The MCP proxies these on behalf of the user after verifying
+    // they hold the MiniCRM api_key (which is the trust anchor here).
+
+    // GET /tenants/:systemId — fetch tenant config (sans password hash)
+    if (method === "GET" && url.pathname.startsWith("/tenants/") && !url.pathname.includes("/", 9 + 1)) {
+      const systemId = url.pathname.replace("/tenants/", "");
+      const tenant = await env.TENANTS.get<TenantData>(systemId, "json");
+      if (!tenant) {
+        return json({ exists: false });
+      }
+      return json({
+        exists: true,
+        adminEmail: tenant.adminEmail,
+        adminLicenseKey: tenant.adminLicenseKey,
+        createdAt: tenant.createdAt,
+        updatedAt: tenant.updatedAt,
+      });
+    }
+
+    // POST /tenants/:systemId — create or replace tenant config
+    if (method === "POST" && /^\/tenants\/[^/]+$/.test(url.pathname)) {
+      const systemId = url.pathname.replace("/tenants/", "");
+      try {
+        const body = (await request.json()) as {
+          adminPassword?: string;
+          adminEmail?: string;
+          adminLicenseKey?: string;
+        };
+        if (!body.adminPassword || body.adminPassword.length < 8) {
+          return json({ error: "A jelszo legalabb 8 karakter legyen." }, 400);
+        }
+        if (!body.adminEmail) {
+          return json({ error: "Admin email kotelezo." }, 400);
+        }
+        if (!body.adminLicenseKey) {
+          return json({ error: "Admin licenc kulcs kotelezo." }, 400);
+        }
+
+        const existing = await env.TENANTS.get<TenantData>(systemId, "json");
+        const salt = generateSalt();
+        const hash = await hashPassword(body.adminPassword, salt);
+        const now = new Date().toISOString();
+        const tenant: TenantData = {
+          adminPasswordHash: hash,
+          adminPasswordSalt: salt,
+          adminEmail: body.adminEmail,
+          adminLicenseKey: body.adminLicenseKey,
+          createdAt: existing?.createdAt || now,
+          updatedAt: now,
+        };
+        await env.TENANTS.put(systemId, JSON.stringify(tenant));
+        return json({ ok: true, systemId, adminEmail: tenant.adminEmail });
+      } catch {
+        return json({ error: "Ervenytelen keres." }, 400);
+      }
+    }
+
+    // POST /tenants/:systemId/verify — verify admin password (for /team login)
+    if (method === "POST" && /^\/tenants\/[^/]+\/verify$/.test(url.pathname)) {
+      const systemId = url.pathname.replace("/tenants/", "").replace("/verify", "");
+      try {
+        const body = (await request.json()) as { adminPassword?: string };
+        if (!body.adminPassword) return json({ valid: false, error: "Hianyzo jelszo." }, 400);
+        const tenant = await env.TENANTS.get<TenantData>(systemId, "json");
+        if (!tenant) return json({ valid: false, error: "Nincs admin beallitva ehhez a tenanthoz." }, 404);
+        const hash = await hashPassword(body.adminPassword, tenant.adminPasswordSalt);
+        if (!timingSafeEqualHex(hash, tenant.adminPasswordHash)) {
+          return json({ valid: false });
+        }
+        return json({
+          valid: true,
+          adminEmail: tenant.adminEmail,
+          adminLicenseKey: tenant.adminLicenseKey,
+        });
+      } catch {
+        return json({ valid: false, error: "Ervenytelen keres." }, 400);
+      }
+    }
+
+    // POST /tenants/:systemId/reset-password — generate a new random password
+    // (used by global admin /admin panel when a customer forgets)
+    if (method === "POST" && /^\/tenants\/[^/]+\/reset-password$/.test(url.pathname)) {
+      const systemId = url.pathname.replace("/tenants/", "").replace("/reset-password", "");
+      const tenant = await env.TENANTS.get<TenantData>(systemId, "json");
+      if (!tenant) return json({ error: "Nincs admin beallitva ehhez a tenanthoz." }, 404);
+      const newPassword = generateRandomPassword();
+      const salt = generateSalt();
+      tenant.adminPasswordHash = await hashPassword(newPassword, salt);
+      tenant.adminPasswordSalt = salt;
+      tenant.updatedAt = new Date().toISOString();
+      await env.TENANTS.put(systemId, JSON.stringify(tenant));
+      return json({ systemId, newPassword, adminEmail: tenant.adminEmail });
+    }
+
+    // GET /tenants/:systemId/licenses — list all licenses bound to this tenant
+    if (method === "GET" && /^\/tenants\/[^/]+\/licenses$/.test(url.pathname)) {
+      const systemId = url.pathname.replace("/tenants/", "").replace("/licenses", "");
+      const list = await env.LICENSES.list();
+      const licenses: Array<{ key: string } & LicenseData> = [];
+      for (const item of list.keys) {
+        const data = await env.LICENSES.get<LicenseData>(item.name, "json");
+        if (data && data.boundSystemId === systemId) {
+          licenses.push({ key: item.name, ...data });
+        }
+      }
+      const tenant = await env.TENANTS.get<TenantData>(systemId, "json");
+      return json({
+        count: licenses.length,
+        adminLicenseKey: tenant?.adminLicenseKey || null,
+        licenses,
+      });
     }
 
     // GET /leads — list all leads (newest first)
