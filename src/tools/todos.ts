@@ -75,6 +75,36 @@ interface FetchTodosResult {
 
 const TIME_BUDGET_MS = 90_000; // safety margin under nginx's 120s timeout
 
+async function getResponsibleProjectIds(
+  client: MiniCrmClient,
+  filterUserId: number,
+  categoryId?: number
+): Promise<number[]> {
+  const params: Record<string, string | number> = { UserId: filterUserId };
+  if (categoryId) params.CategoryId = categoryId;
+  try {
+    const result = await client.search("/Api/R3/Project", params, true);
+    return Object.keys(result.Results || {}).map(Number).filter(Boolean);
+  } catch {
+    return [];
+  }
+}
+
+async function getAllProjectIds(
+  client: MiniCrmClient,
+  cache: ProjectListCacheEntry,
+  categoryId?: number
+): Promise<number[]> {
+  const catIds = categoryId ? [categoryId] : await getCategoryIds(client, cache);
+  const allProjectIds: number[] = [];
+  for (let i = 0; i < catIds.length; i += 5) {
+    const batch = catIds.slice(i, i + 5).map((catId) => getProjectIdsForCategory(client, catId, cache));
+    const results = await Promise.all(batch);
+    for (const ids of results) allProjectIds.push(...ids);
+  }
+  return allProjectIds;
+}
+
 async function fetchAllTodos(
   client: MiniCrmClient,
   opts: {
@@ -85,47 +115,43 @@ async function fetchAllTodos(
   }
 ): Promise<FetchTodosResult> {
   const start = Date.now();
-  const scope = opts.scope || "responsible";
+  const scope = opts.scope || "all";
   const cache = getCacheEntry(client.systemId);
 
   // === Resolve project IDs to scan ==========================================
+  // For scope=all + filterUserId, prioritize the user's own (responsible) projects
+  // first. If the time budget runs out, the most relevant projects are already
+  // scanned, and the truncation flag tells the caller results may be incomplete
+  // for projects where the user is just an assignee.
   let projectIds: number[];
   let totalProjects: number;
 
   if (scope === "responsible" && opts.filterUserId) {
-    // Fast path: ask MiniCRM for projects where this user is responsible.
-    // Misses todos assigned to the user on someone else's project (use scope=all for that),
-    // but covers the common "my day" case in <5 seconds.
-    const params: Record<string, string | number> = { UserId: opts.filterUserId };
-    if (opts.categoryId) params.CategoryId = opts.categoryId;
-    try {
-      const result = await client.search("/Api/R3/Project", params, true);
-      projectIds = Object.keys(result.Results || {}).map(Number).filter(Boolean);
-    } catch {
-      projectIds = [];
-    }
+    projectIds = await getResponsibleProjectIds(client, opts.filterUserId, opts.categoryId);
     totalProjects = projectIds.length;
     console.log(`[fetchAllTodos] scope=responsible userId=${opts.filterUserId} → ${projectIds.length} projects`);
+  } else if (scope === "all" && opts.filterUserId) {
+    // Hybrid: responsible projects first (priority), then all others.
+    const [responsible, all] = await Promise.all([
+      getResponsibleProjectIds(client, opts.filterUserId, opts.categoryId),
+      getAllProjectIds(client, cache, opts.categoryId),
+    ]);
+    const seen = new Set(responsible);
+    const others = all.filter((id) => !seen.has(id));
+    projectIds = [...responsible, ...others];
+    totalProjects = projectIds.length;
+    console.log(`[fetchAllTodos] scope=all userId=${opts.filterUserId} → ${responsible.length} responsible + ${others.length} others = ${projectIds.length}`);
   } else {
-    // Broad path: iterate all categories. Use cache to avoid repeating the
-    // 23 list-projects calls on every invocation.
-    const catIds = opts.categoryId
-      ? [opts.categoryId]
-      : await getCategoryIds(client, cache);
-
-    const allProjectIds: number[] = [];
-    for (let i = 0; i < catIds.length; i += 5) {
-      const batch = catIds.slice(i, i + 5).map((catId) => getProjectIdsForCategory(client, catId, cache));
-      const results = await Promise.all(batch);
-      for (const ids of results) allProjectIds.push(...ids);
-    }
-    totalProjects = allProjectIds.length;
-    projectIds = allProjectIds;
-    console.log(`[fetchAllTodos] scope=all cats=${catIds.length} → ${projectIds.length} projects`);
+    projectIds = await getAllProjectIds(client, cache, opts.categoryId);
+    totalProjects = projectIds.length;
+    console.log(`[fetchAllTodos] scope=all → ${projectIds.length} projects`);
   }
 
   // === Scan ToDoList per project with hard time budget ======================
-  const BATCH = 10;
+  // BATCH=20 + 100ms delay tuned empirically: previous BATCH=10/200ms only
+  // covered ~500 of 1598 projects in 120s. With doubled parallelism we typically
+  // finish 1500+ projects in 60-80s, comfortably under the 90s budget.
+  const BATCH = 20;
   const allTodos: (ToDo & { _projectId: number })[] = [];
   let scanned = 0;
   let truncated = false;
@@ -148,10 +174,9 @@ async function fetchAllTodos(
             (t): t is ToDo => typeof t === "object" && t !== null && "Id" in t
           );
         }
-        // In responsible-mode the project filter already narrows scope, but
-        // we still apply the per-todo filter so an assignee not equal to the
-        // responsible user is dropped (UserId on a todo can differ from the
-        // project's responsible user).
+        // Per-todo filter: a project may be scoped in but only some todos belong
+        // to the requested user (the project's responsible UserId can differ
+        // from any individual todo's UserId).
         return todos
           .filter((t) => !opts.filterUserId || Number(t.UserId) === opts.filterUserId)
           .map((t) => ({ ...t, _projectId: pid }));
@@ -162,9 +187,8 @@ async function fetchAllTodos(
     const results = await Promise.all(batch);
     for (const todos of results) allTodos.push(...todos);
     scanned += slice.length;
-    // Throttle to stay under MiniCRM's per-system 429 ceiling.
     if (i + BATCH < projectIds.length) {
-      await new Promise((r) => setTimeout(r, 200));
+      await new Promise((r) => setTimeout(r, 100));
     }
   }
 
@@ -184,7 +208,7 @@ export function registerToDoTools(server: McpServer, client: MiniCrmClient) {
 
   server.tool(
     "minicrm_list_all_todos",
-    "Az OSSZES nyitott teendo lekerdezese a felhasznalo projektjeibol. FONTOS: a userId a CRM operator (felhasznalo) ID-ja, NEM a kontakt ID! Eloszor hivd meg a minicrm_list_users toolt es onnan vedd a UserId-t. Alapertelmezetten csak a felhasznalo SAJAT (felelos) projektjeit nezi (gyors, ~5mp). Ha mas felelos projektjein is kapott teendoket (ritka eset), hasznald a scope='all' beallitast (lassu, akar 90mp).",
+    "A felhasznalo OSSZES nyitott teendojenek lekerdezese, fuggetlenul attol, hogy melyik projekten van — beleertve azokat is, ahol mas a felelos. FONTOS: a userId a CRM operator (felhasznalo) ID-ja, NEM a kontakt ID! Hivd meg eloszor a minicrm_list_users toolt es onnan vedd a UserId-t. A felhasznalo sajat projektjei priorizalva, utana mindenhol mas. 30-60 mp futasi ido tipikusan. Ha gyors valaszt szeretnel csak a sajat projektekrol, hasznald scope='responsible'.",
     {
       userId: z.number().optional().describe("CRM felhasznalo (operator) ID-ja — NEM kontakt ID. Hivd meg eloszor a minicrm_list_users toolt!"),
       categoryId: z.number().optional().describe("Opcionalis: csak egy adott modul teendoi."),
@@ -196,8 +220,8 @@ export function registerToDoTools(server: McpServer, client: MiniCrmClient) {
       scope: z
         .enum(["responsible", "all"])
         .optional()
-        .default("responsible")
-        .describe("'responsible' (alapertelmezett, gyors): csak a felhasznalo SAJAT projektjei. 'all' (lassu, akar 90mp): az osszes projekt — tul a 90mp idokereten csonkolt eredmenyt ad vissza."),
+        .default("all")
+        .describe("'all' (alapertelmezett): osszes projekt szkennelese, sajat projektek priorizalva. 'responsible': csak a felhasznalo sajat projektjei (gyors, de kihagyja a mashol kapott teendoket)."),
     },
     async ({ userId, status, categoryId, scope }) => {
       try {
@@ -235,15 +259,15 @@ export function registerToDoTools(server: McpServer, client: MiniCrmClient) {
 
   server.tool(
     "minicrm_my_day",
-    "Napi osszefoglalo a felhasznalo nyitott teendoirol: mai hatarideju, lejart, kovetkezo. FONTOS: a userId a CRM operator (felhasznalo) ID-ja, NEM a kontakt ID! Hivd meg eloszor a minicrm_list_users toolt. Alapertelmezetten csak a felhasznalo SAJAT (felelos) projektjeibol gyujt (gyors, ~5mp); ez fedi le a tipikus 'mit kell ma csinalnom' kerdest.",
+    "Napi osszefoglalo a felhasznalo OSSZES nyitott teendojerol: mai hatarideju, lejart, kovetkezo. Magaban foglalja azokat is, amiket mas felelos projektjen kapott. FONTOS: a userId a CRM operator (felhasznalo) ID-ja, NEM a kontakt ID! Hivd meg eloszor a minicrm_list_users toolt. 30-60 mp futasi ido tipikusan.",
     {
       userId: z.number().describe("CRM felhasznalo (operator) ID-ja — NEM kontakt ID. Hivd meg eloszor a minicrm_list_users toolt!"),
       categoryId: z.number().optional().describe("Opcionalis: csak egy modul teendoi."),
       scope: z
         .enum(["responsible", "all"])
         .optional()
-        .default("responsible")
-        .describe("'responsible' (alapertelmezett): csak a felhasznalo sajat projektjei. 'all': minden projekt (lassu, akar 90mp; ritka esetekhez)."),
+        .default("all")
+        .describe("'all' (alapertelmezett): osszes projekt, sajat projektek priorizalva. 'responsible': csak a sajat projektek (gyors, de hianyos)."),
     },
     async ({ categoryId, userId, scope }) => {
       try {
