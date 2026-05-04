@@ -213,6 +213,19 @@ export default {
       }
     }
 
+    // DELETE /keys/:key/permanent — fully purge from KV (frees up email for re-registration)
+    if (method === "DELETE" && url.pathname.startsWith("/keys/") && url.pathname.endsWith("/permanent")) {
+      const key = url.pathname.replace("/keys/", "").replace("/permanent", "");
+      const data = await env.LICENSES.get<LicenseData>(key, "json");
+      if (!data) {
+        return json({ error: "Licenc nem talalhato." }, 404);
+      }
+
+      await env.LICENSES.delete(key);
+
+      return json({ key, message: "Licenc veglegesen torolve." });
+    }
+
     // DELETE /keys/:key — revoke a license
     if (method === "DELETE" && url.pathname.startsWith("/keys/")) {
       const key = url.pathname.replace("/keys/", "");

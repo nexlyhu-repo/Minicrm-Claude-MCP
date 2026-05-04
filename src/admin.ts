@@ -126,6 +126,20 @@ router.delete("/api/licenses/:key", async (req: Request, res: Response) => {
   }
 });
 
+// DELETE /admin/api/licenses/:key/permanent - fully purge license (frees email for re-registration)
+router.delete("/api/licenses/:key/permanent", async (req: Request, res: Response) => {
+  try {
+    const delRes = await fetch(`${LICENSE_API_URL}/keys/${req.params.key}/permanent`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${ADMIN_SECRET}` },
+    });
+    const data = await delRes.json();
+    res.status(delRes.status).json(data);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to purge license" });
+  }
+});
+
 // POST /admin/api/licenses/:key/reactivate
 router.post("/api/licenses/:key/reactivate", async (req: Request, res: Response) => {
   try {

@@ -232,6 +232,7 @@ function renderLicenses(licenses) {
         (l.active ?
           '<button class="btn-sm danger" onclick="revokeLicense(\\'' + l.key + '\\')">Tiltás</button>' :
           '<button class="btn-sm green" onclick="reactivateLicense(\\'' + l.key + '\\')">Aktiválás</button>') +
+        '<button class="btn-sm danger" onclick="purgeLicense(\\'' + l.key + '\\',\\'' + esc(l.email) + '\\')">Törlés</button>' +
       '</td></tr>';
   }).join('');
 }
@@ -311,6 +312,16 @@ async function revokeLicense(key) {
 
 async function reactivateLicense(key) {
   await api('/licenses/' + key + '/reactivate', { method:'POST' });
+  fetchLicenses();
+}
+
+async function purgeLicense(key, email) {
+  if (!confirm('VÉGLEGES TÖRLÉS\\n\\nFelhasználó: ' + email + '\\nLicenc: ' + key + '\\n\\nA licenc teljesen eltávolításra kerül a rendszerből, és az e-mail címmel újra lehet regisztrálni. Ez nem visszavonható!\\n\\nBiztosan folytatod?')) return;
+  const confirmEmail = prompt('Megerősítéshez írd be a felhasználó e-mail címét:');
+  if (confirmEmail !== email) { alert('Az e-mail nem egyezik. Törlés megszakítva.'); return; }
+  const data = await api('/licenses/' + key + '/permanent', { method:'DELETE' });
+  if (data.error) { alert('Hiba: ' + data.error); return; }
+  alert('Licenc véglegesen törölve. Az e-mail címmel újra lehet regisztrálni.');
   fetchLicenses();
 }
 </script>
