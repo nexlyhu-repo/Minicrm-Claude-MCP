@@ -11,6 +11,10 @@ interface LicenseData {
   expiresAt: string | null;
   note?: string;
   boundSystemId?: string;
+  // Self-service module allowlist. null/undefined = full account access (all
+  // modules). [] = no module restriction yet selected. [123, 456] = restrict
+  // aggregating tools (my_day, list_all_todos, etc.) to these CategoryIds only.
+  allowedCategoryIds?: number[] | null;
 }
 
 interface LeadData {
@@ -176,7 +180,11 @@ export default {
           }
         }
 
-        return json({ valid: true, email: data.email });
+        return json({
+          valid: true,
+          email: data.email,
+          allowedCategoryIds: data.allowedCategoryIds ?? null,
+        });
       } catch {
         return json({ valid: false, message: "Ervenytelen keres." }, 400);
       }
@@ -241,10 +249,16 @@ export default {
           note?: string;
           email?: string;
           expiresAt?: string | null;
+          allowedCategoryIds?: number[] | null;
         };
         if (body.note !== undefined) data.note = body.note;
         if (body.email !== undefined) data.email = body.email;
         if (body.expiresAt !== undefined) data.expiresAt = body.expiresAt;
+        if (body.allowedCategoryIds !== undefined) {
+          data.allowedCategoryIds = Array.isArray(body.allowedCategoryIds)
+            ? body.allowedCategoryIds.map((n) => Number(n)).filter((n) => Number.isFinite(n))
+            : null;
+        }
 
         await env.LICENSES.put(key, JSON.stringify(data));
         return json({ key, ...data, message: "Licenc frissitve." });

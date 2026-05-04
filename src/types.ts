@@ -3,6 +3,10 @@ export interface MiniCrmConfig {
   apiKey: string;
   baseUrl: string;
   voipApiKey?: string;
+  // Self-service module allowlist resolved at OAuth login time. null = no
+  // restriction. Aggregating tools (my_day, list_all_todos, ...) honor this
+  // to scope scans to the user's selected modules.
+  allowedCategoryIds?: number[] | null;
 }
 
 export interface SearchResponse {

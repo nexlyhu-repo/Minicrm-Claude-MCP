@@ -196,4 +196,8 @@ export class MiniCrmClient {
   get systemId(): string {
     return this.config.systemId;
   }
+
+  get allowedCategoryIds(): number[] | null {
+    return this.config.allowedCategoryIds ?? null;
+  }
 }

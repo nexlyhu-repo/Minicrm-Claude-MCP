@@ -10,8 +10,10 @@ import {
   generateAuthCode,
   exchangeAuthCode,
   verifyToken,
+  setAllowedCategoryIds,
 } from "./auth.js";
 import { getLoginPageHtml } from "./login-page.js";
+import { getModuleSelectionPageHtml } from "./module-selection-page.js";
 import { logUsage } from "./usage-db.js";
 import { adminRouter } from "./admin.js";
 import { getAdminDashboardHtml } from "./admin-page.js";
@@ -107,7 +109,7 @@ app.get("/authorize", (req: Request, res: Response) => {
   );
 });
 
-// POST /authorize - process login form
+// POST /authorize - validate creds, then show module selection page
 app.post("/authorize", async (req: Request, res: Response) => {
   const {
     client_id,
@@ -121,8 +123,8 @@ app.post("/authorize", async (req: Request, res: Response) => {
   } = req.body;
 
   // Validate license (bound to this systemId)
-  const valid = await validateLicense(license_key, system_id);
-  if (!valid) {
+  const validation = await validateLicense(license_key, system_id);
+  if (!validation.valid) {
     res.type("html").send(
       getLoginPageHtml(
         client_id,
@@ -136,14 +138,29 @@ app.post("/authorize", async (req: Request, res: Response) => {
     return;
   }
 
-  // Quick check: can we reach MiniCRM with these creds?
+  // Verify MiniCRM creds + fetch categories in one shot.
+  // The Category endpoint is the cheapest auth probe and gives us the data
+  // for the module selection page.
+  type Category = { id: number; name: string; type?: string };
+  let categories: Category[] = [];
   try {
     const testClient = new MiniCrmClient({
       systemId: system_id,
       apiKey: api_key,
       baseUrl: "https://r3.minicrm.hu",
     });
-    await testClient.request("GET", "/Api/R3/Category");
+    const raw = await testClient.request<Record<string, any>>("GET", "/Api/R3/Category");
+    const parsed: Category[] = [];
+    for (const [id, val] of Object.entries(raw || {})) {
+      const idNum = Number(id);
+      if (!Number.isFinite(idNum) || idNum <= 0) continue;
+      const name = typeof val === "string"
+        ? val
+        : (val && typeof val === "object" && typeof val.Name === "string" ? val.Name : `Modul #${idNum}`);
+      const type = (val && typeof val === "object" && typeof val.Type === "string") ? val.Type : undefined;
+      parsed.push({ id: idNum, name, type });
+    }
+    categories = parsed.sort((a, b) => a.name.localeCompare(b.name, "hu"));
   } catch {
     res.type("html").send(
       getLoginPageHtml(
@@ -158,15 +175,79 @@ app.post("/authorize", async (req: Request, res: Response) => {
     return;
   }
 
-  // Generate auth code
+  res.type("html").send(
+    getModuleSelectionPageHtml({
+      clientId: client_id,
+      redirectUri: redirect_uri,
+      state,
+      codeChallenge: code_challenge,
+      codeChallengeMethod: code_challenge_method || "S256",
+      licenseKey: license_key,
+      systemId: system_id,
+      apiKey: api_key,
+      categories,
+      selectedIds: validation.allowedCategoryIds,
+    })
+  );
+});
+
+// POST /authorize/select-modules - persist module selection, generate auth code, redirect to Claude
+app.post("/authorize/select-modules", async (req: Request, res: Response) => {
+  const {
+    client_id,
+    redirect_uri,
+    state,
+    code_challenge,
+    code_challenge_method,
+    license_key,
+    system_id,
+    api_key,
+    all_modules,
+  } = req.body;
+
+  if (!license_key || !system_id || !api_key || !redirect_uri) {
+    res.status(400).type("html").send("Hianyzo parameterek a modul-mentesi keresben.");
+    return;
+  }
+
+  // Re-validate the license — defense in depth (the form was rendered server-side
+  // but we don't trust hidden inputs blindly).
+  const validation = await validateLicense(license_key, system_id);
+  if (!validation.valid) {
+    res.status(401).type("html").send("Ervenytelen licenc — kerlek jelentkezz be ujra.");
+    return;
+  }
+
+  // Parse selected category ids. The form posts them under repeating
+  // category_id fields → Express body-parser yields either a string or array.
+  let selectedRaw: unknown = req.body.category_id;
+  if (selectedRaw === undefined) selectedRaw = [];
+  if (typeof selectedRaw === "string") selectedRaw = [selectedRaw];
+  const selected = Array.isArray(selectedRaw)
+    ? selectedRaw.map((v) => Number(v)).filter((n) => Number.isFinite(n) && n > 0)
+    : [];
+
+  // "Mégis minden modul" button → store null = no restriction.
+  const allowedCategoryIds: number[] | null = all_modules ? null : selected;
+
+  const saved = await setAllowedCategoryIds(license_key, allowedCategoryIds);
+  if (!saved) {
+    res.status(500).type("html").send("Nem sikerult menteni a modul-beallitast. Probald ujra.");
+    return;
+  }
+
   const code = generateAuthCode(
-    { systemId: system_id, apiKey: api_key, licenseKey: license_key },
+    {
+      systemId: system_id,
+      apiKey: api_key,
+      licenseKey: license_key,
+      allowedCategoryIds,
+    },
     code_challenge,
     code_challenge_method || "S256",
     redirect_uri
   );
 
-  // Redirect back to Claude with the code
   const redirectUrl = new URL(redirect_uri);
   redirectUrl.searchParams.set("code", code);
   if (state) redirectUrl.searchParams.set("state", state);
@@ -219,6 +300,7 @@ app.post("/mcp", async (req: Request, res: Response) => {
     systemId: credentials.systemId,
     apiKey: credentials.apiKey,
     baseUrl: "https://r3.minicrm.hu",
+    allowedCategoryIds: credentials.allowedCategoryIds,
   });
 
   const mcpServer = new McpServer(

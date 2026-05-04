@@ -45,9 +45,18 @@ function getCacheEntry(systemId: string): ProjectListCacheEntry {
 }
 
 async function getCategoryIds(client: MiniCrmClient, cache: ProjectListCacheEntry): Promise<number[]> {
-  if (cache.catIds.length) return cache.catIds;
-  const categories = await client.request<Record<string, unknown>>("GET", "/Api/R3/Category");
-  cache.catIds = Object.keys(categories || {}).map(Number).filter(Boolean);
+  if (!cache.catIds.length) {
+    const categories = await client.request<Record<string, unknown>>("GET", "/Api/R3/Category");
+    cache.catIds = Object.keys(categories || {}).map(Number).filter(Boolean);
+  }
+  // If the license has a self-service module allowlist, narrow the iteration
+  // here. The cache itself stays full so other tenants and the per-request
+  // override path can still see the unfiltered list.
+  const allowed = client.allowedCategoryIds;
+  if (allowed && allowed.length) {
+    const allowSet = new Set(allowed);
+    return cache.catIds.filter((id) => allowSet.has(id));
+  }
   return cache.catIds;
 }
 
@@ -117,6 +126,17 @@ async function fetchAllTodos(
   const start = Date.now();
   const scope = opts.scope || "all";
   const cache = getCacheEntry(client.systemId);
+
+  // Honor the license-level module allowlist on explicit categoryId requests.
+  // The general scan path (no categoryId) is filtered inside getCategoryIds().
+  // For scope=responsible, MiniCRM applies the categoryId filter server-side
+  // and we only need to gate the request itself.
+  const allowed = client.allowedCategoryIds;
+  if (opts.categoryId && allowed && allowed.length && !allowed.includes(opts.categoryId)) {
+    throw new Error(
+      `A megadott modul (categoryId=${opts.categoryId}) nincs engedelyezve ehhez a licenchez. Engedelyezett modulok: ${allowed.join(", ")}. Modositas: jelentkezz be ujra Claude-bol es valassz modulokat.`
+    );
+  }
 
   // === Resolve project IDs to scan ==========================================
   // For scope=all + filterUserId, prioritize the user's own (responsible) projects

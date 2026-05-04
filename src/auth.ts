@@ -9,6 +9,16 @@ export interface UserCredentials {
   systemId: string;
   apiKey: string;
   licenseKey: string;
+  // Self-service module allowlist. null = no restriction (all modules).
+  // Carried in JWT so per-request handlers can scope aggregating tools without
+  // an extra license-worker round-trip.
+  allowedCategoryIds: number[] | null;
+}
+
+export interface ValidatedLicense {
+  valid: boolean;
+  email?: string;
+  allowedCategoryIds: number[] | null;
 }
 
 // In-memory auth code store (short-lived, cleaned up automatically)
@@ -31,15 +41,44 @@ setInterval(() => {
   }
 }, 5 * 60_000);
 
-export async function validateLicense(licenseKey: string, systemId?: string): Promise<boolean> {
+export async function validateLicense(licenseKey: string, systemId?: string): Promise<ValidatedLicense> {
   try {
     const res = await fetch(`${LICENSE_API_URL}/validate`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ key: licenseKey, systemId }),
     });
-    const data = (await res.json()) as { valid?: boolean };
-    return !!data.valid;
+    const data = (await res.json()) as {
+      valid?: boolean;
+      email?: string;
+      allowedCategoryIds?: number[] | null;
+    };
+    return {
+      valid: !!data.valid,
+      email: data.email,
+      allowedCategoryIds: data.allowedCategoryIds ?? null,
+    };
+  } catch {
+    return { valid: false, allowedCategoryIds: null };
+  }
+}
+
+// Update license metadata (used by self-service module-selection flow).
+// Authenticated server-to-server with ADMIN_SECRET — the user-facing OAuth
+// step has already verified ownership of the license + matching MiniCRM creds.
+export async function setAllowedCategoryIds(licenseKey: string, allowedCategoryIds: number[] | null): Promise<boolean> {
+  const adminSecret = process.env.ADMIN_SECRET || process.env.MINICRM_LICENSE_ADMIN_SECRET;
+  if (!adminSecret) return false;
+  try {
+    const res = await fetch(`${LICENSE_API_URL}/keys/${encodeURIComponent(licenseKey)}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${adminSecret}`,
+      },
+      body: JSON.stringify({ allowedCategoryIds }),
+    });
+    return res.ok;
   } catch {
     return false;
   }
@@ -96,6 +135,7 @@ export function exchangeAuthCode(
       systemId: data.credentials.systemId,
       apiKey: data.credentials.apiKey,
       licenseKey: data.credentials.licenseKey,
+      allowedCategoryIds: data.credentials.allowedCategoryIds,
     },
     JWT_SECRET,
     { expiresIn: "30d" }
@@ -110,11 +150,13 @@ export function verifyToken(token: string): UserCredentials | null {
       systemId: string;
       apiKey: string;
       licenseKey: string;
+      allowedCategoryIds?: number[] | null;
     };
     return {
       systemId: payload.systemId,
       apiKey: payload.apiKey,
       licenseKey: payload.licenseKey,
+      allowedCategoryIds: payload.allowedCategoryIds ?? null,
     };
   } catch {
     return null;
