@@ -6,6 +6,10 @@ compatibility_date = "2024-12-01"
 binding = "LICENSES"
 id = "96a860a9b6e24aca977bcc9a6cfa5d39"
 
+[[kv_namespaces]]
+binding = "LEADS"
+id = "0f1511a43d9f45fc9c8d994525fdd91a"
+
 [vars]
 # Set the actual admin secret via:
 #   npx wrangler secret put ADMIN_SECRET

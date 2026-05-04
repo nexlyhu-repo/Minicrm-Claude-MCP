@@ -111,7 +111,27 @@ export function getAdminDashboardHtml(): string {
     <tbody id="licTable"></tbody>
   </table>
 
-  <div id="detailPanel" class="detail-panel hidden">
+  <div class="toolbar" style="margin-top:32px;">
+    <h2>Leadek <span id="leadCount" style="font-size:13px;color:var(--dim);font-weight:normal;"></span></h2>
+    <button class="btn-sm" onclick="fetchLeads()">Frissítés</button>
+  </div>
+
+  <table>
+    <thead><tr>
+      <th>Dátum</th>
+      <th>Név</th>
+      <th>Cég</th>
+      <th>Telefon</th>
+      <th>Email</th>
+      <th>Felh. szám</th>
+      <th>Licenc</th>
+      <th>Forrás</th>
+      <th>Műveletek</th>
+    </tr></thead>
+    <tbody id="leadTable"><tr><td colspan="9" class="empty">Bejelentkezés után tölt be...</td></tr></tbody>
+  </table>
+
+  <div id="detailPanel" class="detail-panel hidden" style="margin-top:24px;">
     <h3 id="detailTitle">Részletek</h3>
     <div class="detail-grid">
       <div>
@@ -187,7 +207,47 @@ async function fetchLicenses() {
     document.getElementById('connStatus').textContent = 'Csatlakozva';
     document.getElementById('connStatus').style.color = '#3dd68c';
     renderLicenses(data.licenses);
+    fetchLeads();
   } catch(e) { alert('Hiba: ' + e.message); }
+}
+
+async function fetchLeads() {
+  try {
+    const data = await api('/leads');
+    if (data.error) { document.getElementById('leadTable').innerHTML = '<tr><td colspan="9" class="empty">Hiba: ' + esc(data.error) + '</td></tr>'; return; }
+    renderLeads(data.leads || []);
+  } catch(e) {
+    document.getElementById('leadTable').innerHTML = '<tr><td colspan="9" class="empty">Hiba: ' + esc(e.message) + '</td></tr>';
+  }
+}
+
+function renderLeads(leads) {
+  document.getElementById('leadCount').textContent = '(' + leads.length + ')';
+  const tbody = document.getElementById('leadTable');
+  if (!leads.length) { tbody.innerHTML = '<tr><td colspan="9" class="empty">Még nincs lead</td></tr>'; return; }
+  tbody.innerHTML = leads.map(l => {
+    const date = l.createdAt ? new Date(l.createdAt).toLocaleString('hu-HU') : '-';
+    const licShort = l.licenseKey ? (l.licenseKey.substring(0, 12) + '…') : '-';
+    return '<tr>' +
+      '<td style="font-size:12px;color:var(--text2)">' + esc(date) + '</td>' +
+      '<td>' + esc(l.name || '-') + '</td>' +
+      '<td>' + esc(l.company || '-') + '</td>' +
+      '<td style="font-size:12px">' + esc(l.phone || '-') + '</td>' +
+      '<td style="font-size:12px;color:var(--text2)">' + esc(l.email || '-') + '</td>' +
+      '<td style="text-align:center">' + (l.userCount || '-') + '</td>' +
+      '<td class="key-cell" title="' + esc(l.licenseKey||'') + '" onclick="if(this.dataset.k){navigator.clipboard.writeText(this.dataset.k);this.style.color=\\'#3dd68c\\';setTimeout(()=>this.style.color=\\'\\',1000)}" data-k="' + esc(l.licenseKey||'') + '">' + esc(licShort) + '</td>' +
+      '<td style="font-size:12px"><span class="badge trial">' + esc(l.source || '-') + '</span></td>' +
+      '<td class="actions">' +
+        '<button class="btn-sm danger" onclick="deleteLead(\\'' + encodeURIComponent(l.id) + '\\',\\'' + esc(l.email||'') + '\\')">Törlés</button>' +
+      '</td></tr>';
+  }).join('');
+}
+
+async function deleteLead(idEnc, email) {
+  if (!confirm('Lead törlése: ' + email + '\\n\\nEz csak a lead-rekordot törli, a licencet nem érinti. Biztos?')) return;
+  const data = await api('/leads/' + idEnc, { method:'DELETE' });
+  if (data.error) { alert('Hiba: ' + data.error); return; }
+  fetchLeads();
 }
 
 function renderLicenses(licenses) {

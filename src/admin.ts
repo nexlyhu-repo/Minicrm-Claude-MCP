@@ -140,6 +140,34 @@ router.delete("/api/licenses/:key/permanent", async (req: Request, res: Response
   }
 });
 
+// GET /admin/api/leads - list all captured leads
+router.get("/api/leads", async (_req: Request, res: Response) => {
+  try {
+    const leadsRes = await fetch(`${LICENSE_API_URL}/leads`, {
+      headers: { Authorization: `Bearer ${ADMIN_SECRET}` },
+    });
+    const data = await leadsRes.json();
+    res.status(leadsRes.status).json(data);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch leads" });
+  }
+});
+
+// DELETE /admin/api/leads/:id - remove a lead record
+router.delete("/api/leads/:id", async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id as string;
+    const delRes = await fetch(`${LICENSE_API_URL}/leads/${encodeURIComponent(id)}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${ADMIN_SECRET}` },
+    });
+    const data = await delRes.json();
+    res.status(delRes.status).json(data);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to delete lead" });
+  }
+});
+
 // POST /admin/api/licenses/:key/reactivate
 router.post("/api/licenses/:key/reactivate", async (req: Request, res: Response) => {
   try {

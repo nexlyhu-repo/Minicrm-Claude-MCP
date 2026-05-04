@@ -1,5 +1,6 @@
 interface Env {
   LICENSES: KVNamespace;
+  LEADS: KVNamespace;
   ADMIN_SECRET: string;
 }
 
@@ -10,6 +11,26 @@ interface LicenseData {
   expiresAt: string | null;
   note?: string;
   boundSystemId?: string;
+}
+
+interface LeadData {
+  email: string;
+  name?: string;
+  company?: string;
+  phone?: string;
+  userCount?: number;
+  licenseKey?: string;
+  expiresAt?: string;
+  createdAt: string;
+  source: string;
+}
+
+function generateLeadId(): string {
+  const ts = new Date().toISOString();
+  const bytes = new Uint8Array(4);
+  crypto.getRandomValues(bytes);
+  const suffix = Array.from(bytes).map((b) => b.toString(16).padStart(2, "0")).join("");
+  return `${ts}_${suffix}`;
 }
 
 function json(data: unknown, status = 200): Response {
@@ -97,6 +118,25 @@ export default {
         };
 
         await env.LICENSES.put(key, JSON.stringify(data));
+
+        // Store lead independently of license — even if email/sheet integration fails, we keep it.
+        try {
+          const leadId = generateLeadId();
+          const lead: LeadData = {
+            email: body.email,
+            name: body.name,
+            company: body.company,
+            phone: body.phone,
+            userCount: body.userCount,
+            licenseKey: key,
+            expiresAt,
+            createdAt: data.createdAt,
+            source: "landing",
+          };
+          await env.LEADS.put(leadId, JSON.stringify(lead));
+        } catch {
+          // Lead persistence is best-effort; never fail the trial flow on it.
+        }
 
         return cors(json({ key, expiresAt }, 201));
       } catch {
@@ -252,6 +292,29 @@ export default {
       await env.LICENSES.put(key, JSON.stringify(data));
 
       return json({ key, ...data, message: "Licenc ujraaktivalva." });
+    }
+
+    // GET /leads — list all leads (newest first)
+    if (method === "GET" && url.pathname === "/leads") {
+      const list = await env.LEADS.list();
+      const leads: Array<{ id: string } & LeadData> = [];
+      for (const item of list.keys) {
+        const data = await env.LEADS.get<LeadData>(item.name, "json");
+        if (data) leads.push({ id: item.name, ...data });
+      }
+      leads.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
+      return json({ count: leads.length, leads });
+    }
+
+    // DELETE /leads/:id — remove a lead record
+    if (method === "DELETE" && url.pathname.startsWith("/leads/")) {
+      const id = url.pathname.replace("/leads/", "");
+      const data = await env.LEADS.get<LeadData>(id, "json");
+      if (!data) {
+        return json({ error: "Lead nem talalhato." }, 404);
+      }
+      await env.LEADS.delete(id);
+      return json({ id, message: "Lead torolve." });
     }
 
     // GET /keys — list all licenses (KV list, max 1000)
