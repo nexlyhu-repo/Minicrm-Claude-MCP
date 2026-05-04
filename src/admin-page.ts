@@ -163,6 +163,28 @@ export function getAdminDashboardHtml(): string {
   </div>
 </div>
 
+<!-- Extend Modal -->
+<div class="modal-overlay" id="extendModal">
+  <div class="modal">
+    <h3>Próbaidőszak hosszabbítása</h3>
+    <input type="hidden" id="extendKey">
+    <div id="extendInfo" style="font-size:13px;color:var(--text2);line-height:1.5;margin-bottom:12px;"></div>
+    <label>Hány nappal hosszabbítsuk?</label>
+    <div style="display:flex;gap:6px;margin-bottom:8px;">
+      <button class="btn-sm" onclick="setExtendDays(7)">+7 nap</button>
+      <button class="btn-sm" onclick="setExtendDays(14)">+14 nap</button>
+      <button class="btn-sm" onclick="setExtendDays(30)">+30 nap</button>
+      <button class="btn-sm" onclick="setExtendDays(90)">+90 nap</button>
+    </div>
+    <input type="number" id="extendDays" min="1" max="3650" placeholder="Egyedi (pl. 21)">
+    <div id="extendPreview" style="margin-top:10px;padding:10px;background:var(--bg);border:1px solid var(--border);border-radius:6px;font-size:13px;color:var(--text2);"></div>
+    <div class="modal-actions">
+      <button class="btn-sm" onclick="closeModal('extendModal')">Mégse</button>
+      <button class="btn-primary" onclick="saveExtend()">Hosszabbítás</button>
+    </div>
+  </div>
+</div>
+
 <!-- Edit Modal -->
 <div class="modal-overlay" id="editModal">
   <div class="modal">
@@ -289,6 +311,7 @@ function renderLicenses(licenses) {
       '<td class="actions">' +
         '<button class="btn-sm" onclick="showDetail(\\'' + l.key + '\\',\\'' + esc(userName) + '\\')">Részletek</button>' +
         '<button class="btn-sm" onclick="openEditModal(\\'' + l.key + '\\',\\'' + esc(l.note||'') + '\\',\\'' + esc(l.email) + '\\',\\'' + (l.expiresAt||'') + '\\')">Szerk.</button>' +
+        '<button class="btn-sm green" onclick="openExtendModal(\\'' + l.key + '\\',\\'' + esc(userName) + '\\',\\'' + (l.expiresAt||'') + '\\')">Hosszabbítás</button>' +
         (l.active ?
           '<button class="btn-sm danger" onclick="revokeLicense(\\'' + l.key + '\\')">Tiltás</button>' :
           '<button class="btn-sm green" onclick="reactivateLicense(\\'' + l.key + '\\')">Aktiválás</button>') +
@@ -372,6 +395,53 @@ async function revokeLicense(key) {
 
 async function reactivateLicense(key) {
   await api('/licenses/' + key + '/reactivate', { method:'POST' });
+  fetchLicenses();
+}
+
+let _extendBase = null;  // Date object: starting point for the extension
+let _extendCurrent = null;  // current expiresAt as Date or null
+
+function openExtendModal(key, userName, expiresAt) {
+  document.getElementById('extendKey').value = key;
+  const now = new Date();
+  _extendCurrent = expiresAt ? new Date(expiresAt) : null;
+  // Base = max(now, current) so '+N days' always extends, never shortens
+  _extendBase = (_extendCurrent && _extendCurrent > now) ? _extendCurrent : now;
+  const currentTxt = _extendCurrent ? _extendCurrent.toLocaleDateString('hu-HU') : 'nincs (végtelen volt)';
+  const baseTxt = _extendBase.toLocaleDateString('hu-HU');
+  const baseLabel = (_extendCurrent && _extendCurrent > now) ? 'jelenlegi lejárat' : 'mai nap (lejárt licencnél innen számít)';
+  document.getElementById('extendInfo').innerHTML =
+    '<strong>' + esc(userName) + '</strong><br>' +
+    'Jelenlegi lejárat: <strong>' + esc(currentTxt) + '</strong><br>' +
+    'Hosszabbítás kezdete: <strong>' + esc(baseTxt) + '</strong> <span style="color:var(--dim)">(' + esc(baseLabel) + ')</span>';
+  document.getElementById('extendDays').value = '';
+  document.getElementById('extendPreview').textContent = 'Új lejárat: -';
+  document.getElementById('extendModal').classList.add('open');
+  document.getElementById('extendDays').oninput = updateExtendPreview;
+}
+
+function setExtendDays(n) {
+  document.getElementById('extendDays').value = n;
+  updateExtendPreview();
+}
+
+function updateExtendPreview() {
+  const days = parseInt(document.getElementById('extendDays').value);
+  const preview = document.getElementById('extendPreview');
+  if (!days || days < 1 || !_extendBase) { preview.textContent = 'Új lejárat: -'; return; }
+  const next = new Date(_extendBase.getTime() + days * 24 * 60 * 60 * 1000);
+  preview.innerHTML = 'Új lejárat: <strong style="color:var(--green)">' + next.toLocaleDateString('hu-HU') + '</strong>';
+}
+
+async function saveExtend() {
+  const key = document.getElementById('extendKey').value;
+  const days = parseInt(document.getElementById('extendDays').value);
+  if (!days || days < 1) { alert('Adj meg pozitív napok számát.'); return; }
+  if (!_extendBase) { alert('Hiba: hiányzik a kiindulási dátum.'); return; }
+  const next = new Date(_extendBase.getTime() + days * 24 * 60 * 60 * 1000);
+  const data = await api('/licenses/' + key, { method:'PUT', body:JSON.stringify({ expiresAt: next.toISOString() }) });
+  if (data.error) { alert('Hiba: ' + data.error); return; }
+  closeModal('extendModal');
   fetchLicenses();
 }
 
