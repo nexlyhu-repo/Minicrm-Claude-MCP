@@ -615,7 +615,7 @@ export default {
 
     // DELETE /leads/:id — remove a lead record
     if (method === "DELETE" && url.pathname.startsWith("/leads/")) {
-      const id = url.pathname.replace("/leads/", "");
+      const id = decodeURIComponent(url.pathname.replace("/leads/", ""));
       const data = await env.LEADS.get<LeadData>(id, "json");
       if (!data) {
         return json({ error: "Lead nem talalhato." }, 404);
@@ -660,14 +660,14 @@ export default {
     }
 
     if (method === "GET" && /^\/bug-reports\/[^/]+$/.test(url.pathname)) {
-      const id = url.pathname.replace("/bug-reports/", "");
+      const id = decodeURIComponent(url.pathname.replace("/bug-reports/", ""));
       const data = await env.BUGS.get<BugReport>(id, "json");
       if (!data) return json({ error: "Hibabejelentes nem talalhato." }, 404);
       return json(data);
     }
 
     if (method === "POST" && /^\/bug-reports\/[^/]+\/resolve$/.test(url.pathname)) {
-      const id = url.pathname.replace("/bug-reports/", "").replace("/resolve", "");
+      const id = decodeURIComponent(url.pathname.replace("/bug-reports/", "").replace("/resolve", ""));
       const data = await env.BUGS.get<BugReport>(id, "json");
       if (!data) return json({ error: "Hibabejelentes nem talalhato." }, 404);
       data.status = "resolved";
@@ -677,7 +677,7 @@ export default {
     }
 
     if (method === "POST" && /^\/bug-reports\/[^/]+\/reopen$/.test(url.pathname)) {
-      const id = url.pathname.replace("/bug-reports/", "").replace("/reopen", "");
+      const id = decodeURIComponent(url.pathname.replace("/bug-reports/", "").replace("/reopen", ""));
       const data = await env.BUGS.get<BugReport>(id, "json");
       if (!data) return json({ error: "Hibabejelentes nem talalhato." }, 404);
       data.status = "open";
@@ -687,7 +687,7 @@ export default {
     }
 
     if (method === "DELETE" && /^\/bug-reports\/[^/]+$/.test(url.pathname)) {
-      const id = url.pathname.replace("/bug-reports/", "");
+      const id = decodeURIComponent(url.pathname.replace("/bug-reports/", ""));
       const data = await env.BUGS.get<BugReport>(id, "json");
       if (!data) return json({ error: "Hibabejelentes nem talalhato." }, 404);
       await env.BUGS.delete(id);
