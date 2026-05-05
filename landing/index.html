@@ -54,66 +54,136 @@
             padding: 0 24px;
         }
 
-        /* === NAV === */
+        /* === NAV (floating) === */
         nav {
             position: fixed;
-            top: 0; left: 0; right: 0;
+            top: 18px; left: 50%;
+            transform: translateX(-50%);
             z-index: 100;
-            background: #0a0e17e6;
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--border);
+            width: calc(100% - 32px);
+            max-width: 1180px;
+            background: rgba(15, 19, 28, 0.65);
+            backdrop-filter: saturate(180%) blur(22px);
+            -webkit-backdrop-filter: saturate(180%) blur(22px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 8px 28px rgba(0, 0, 0, 0.32);
+            transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, top 0.25s ease;
+        }
+        nav.scrolled {
+            background: rgba(10, 12, 16, 0.82);
+            border-color: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 14px 36px rgba(0, 0, 0, 0.5);
         }
         .nav-inner {
-            max-width: 1100px;
-            margin: 0 auto;
-            padding: 0 24px;
+            padding: 0 22px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            height: 64px;
+            gap: 18px;
+            height: 60px;
         }
         .nav-logo {
             font-family: 'Sora', sans-serif;
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 700;
             color: var(--text);
             letter-spacing: -0.03em;
+            white-space: nowrap;
+            flex-shrink: 0;
         }
         .nav-logo span { color: var(--accent); }
-        .nav-links { display: flex; gap: 28px; align-items: center; }
+        .nav-links {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            flex: 1;
+            justify-content: center;
+            min-width: 0;
+        }
         .nav-links a {
-            font-size: 14px;
+            font-size: 13.5px;
             font-weight: 500;
             color: var(--text2);
-            transition: color 0.2s;
+            transition: color 0.2s, background 0.2s;
+            white-space: nowrap;
+            padding: 7px 11px;
+            border-radius: 8px;
         }
-        .nav-links a:hover { color: var(--text); }
+        .nav-links a:not(.nav-cta):not(.nav-setup):hover {
+            color: var(--text);
+            background: rgba(255, 255, 255, 0.04);
+        }
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+        .nav-bug {
+            font-size: 13.5px !important;
+            color: var(--text2) !important;
+            padding: 7px 11px !important;
+            border-radius: 8px;
+            transition: color 0.2s, background 0.2s;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .nav-bug::before {
+            content: '';
+            width: 7px; height: 7px;
+            background: var(--red);
+            border-radius: 50%;
+            box-shadow: 0 0 0 3px rgba(240, 96, 96, 0.18);
+        }
+        .nav-bug:hover { color: var(--text) !important; background: rgba(240, 96, 96, 0.10); }
+        .nav-setup {
+            font-size: 13.5px !important;
+            color: var(--amber) !important;
+            font-weight: 600 !important;
+            padding: 7px 12px !important;
+            border-radius: 8px;
+            border: 1px solid rgba(232, 160, 64, 0.28);
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .nav-setup:hover { background: rgba(232, 160, 64, 0.10); border-color: rgba(232, 160, 64, 0.5); }
         .nav-cta {
-            padding: 8px 20px !important;
+            padding: 8px 16px !important;
             background: var(--accent) !important;
             color: #fff !important;
-            border-radius: 8px;
+            border-radius: 9px;
             font-weight: 600 !important;
+            font-size: 13.5px !important;
             transition: all 0.2s !important;
+            white-space: nowrap;
+            box-shadow: 0 4px 14px rgba(79, 125, 245, 0.32);
         }
-        .nav-cta:hover { background: var(--accent-bright) !important; transform: translateY(-1px); }
+        .nav-cta:hover { background: var(--accent-bright) !important; transform: translateY(-1px); box-shadow: 0 6px 18px rgba(79, 125, 245, 0.45); }
         .mobile-menu-btn {
             display: none;
-            background: none;
-            border: none;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             color: var(--text);
-            font-size: 24px;
+            font-size: 20px;
             cursor: pointer;
-            padding: 4px;
+            padding: 8px 11px;
+            border-radius: 9px;
         }
+        .mobile-menu-btn:hover { background: rgba(255, 255, 255, 0.08); }
         .mobile-menu {
             display: none;
             position: fixed;
-            top: 64px; left: 0; right: 0;
-            background: var(--bg);
-            border-bottom: 1px solid var(--border);
-            padding: 16px 24px;
+            top: 90px; left: 16px; right: 16px;
+            background: rgba(10, 12, 16, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 12px 18px;
             z-index: 99;
+            box-shadow: 0 14px 36px rgba(0, 0, 0, 0.5);
         }
         .mobile-menu.open { display: block; }
         .mobile-menu a {
@@ -122,9 +192,10 @@
             font-size: 15px;
             font-weight: 500;
             color: var(--text2);
-            border-bottom: 1px solid var(--border);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
         }
         .mobile-menu a:last-child { border-bottom: none; }
+        .mobile-menu a:hover { color: var(--text); }
 
         /* === HERO === */
         .hero {
@@ -1044,6 +1115,12 @@
         .reveal-delay-4 { transition-delay: 0.4s; }
 
         /* === RESPONSIVE === */
+        @media (max-width: 1180px) {
+            .nav-links a:nth-child(7), .nav-links a:nth-child(6) { display: none; }
+        }
+        @media (max-width: 1020px) {
+            .nav-links a:nth-child(5), .nav-links a:nth-child(4) { display: none; }
+        }
         @media (max-width: 900px) {
             .hero-grid { grid-template-columns: 1fr; gap: 40px; }
             .hero { padding: 120px 0 60px; }
@@ -1058,6 +1135,7 @@
             .pricing-grid { grid-template-columns: 1fr; max-width: 420px; }
             .footer-grid { grid-template-columns: 1fr 1fr; gap: 24px; }
             .nav-links { display: none; }
+            .nav-actions { display: none; }
             .mobile-menu-btn { display: block; }
         }
         @media (max-width: 600px) {
@@ -1076,19 +1154,22 @@
 <body>
 
 <!-- NAV -->
-<nav>
+<nav id="mainNav">
     <div class="nav-inner">
-        <div class="nav-logo">Mini<span>CRM</span> MCP</div>
+        <a href="#" class="nav-logo">Mini<span>CRM</span> MCP</a>
         <div class="nav-links">
             <a href="#features">Funkciók</a>
             <a href="#tools">Eszközök</a>
-            <a href="#how-it-works">Hogyan működik</a>
+            <a href="#how-it-works">Hogyan&nbsp;működik</a>
             <a href="#security">Biztonság</a>
             <a href="#support">Támogatás</a>
             <a href="#references">Referenciák</a>
             <a href="#pricing">Árazás</a>
-            <a href="/setup" style="color:var(--amber);font-weight:600;">Beállítás</a>
-            <a href="#demo-form" class="nav-cta">Ingyenes bemutató</a>
+        </div>
+        <div class="nav-actions">
+            <a href="#bug-report" class="nav-bug" title="Hibát találtál?">Hibabejelentés</a>
+            <a href="/setup" class="nav-setup">Beállítás</a>
+            <a href="#demo-form" class="nav-cta">Ingyenes próba</a>
         </div>
         <button class="mobile-menu-btn" onclick="toggleMenu()" aria-label="Menu">&#9776;</button>
     </div>
@@ -1101,6 +1182,7 @@
     <a href="#support" onclick="closeMenu()">Támogatás</a>
     <a href="#references" onclick="closeMenu()">Referenciák</a>
     <a href="#pricing" onclick="closeMenu()">Árazás</a>
+    <a href="#bug-report" onclick="closeMenu()" style="color:var(--red);font-weight:600;">Hibabejelentés</a>
     <a href="/setup" onclick="closeMenu()" style="color:var(--amber);font-weight:600;">Beállítási útmutató</a>
     <a href="#demo-form" onclick="closeMenu()">Ingyenes próba</a>
 </div>
@@ -1770,6 +1852,15 @@
     function closeMenu() {
         document.getElementById('mobileMenu').classList.remove('open');
     }
+
+    // Floating header — sűrűbb háttér + erősebb shadow scroll után
+    const _nav = document.getElementById('mainNav');
+    const _onScroll = () => {
+        if (window.scrollY > 12) _nav.classList.add('scrolled');
+        else _nav.classList.remove('scrolled');
+    };
+    window.addEventListener('scroll', _onScroll, { passive: true });
+    _onScroll();
 
     // Scroll reveal
     const observer = new IntersectionObserver((entries) => {
