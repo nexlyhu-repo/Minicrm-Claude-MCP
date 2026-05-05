@@ -186,6 +186,75 @@ router.post("/api/tenants/:systemId/reset-password", async (req: Request, res: R
   }
 });
 
+// === Bug reports proxy ===
+
+router.get("/api/bug-reports", async (_req: Request, res: Response) => {
+  try {
+    const r = await fetch(`${LICENSE_API_URL}/bug-reports`, {
+      headers: { Authorization: `Bearer ${ADMIN_SECRET}` },
+    });
+    const data = await r.json();
+    res.status(r.status).json(data);
+  } catch {
+    res.status(500).json({ error: "Failed to fetch bug reports" });
+  }
+});
+
+router.get("/api/bug-reports/:id", async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id as string;
+    const r = await fetch(`${LICENSE_API_URL}/bug-reports/${encodeURIComponent(id)}`, {
+      headers: { Authorization: `Bearer ${ADMIN_SECRET}` },
+    });
+    const data = await r.json();
+    res.status(r.status).json(data);
+  } catch {
+    res.status(500).json({ error: "Failed to fetch bug report" });
+  }
+});
+
+router.post("/api/bug-reports/:id/resolve", async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id as string;
+    const r = await fetch(`${LICENSE_API_URL}/bug-reports/${encodeURIComponent(id)}/resolve`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${ADMIN_SECRET}` },
+    });
+    const data = await r.json();
+    res.status(r.status).json(data);
+  } catch {
+    res.status(500).json({ error: "Failed to resolve bug report" });
+  }
+});
+
+router.post("/api/bug-reports/:id/reopen", async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id as string;
+    const r = await fetch(`${LICENSE_API_URL}/bug-reports/${encodeURIComponent(id)}/reopen`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${ADMIN_SECRET}` },
+    });
+    const data = await r.json();
+    res.status(r.status).json(data);
+  } catch {
+    res.status(500).json({ error: "Failed to reopen bug report" });
+  }
+});
+
+router.delete("/api/bug-reports/:id", async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id as string;
+    const r = await fetch(`${LICENSE_API_URL}/bug-reports/${encodeURIComponent(id)}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${ADMIN_SECRET}` },
+    });
+    const data = await r.json();
+    res.status(r.status).json(data);
+  } catch {
+    res.status(500).json({ error: "Failed to delete bug report" });
+  }
+});
+
 // GET /admin/api/leads - list all captured leads
 router.get("/api/leads", async (_req: Request, res: Response) => {
   try {

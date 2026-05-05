@@ -131,6 +131,24 @@ export function getAdminDashboardHtml(): string {
     <tbody id="leadTable"><tr><td colspan="9" class="empty">Bejelentkezés után tölt be...</td></tr></tbody>
   </table>
 
+  <div class="toolbar" style="margin-top:32px;">
+    <h2>Hibabejelentések <span id="bugCount" style="font-size:13px;color:var(--dim);font-weight:normal;"></span></h2>
+    <button class="btn-sm" onclick="fetchBugs()">Frissítés</button>
+  </div>
+
+  <table>
+    <thead><tr>
+      <th>Dátum</th>
+      <th>Állapot</th>
+      <th>Bejelentő</th>
+      <th>Kategória</th>
+      <th>Leírás</th>
+      <th>Képek</th>
+      <th>Műveletek</th>
+    </tr></thead>
+    <tbody id="bugTable"><tr><td colspan="7" class="empty">Bejelentkezés után tölt be...</td></tr></tbody>
+  </table>
+
   <div id="detailPanel" class="detail-panel hidden" style="margin-top:24px;">
     <h3 id="detailTitle">Részletek</h3>
     <div class="detail-grid">
@@ -203,9 +221,23 @@ export function getAdminDashboardHtml(): string {
   </div>
 </div>
 
+<!-- Bug Detail Modal -->
+<div class="modal-overlay" id="bugModal">
+  <div class="modal" style="width:720px;max-width:96vw;max-height:88vh;overflow-y:auto;">
+    <h3 id="bugModalTitle">Hibabejelentés</h3>
+    <div id="bugModalContent" style="margin-top:14px;"></div>
+    <div class="modal-actions">
+      <button class="btn-sm" onclick="closeModal('bugModal')">Bezár</button>
+      <button class="btn-sm green" id="bugResolveBtn" onclick="toggleBugResolve()">Megoldottnak jelöl</button>
+      <button class="btn-sm danger" id="bugDeleteBtn" onclick="deleteBug()">Törlés</button>
+    </div>
+  </div>
+</div>
+
 <script>
 let SECRET = '';
 const API = '/admin/api';
+let CURRENT_BUG = null;
 
 function login() {
   SECRET = document.getElementById('secretInput').value;
@@ -234,7 +266,104 @@ async function fetchLicenses() {
     for (const t of (tdata.tenants || [])) TENANTS_BY_SID[t.systemId] = t;
     renderLicenses(data.licenses);
     fetchLeads();
+    fetchBugs();
   } catch(e) { alert('Hiba: ' + e.message); }
+}
+
+async function fetchBugs() {
+  try {
+    const data = await api('/bug-reports');
+    if (data.error) { document.getElementById('bugTable').innerHTML = '<tr><td colspan="7" class="empty">Hiba: ' + esc(data.error) + '</td></tr>'; return; }
+    renderBugs(data.reports || []);
+  } catch(e) {
+    document.getElementById('bugTable').innerHTML = '<tr><td colspan="7" class="empty">Hiba: ' + esc(e.message) + '</td></tr>';
+  }
+}
+
+function renderBugs(bugs) {
+  const open = bugs.filter(b => b.status !== 'resolved').length;
+  document.getElementById('bugCount').textContent = '(' + open + ' nyitott / ' + bugs.length + ' összes)';
+  const tbody = document.getElementById('bugTable');
+  if (!bugs.length) { tbody.innerHTML = '<tr><td colspan="7" class="empty">Még nincs hibabejelentés</td></tr>'; return; }
+  const catLabels = { ui:'Felület', tool:'Eszköz', performance:'Teljesítmény', auth:'Bejelentkezés', data:'Adatok', other:'Egyéb' };
+  tbody.innerHTML = bugs.map(b => {
+    const date = new Date(b.createdAt).toLocaleString('hu-HU');
+    const reporter = b.name ? esc(b.name) : '<em style="color:var(--dim)">Névtelen</em>';
+    const reporterEmail = b.email ? '<div style="font-size:11px;color:var(--text2)">' + esc(b.email) + '</div>' : '';
+    const desc = b.descriptionPreview.length > 100 ? esc(b.descriptionPreview.substring(0,100)) + '…' : esc(b.descriptionPreview);
+    const statusBadge = b.status === 'resolved'
+      ? '<span class="badge active">Megoldva</span>'
+      : '<span class="badge inactive">Nyitott</span>';
+    const cat = b.category ? esc(catLabels[b.category] || b.category) : '-';
+    const imgIndicator = b.imageCount > 0
+      ? '<span style="display:inline-block;background:#4f7df520;color:var(--accent-bright);padding:2px 8px;border-radius:5px;font-size:11px;font-weight:600">📎 ' + b.imageCount + '</span>'
+      : '<span style="color:var(--dim)">—</span>';
+    return '<tr style="cursor:pointer" onclick="openBugModal(\\'' + encodeURIComponent(b.id) + '\\')">' +
+      '<td style="font-size:12px;color:var(--text2)">' + esc(date) + '</td>' +
+      '<td>' + statusBadge + '</td>' +
+      '<td>' + reporter + reporterEmail + '</td>' +
+      '<td style="font-size:12px">' + cat + '</td>' +
+      '<td style="font-size:12px;color:var(--text2)">' + desc + '</td>' +
+      '<td>' + imgIndicator + '</td>' +
+      '<td><button class="btn-sm" onclick="event.stopPropagation();openBugModal(\\'' + encodeURIComponent(b.id) + '\\')">Megnyitás</button></td>' +
+    '</tr>';
+  }).join('');
+}
+
+async function openBugModal(idEnc) {
+  const data = await api('/bug-reports/' + idEnc);
+  if (data.error) { alert('Hiba: ' + data.error); return; }
+  CURRENT_BUG = data;
+  const catLabels = { ui:'Felület / megjelenés', tool:'Eszköz nem működik', performance:'Lassú / akadozik', auth:'Bejelentkezés / hozzáférés', data:'Adatok rosszul jelennek meg', other:'Egyéb' };
+  const created = new Date(data.createdAt).toLocaleString('hu-HU');
+  document.getElementById('bugModalTitle').textContent = 'Hibabejelentés — ' + (data.name || 'Névtelen');
+
+  let html = '';
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;font-size:13px">';
+  html += '<div><div style="color:var(--dim);font-size:11px;text-transform:uppercase;letter-spacing:0.05em">Bejelentő</div><div>' + (data.name ? esc(data.name) : '<em>Névtelen</em>') + '</div></div>';
+  html += '<div><div style="color:var(--dim);font-size:11px;text-transform:uppercase;letter-spacing:0.05em">Email</div><div>' + (data.email ? esc(data.email) : '<em>—</em>') + '</div></div>';
+  html += '<div><div style="color:var(--dim);font-size:11px;text-transform:uppercase;letter-spacing:0.05em">Kategória</div><div>' + (data.category ? esc(catLabels[data.category] || data.category) : '—') + '</div></div>';
+  html += '<div><div style="color:var(--dim);font-size:11px;text-transform:uppercase;letter-spacing:0.05em">Időpont</div><div>' + esc(created) + '</div></div>';
+  html += '</div>';
+
+  html += '<div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:14px;font-size:13px;line-height:1.6;white-space:pre-wrap">' + esc(data.description) + '</div>';
+
+  if (data.images && data.images.length) {
+    html += '<div style="font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">Csatolt képek (' + data.images.length + ')</div>';
+    html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px">';
+    for (let i = 0; i < data.images.length; i++) {
+      const img = data.images[i];
+      const src = 'data:' + img.mimeType + ';base64,' + img.base64;
+      html += '<a href="' + src + '" target="_blank" style="display:block;aspect-ratio:1;border:1px solid var(--border);border-radius:8px;overflow:hidden;background:var(--bg)">';
+      html += '<img src="' + src + '" style="width:100%;height:100%;object-fit:cover" alt="' + esc(img.filename) + '">';
+      html += '</a>';
+    }
+    html += '</div>';
+  }
+
+  if (data.userAgent) {
+    html += '<div style="margin-top:14px;font-size:11px;color:var(--dim);font-family:monospace;word-break:break-all">' + esc(data.userAgent) + '</div>';
+  }
+
+  document.getElementById('bugModalContent').innerHTML = html;
+  document.getElementById('bugResolveBtn').textContent = data.status === 'resolved' ? 'Újranyitás' : 'Megoldottnak jelöl';
+  document.getElementById('bugModal').classList.add('open');
+}
+
+async function toggleBugResolve() {
+  if (!CURRENT_BUG) return;
+  const action = CURRENT_BUG.status === 'resolved' ? 'reopen' : 'resolve';
+  await api('/bug-reports/' + encodeURIComponent(CURRENT_BUG.id) + '/' + action, { method:'POST' });
+  closeModal('bugModal');
+  fetchBugs();
+}
+
+async function deleteBug() {
+  if (!CURRENT_BUG) return;
+  if (!confirm('Biztosan törlöd ezt a hibabejelentést? Ez nem visszavonható.')) return;
+  await api('/bug-reports/' + encodeURIComponent(CURRENT_BUG.id), { method:'DELETE' });
+  closeModal('bugModal');
+  fetchBugs();
 }
 
 async function resetTenantPassword(systemId, adminEmail) {

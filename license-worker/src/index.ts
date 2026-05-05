@@ -2,7 +2,59 @@ interface Env {
   LICENSES: KVNamespace;
   LEADS: KVNamespace;
   TENANTS: KVNamespace;
+  BUGS: KVNamespace;
   ADMIN_SECRET: string;
+}
+
+interface BugImage {
+  filename: string;
+  mimeType: string;
+  base64: string;
+  size: number;
+}
+
+interface BugReport {
+  id: string;
+  name?: string;
+  email?: string;
+  category?: string;
+  description: string;
+  images: BugImage[];
+  status: "open" | "resolved";
+  createdAt: string;
+  resolvedAt?: string | null;
+  userAgent?: string;
+}
+
+const BUG_TOTAL_BYTES_LIMIT = 18 * 1024 * 1024; // ~18 MB raw, fits in 25 MB KV value after base64
+const BUG_MAX_IMAGES = 5;
+const BUG_MAX_DESCRIPTION = 5000;
+
+interface UploadedFile {
+  name: string;
+  type: string;
+  size: number;
+  arrayBuffer(): Promise<ArrayBuffer>;
+}
+
+async function fileToBase64(file: UploadedFile): Promise<string> {
+  const buf = await file.arrayBuffer();
+  const bytes = new Uint8Array(buf);
+  // chunked encoding to avoid stack overflow on large inputs
+  let binary = "";
+  const chunk = 8192;
+  for (let i = 0; i < bytes.length; i += chunk) {
+    binary += String.fromCharCode.apply(null, bytes.slice(i, i + chunk) as unknown as number[]);
+  }
+  return btoa(binary);
+}
+
+function generateBugId(): string {
+  const ts = new Date().toISOString();
+  const bytes = new Uint8Array(4);
+  crypto.getRandomValues(bytes);
+  const suffix = Array.from(bytes).map((b) => b.toString(16).padStart(2, "0")).join("");
+  return `${ts}_${suffix}`;
 }
 
 interface TenantData {
@@ -200,6 +252,77 @@ export default {
         return cors(json({ key, expiresAt }, 201));
       } catch {
         return cors(json({ error: "Érvénytelen kérés." }, 400));
+      }
+    }
+
+    // POST /bug-report — public, landing page submits multipart/form-data
+    // Fields: name, email, category, description, image[] (multiple file inputs)
+    if (method === "POST" && url.pathname === "/bug-report") {
+      try {
+        const ct = request.headers.get("content-type") || "";
+        if (!ct.includes("multipart/form-data")) {
+          return cors(json({ error: "Multipart/form-data kotelezo." }, 400));
+        }
+        const form = await request.formData();
+        const name = (form.get("name") as string | null)?.trim() || "";
+        const email = (form.get("email") as string | null)?.trim() || "";
+        const category = (form.get("category") as string | null)?.trim() || "";
+        const description = (form.get("description") as string | null)?.trim() || "";
+
+        if (!description || description.length < 5) {
+          return cors(json({ error: "A leiras megadasa kotelezo (legalabb 5 karakter)." }, 400));
+        }
+        if (description.length > BUG_MAX_DESCRIPTION) {
+          return cors(json({ error: `A leiras tul hosszu (max ${BUG_MAX_DESCRIPTION} karakter).` }, 400));
+        }
+
+        const fileEntriesRaw = form.getAll("image");
+        const fileEntries: UploadedFile[] = [];
+        for (const v of fileEntriesRaw) {
+          if (typeof v === "string" || v === null) continue;
+          const f = v as unknown as UploadedFile;
+          if (f.size > 0) fileEntries.push(f);
+        }
+        if (fileEntries.length > BUG_MAX_IMAGES) {
+          return cors(json({ error: `Maximum ${BUG_MAX_IMAGES} kep csatolhato.` }, 400));
+        }
+
+        let totalBytes = 0;
+        const images: BugImage[] = [];
+        for (const file of fileEntries) {
+          totalBytes += file.size;
+          if (totalBytes > BUG_TOTAL_BYTES_LIMIT) {
+            return cors(json({ error: `A kepek osszmerete tul nagy (max ${Math.round(BUG_TOTAL_BYTES_LIMIT / 1024 / 1024)} MB).` }, 413));
+          }
+          if (!file.type.startsWith("image/")) {
+            return cors(json({ error: `Csak kepfajlokat lehet csatolni (${file.name} nem kep).` }, 400));
+          }
+          const base64 = await fileToBase64(file);
+          images.push({
+            filename: file.name || "image",
+            mimeType: file.type,
+            base64,
+            size: file.size,
+          });
+        }
+
+        const id = generateBugId();
+        const report: BugReport = {
+          id,
+          name: name || undefined,
+          email: email || undefined,
+          category: category || undefined,
+          description,
+          images,
+          status: "open",
+          createdAt: new Date().toISOString(),
+          userAgent: request.headers.get("user-agent") || undefined,
+        };
+        await env.BUGS.put(id, JSON.stringify(report));
+
+        return cors(json({ id, ok: true, imagesAccepted: images.length }, 201));
+      } catch (err) {
+        return cors(json({ error: "Nem sikerult feldolgozni a hibabejelentest." }, 400));
       }
     }
 
@@ -499,6 +622,76 @@ export default {
       }
       await env.LEADS.delete(id);
       return json({ id, message: "Lead torolve." });
+    }
+
+    // === Bug reports (admin) =================================================
+    // List excludes image base64 to keep response small. Detail includes them.
+
+    if (method === "GET" && url.pathname === "/bug-reports") {
+      const list = await env.BUGS.list();
+      const summaries: Array<{
+        id: string;
+        name?: string;
+        email?: string;
+        category?: string;
+        descriptionPreview: string;
+        imageCount: number;
+        status: string;
+        createdAt: string;
+        resolvedAt?: string | null;
+      }> = [];
+      for (const item of list.keys) {
+        const data = await env.BUGS.get<BugReport>(item.name, "json");
+        if (!data) continue;
+        summaries.push({
+          id: data.id,
+          name: data.name,
+          email: data.email,
+          category: data.category,
+          descriptionPreview: data.description.slice(0, 200),
+          imageCount: data.images?.length || 0,
+          status: data.status || "open",
+          createdAt: data.createdAt,
+          resolvedAt: data.resolvedAt ?? null,
+        });
+      }
+      summaries.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
+      return json({ count: summaries.length, reports: summaries });
+    }
+
+    if (method === "GET" && /^\/bug-reports\/[^/]+$/.test(url.pathname)) {
+      const id = url.pathname.replace("/bug-reports/", "");
+      const data = await env.BUGS.get<BugReport>(id, "json");
+      if (!data) return json({ error: "Hibabejelentes nem talalhato." }, 404);
+      return json(data);
+    }
+
+    if (method === "POST" && /^\/bug-reports\/[^/]+\/resolve$/.test(url.pathname)) {
+      const id = url.pathname.replace("/bug-reports/", "").replace("/resolve", "");
+      const data = await env.BUGS.get<BugReport>(id, "json");
+      if (!data) return json({ error: "Hibabejelentes nem talalhato." }, 404);
+      data.status = "resolved";
+      data.resolvedAt = new Date().toISOString();
+      await env.BUGS.put(id, JSON.stringify(data));
+      return json({ id, message: "Megoldottnak jelolve." });
+    }
+
+    if (method === "POST" && /^\/bug-reports\/[^/]+\/reopen$/.test(url.pathname)) {
+      const id = url.pathname.replace("/bug-reports/", "").replace("/reopen", "");
+      const data = await env.BUGS.get<BugReport>(id, "json");
+      if (!data) return json({ error: "Hibabejelentes nem talalhato." }, 404);
+      data.status = "open";
+      data.resolvedAt = null;
+      await env.BUGS.put(id, JSON.stringify(data));
+      return json({ id, message: "Ujranyitva." });
+    }
+
+    if (method === "DELETE" && /^\/bug-reports\/[^/]+$/.test(url.pathname)) {
+      const id = url.pathname.replace("/bug-reports/", "");
+      const data = await env.BUGS.get<BugReport>(id, "json");
+      if (!data) return json({ error: "Hibabejelentes nem talalhato." }, 404);
+      await env.BUGS.delete(id);
+      return json({ id, message: "Hibabejelentes torolve." });
     }
 
     // GET /keys — list all licenses (KV list, max 1000)

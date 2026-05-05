@@ -302,6 +302,93 @@
             color: var(--text2);
         }
 
+        /* === Bug report form extras === */
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 14px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text);
+            font-family: 'Manrope', sans-serif;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+            resize: vertical;
+            min-height: 110px;
+        }
+        .form-group textarea:focus { border-color: var(--accent); }
+        .form-group select {
+            width: 100%;
+            padding: 12px 14px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text);
+            font-family: 'Manrope', sans-serif;
+            font-size: 14px;
+            outline: none;
+            cursor: pointer;
+        }
+        .form-file-zone {
+            border: 1.5px dashed var(--border);
+            border-radius: 10px;
+            padding: 18px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s, background 0.2s;
+            background: #ffffff03;
+        }
+        .form-file-zone:hover { border-color: var(--accent); background: #4f7df508; }
+        .form-file-zone.drag { border-color: var(--accent); background: #4f7df515; }
+        .form-file-zone .fz-text { font-size: 13px; color: var(--text2); }
+        .form-file-zone .fz-text strong { color: var(--accent); }
+        .form-file-zone input[type="file"] { display: none; }
+        .file-previews {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .file-previews:empty { display: none; }
+        .file-preview {
+            position: relative;
+            aspect-ratio: 1;
+            border-radius: 8px;
+            overflow: hidden;
+            background: var(--bg);
+            border: 1px solid var(--border);
+        }
+        .file-preview img { width: 100%; height: 100%; object-fit: cover; }
+        .file-preview .remove {
+            position: absolute;
+            top: 4px; right: 4px;
+            width: 20px; height: 20px;
+            background: rgba(10,14,23,0.85);
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 14px;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .file-preview .remove:hover { background: var(--red); }
+        .form-error {
+            background: #f0606015;
+            border: 1px solid #f0606040;
+            color: #f48a8a;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 12px;
+            display: none;
+        }
+        .form-error.show { display: block; }
+        .bug-form-card { max-width: 640px; margin: 0 auto; }
+
         /* === SECTION === */
         section { padding: 80px 0; }
         .section-label {
@@ -1578,6 +1665,66 @@
     </div>
 </section>
 
+<!-- BUG REPORT -->
+<section id="bug-report">
+    <div class="container">
+        <div class="section-header reveal" style="text-align:center; margin-bottom:32px;">
+            <div class="section-label">Hibabejelentés</div>
+            <h2 class="section-title">Talált hibát? Szóljon nekünk.</h2>
+            <p class="section-subtitle">Írja le röviden, mi történt, és csatoljon képeket — minél több infó, annál gyorsabban tudunk segíteni.</p>
+        </div>
+        <div class="form-card reveal bug-form-card">
+            <div id="bugFormContent">
+                <form id="bugForm">
+                    <div class="form-error" id="bugFormError"></div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Név (opcionális)</label>
+                            <input type="text" name="name" placeholder="Az Ön neve">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">E-mail (opcionális)</label>
+                            <input type="email" name="email" placeholder="cim@ceg.hu">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Hiba típusa</label>
+                        <select name="category">
+                            <option value="">— Válasszon —</option>
+                            <option value="ui">Felület / megjelenés</option>
+                            <option value="tool">Eszköz nem működik</option>
+                            <option value="performance">Lassú / akadozik</option>
+                            <option value="auth">Bejelentkezés / hozzáférés</option>
+                            <option value="data">Adatok rosszul jelennek meg</option>
+                            <option value="other">Egyéb</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Mi történt? *</label>
+                        <textarea name="description" placeholder="Pl. A teendő-listázás 'lic_...' kulccsal hibát ad. Lépések: ..." required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Képernyőképek (opcionális, max 5)</label>
+                        <label class="form-file-zone" id="bugFileZone">
+                            <input type="file" id="bugFiles" name="image" accept="image/*" multiple>
+                            <div class="fz-text">Húzza ide a képeket, vagy <strong>kattintson a kiválasztáshoz</strong></div>
+                            <div class="fz-text" style="margin-top:6px;color:var(--dim);font-size:11px">PNG / JPG / WEBP — max 4 MB / kép, 18 MB összesen</div>
+                        </label>
+                        <div class="file-previews" id="bugPreviews"></div>
+                    </div>
+                    <button type="submit" class="form-submit">Hibabejelentés elküldése</button>
+                </form>
+                <p class="form-note">A bejelentés a Nexly fejlesztőcsapatához kerül. 24 órán belül visszajelzünk.</p>
+            </div>
+            <div class="form-success" id="bugFormSuccess">
+                <div class="check-icon">&#10003;</div>
+                <h4>Köszönjük a bejelentést!</h4>
+                <p>Megkaptuk a leírását, és hamarosan jelentkezünk.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
 <!-- FOOTER -->
 <footer>
     <div class="container">
@@ -1690,6 +1837,120 @@
             btn.disabled = false;
             btn.textContent = 'Próba licenc igénylése';
             alert('Hiba történt. Kérem próbálja újra, vagy írjon az info@nexly.digital címre.');
+        }
+    });
+
+    // === Bug report form ===
+    const BUG_API = 'https://minicrm-license.nexlyhu.workers.dev/bug-report';
+    const BUG_MAX_FILES = 5;
+    const BUG_MAX_FILE_BYTES = 4 * 1024 * 1024;
+    const BUG_MAX_TOTAL_BYTES = 18 * 1024 * 1024;
+    let bugFiles = []; // File[]
+
+    const bugFileInput = document.getElementById('bugFiles');
+    const bugFileZone = document.getElementById('bugFileZone');
+    const bugPreviews = document.getElementById('bugPreviews');
+    const bugForm = document.getElementById('bugForm');
+    const bugErr = document.getElementById('bugFormError');
+
+    function bugShowError(msg) {
+        bugErr.textContent = msg;
+        bugErr.classList.add('show');
+    }
+    function bugHideError() { bugErr.classList.remove('show'); }
+
+    function renderBugPreviews() {
+        bugPreviews.innerHTML = '';
+        bugFiles.forEach((f, i) => {
+            const url = URL.createObjectURL(f);
+            const div = document.createElement('div');
+            div.className = 'file-preview';
+            div.innerHTML = '<img src="' + url + '" alt=""><button type="button" class="remove" aria-label="Törlés">&times;</button>';
+            div.querySelector('.remove').addEventListener('click', (ev) => {
+                ev.preventDefault();
+                URL.revokeObjectURL(url);
+                bugFiles.splice(i, 1);
+                renderBugPreviews();
+            });
+            bugPreviews.appendChild(div);
+        });
+    }
+
+    function addBugFiles(list) {
+        bugHideError();
+        const incoming = Array.from(list);
+        let totalBytes = bugFiles.reduce((s, f) => s + f.size, 0);
+        for (const f of incoming) {
+            if (bugFiles.length >= BUG_MAX_FILES) {
+                bugShowError('Maximum ' + BUG_MAX_FILES + ' kép csatolható.');
+                break;
+            }
+            if (!f.type.startsWith('image/')) {
+                bugShowError('Csak képeket lehet csatolni: ' + f.name);
+                continue;
+            }
+            if (f.size > BUG_MAX_FILE_BYTES) {
+                bugShowError(f.name + ' túl nagy (max 4 MB / kép).');
+                continue;
+            }
+            if (totalBytes + f.size > BUG_MAX_TOTAL_BYTES) {
+                bugShowError('A képek összmérete nem haladhatja meg a 18 MB-ot.');
+                break;
+            }
+            bugFiles.push(f);
+            totalBytes += f.size;
+        }
+        renderBugPreviews();
+    }
+
+    bugFileInput.addEventListener('change', (e) => {
+        addBugFiles(e.target.files);
+        e.target.value = ''; // allow re-selecting same file
+    });
+
+    ['dragenter', 'dragover'].forEach(evt => {
+        bugFileZone.addEventListener(evt, (e) => { e.preventDefault(); bugFileZone.classList.add('drag'); });
+    });
+    ['dragleave', 'drop'].forEach(evt => {
+        bugFileZone.addEventListener(evt, (e) => { e.preventDefault(); bugFileZone.classList.remove('drag'); });
+    });
+    bugFileZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        if (e.dataTransfer && e.dataTransfer.files) addBugFiles(e.dataTransfer.files);
+    });
+
+    bugForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        bugHideError();
+        const btn = bugForm.querySelector('.form-submit');
+        const desc = bugForm.description.value.trim();
+        if (desc.length < 5) { bugShowError('A leírás megadása kötelező (legalább 5 karakter).'); return; }
+
+        btn.disabled = true;
+        btn.textContent = 'Küldés...';
+
+        const fd = new FormData();
+        fd.append('name', bugForm.name.value.trim());
+        fd.append('email', bugForm.email.value.trim());
+        fd.append('category', bugForm.category.value);
+        fd.append('description', desc);
+        for (const f of bugFiles) fd.append('image', f, f.name);
+
+        try {
+            const res = await fetch(BUG_API, { method: 'POST', body: fd });
+            const data = await res.json();
+            if (!res.ok) {
+                bugShowError(data.error || 'Hiba a küldés során. Próbálja újra.');
+                btn.disabled = false;
+                btn.textContent = 'Hibabejelentés elküldése';
+                return;
+            }
+            document.getElementById('bugFormContent').style.display = 'none';
+            document.getElementById('bugFormSuccess').style.display = 'block';
+        } catch (err) {
+            bugShowError('Hálózati hiba. Próbálja újra, vagy írjon az info@nexly.digital címre.');
+            btn.disabled = false;
+            btn.textContent = 'Hibabejelentés elküldése';
         }
     });
 </script>
