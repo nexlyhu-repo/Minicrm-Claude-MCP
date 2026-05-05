@@ -122,6 +122,13 @@ interface LicenseData {
   // modules). [] = no module restriction yet selected. [123, 456] = restrict
   // aggregating tools (my_day, list_all_todos, etc.) to these CategoryIds only.
   allowedCategoryIds?: number[] | null;
+  // Subscription tracking — manual MVP until billing is automated.
+  // For legacy licenses this is undefined; the admin UI infers trial-vs-other
+  // from the `note` prefix. New licenses get an explicit type.
+  type?: "trial" | "subscription";
+  subscriptionPlan?: "monthly" | "yearly" | "custom" | null;
+  subscriptionStartedAt?: string;
+  paymentNote?: string;
 }
 
 interface LeadData {
@@ -226,6 +233,7 @@ export default {
           createdAt: new Date().toISOString(),
           expiresAt,
           note: `trial: ${body.name || ""} | ${body.company || ""} | ${body.phone || ""} | users:${body.userCount || "?"}`,
+          type: "trial",
         };
 
         await env.LICENSES.put(key, JSON.stringify(data));
@@ -428,6 +436,10 @@ export default {
           email?: string;
           expiresAt?: string | null;
           allowedCategoryIds?: number[] | null;
+          type?: "trial" | "subscription";
+          subscriptionPlan?: "monthly" | "yearly" | "custom" | null;
+          subscriptionStartedAt?: string;
+          paymentNote?: string;
         };
         if (body.note !== undefined) data.note = body.note;
         if (body.email !== undefined) data.email = body.email;
@@ -437,6 +449,10 @@ export default {
             ? body.allowedCategoryIds.map((n) => Number(n)).filter((n) => Number.isFinite(n))
             : null;
         }
+        if (body.type !== undefined) data.type = body.type;
+        if (body.subscriptionPlan !== undefined) data.subscriptionPlan = body.subscriptionPlan;
+        if (body.subscriptionStartedAt !== undefined) data.subscriptionStartedAt = body.subscriptionStartedAt;
+        if (body.paymentNote !== undefined) data.paymentNote = body.paymentNote;
 
         await env.LICENSES.put(key, JSON.stringify(data));
         return json({ key, ...data, message: "Licenc frissitve." });

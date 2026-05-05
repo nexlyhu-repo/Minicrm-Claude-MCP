@@ -38,7 +38,14 @@ export function getAdminDashboardHtml(): string {
   .badge.active { background:#3dd68c20; color:var(--green); }
   .badge.inactive { background:#f0606020; color:var(--red); }
   .badge.expired { background:#e8a04020; color:var(--amber); }
-  .badge.trial { background:#4f7df520; color:var(--accent); }
+  .badge.trial { background:#e8a04020; color:var(--amber); }
+  .badge.subscription { background:#3dd68c25; color:var(--green); }
+  .badge.manual { background:#5a647825; color:var(--text2); }
+  .filter-btn { padding:6px 14px; background:var(--card); border:1px solid var(--border); color:var(--text2); border-radius:8px; font-size:12px; cursor:pointer; transition:all .15s; }
+  .filter-btn:hover { border-color:var(--accent); color:var(--text); }
+  .filter-btn.active { background:var(--accent); border-color:var(--accent); color:#fff; }
+  .filter-btn .filter-count { display:inline-block; margin-left:4px; padding:0 6px; background:rgba(255,255,255,0.12); border-radius:4px; font-size:10px; font-weight:700; }
+  .filter-btn.active .filter-count { background:rgba(255,255,255,0.25); }
   .key-cell { font-family:monospace; font-size:11px; color:var(--text2); word-break:break-all; cursor:pointer; }
   .key-cell:hover { color:var(--accent-bright); }
   .note-cell { font-size:12px; color:var(--text2); max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
@@ -96,8 +103,17 @@ export function getAdminDashboardHtml(): string {
     <button class="btn-primary" onclick="openCreateModal()">+ Új licenc</button>
   </div>
 
+  <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">
+    <button class="btn-sm filter-btn active" data-filter="all" onclick="setLicenseFilter('all')">Mind <span class="filter-count" id="cnt-all">-</span></button>
+    <button class="btn-sm filter-btn" data-filter="trial" onclick="setLicenseFilter('trial')">Próba <span class="filter-count" id="cnt-trial">-</span></button>
+    <button class="btn-sm filter-btn" data-filter="subscription" onclick="setLicenseFilter('subscription')">Előfizető <span class="filter-count" id="cnt-subscription">-</span></button>
+    <button class="btn-sm filter-btn" data-filter="expired" onclick="setLicenseFilter('expired')">Lejárt <span class="filter-count" id="cnt-expired">-</span></button>
+    <button class="btn-sm filter-btn" data-filter="inactive" onclick="setLicenseFilter('inactive')">Visszavont <span class="filter-count" id="cnt-inactive">-</span></button>
+  </div>
+
   <table>
     <thead><tr>
+      <th>Típus</th>
       <th>Állapot</th>
       <th>Felhasználó</th>
       <th>Email</th>
@@ -217,6 +233,69 @@ export function getAdminDashboardHtml(): string {
     <div class="modal-actions">
       <button class="btn-sm" onclick="closeModal('editModal')">Mégse</button>
       <button class="btn-primary" onclick="saveLicense()">Mentés</button>
+    </div>
+  </div>
+</div>
+
+<!-- Subscribe Modal (trial → subscription conversion) -->
+<div class="modal-overlay" id="subscribeModal">
+  <div class="modal">
+    <h3>Előfizetésre váltás</h3>
+    <input type="hidden" id="subKey">
+    <div id="subInfo" style="font-size:13px;color:var(--text2);line-height:1.5;margin-bottom:12px;"></div>
+    <label>Csomag</label>
+    <div style="display:flex;gap:6px;margin-bottom:8px;">
+      <button type="button" class="btn-sm" onclick="setSubPlan('monthly')">Havi (+1 hónap)</button>
+      <button type="button" class="btn-sm" onclick="setSubPlan('yearly')">Éves (+1 év)</button>
+      <button type="button" class="btn-sm" onclick="setSubPlan('custom')">Egyedi</button>
+    </div>
+    <div id="subPlanBadge" style="margin-bottom:8px"></div>
+    <div id="subCustomDays" class="hidden" style="margin-top:8px">
+      <label>Egyedi napok száma</label>
+      <input type="number" id="subCustomDaysInput" min="1" max="3650" placeholder="pl. 60">
+    </div>
+    <label style="margin-top:12px">Indulás dátuma</label>
+    <input type="date" id="subStartDate">
+    <label style="margin-top:12px">Fizetési megjegyzés (opcionális)</label>
+    <input type="text" id="subPaymentNote" placeholder="pl. Banki utalás, 2026-05-05, 30000 Ft">
+    <div id="subPreview" style="margin-top:12px;padding:10px;background:var(--bg);border:1px solid var(--border);border-radius:6px;font-size:13px;color:var(--text2);"></div>
+    <div class="modal-actions">
+      <button class="btn-sm" onclick="closeModal('subscribeModal')">Mégse</button>
+      <button class="btn-primary" onclick="saveSubscribe()">Mentés</button>
+    </div>
+  </div>
+</div>
+
+<!-- Renew Modal (subscription renewal) -->
+<div class="modal-overlay" id="renewModal">
+  <div class="modal">
+    <h3>Előfizetés megújítása</h3>
+    <input type="hidden" id="renewKey">
+    <div id="renewInfo" style="font-size:13px;color:var(--text2);line-height:1.5;margin-bottom:12px;"></div>
+    <label>Mennyivel hosszabbítjuk?</label>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
+      <button type="button" class="btn-sm" onclick="setRenewMode('month',1)">+1 hónap</button>
+      <button type="button" class="btn-sm" onclick="setRenewMode('month',3)">+3 hónap</button>
+      <button type="button" class="btn-sm" onclick="setRenewMode('month',6)">+6 hónap</button>
+      <button type="button" class="btn-sm" onclick="setRenewMode('year',1)">+1 év</button>
+      <button type="button" class="btn-sm" onclick="setRenewMode('day',null)">Egyedi nap</button>
+    </div>
+    <div id="renewCustom" class="hidden" style="margin-top:8px">
+      <input type="number" id="renewCustomDaysInput" min="1" max="3650" placeholder="pl. 45">
+    </div>
+    <label style="margin-top:12px">Új csomag (opcionális)</label>
+    <select id="renewPlanSelect">
+      <option value="">Változatlan</option>
+      <option value="monthly">Havi</option>
+      <option value="yearly">Éves</option>
+      <option value="custom">Egyedi</option>
+    </select>
+    <label style="margin-top:12px">Megjegyzés (opcionális)</label>
+    <input type="text" id="renewNote" placeholder="pl. 2026-Q3 megújítás">
+    <div id="renewPreview" style="margin-top:12px;padding:10px;background:var(--bg);border:1px solid var(--border);border-radius:6px;font-size:13px;color:var(--text2);"></div>
+    <div class="modal-actions">
+      <button class="btn-sm" onclick="closeModal('renewModal')">Mégse</button>
+      <button class="btn-primary" onclick="saveRenew()">Megújítás</button>
     </div>
   </div>
 </div>
@@ -412,28 +491,76 @@ async function deleteLead(idEnc, email) {
   fetchLeads();
 }
 
+let LICENSE_FILTER = 'all';
+let ALL_LICENSES = [];
+
+function getLicenseType(l) {
+  if (l.type === 'subscription' || l.type === 'trial') return l.type;
+  if (l.note && l.note.startsWith('trial:')) return 'trial';
+  return 'manual';
+}
+
+function setLicenseFilter(f) {
+  LICENSE_FILTER = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.toggle('active', b.dataset.filter === f));
+  renderLicenses(ALL_LICENSES);
+}
+
 function renderLicenses(licenses) {
+  ALL_LICENSES = licenses;
   const now = new Date();
   let active = 0, inactive = 0, totalCalls = 0;
+  let cnt = { all: licenses.length, trial: 0, subscription: 0, expired: 0, inactive: 0 };
   licenses.forEach(l => {
     totalCalls += l.total_calls || 0;
     const expired = l.expiresAt && new Date(l.expiresAt) < now;
+    const t = getLicenseType(l);
     if (l.active && !expired) active++; else inactive++;
+    if (!l.active) cnt.inactive++;
+    else if (expired) cnt.expired++;
+    else if (t === 'trial') cnt.trial++;
+    else if (t === 'subscription') cnt.subscription++;
   });
   document.getElementById('totalLic').textContent = licenses.length;
   document.getElementById('activeLic').textContent = active;
   document.getElementById('inactiveLic').textContent = inactive;
   document.getElementById('totalCalls').textContent = totalCalls;
+  for (const k of Object.keys(cnt)) {
+    const el = document.getElementById('cnt-' + k);
+    if (el) el.textContent = cnt[k];
+  }
+
+  // Apply filter
+  let filtered = licenses;
+  if (LICENSE_FILTER !== 'all') {
+    filtered = licenses.filter(l => {
+      const expired = l.expiresAt && new Date(l.expiresAt) < now;
+      const t = getLicenseType(l);
+      if (LICENSE_FILTER === 'inactive') return !l.active;
+      if (LICENSE_FILTER === 'expired') return l.active && expired;
+      if (LICENSE_FILTER === 'trial') return l.active && !expired && t === 'trial';
+      if (LICENSE_FILTER === 'subscription') return l.active && !expired && t === 'subscription';
+      return true;
+    });
+  }
 
   const tbody = document.getElementById('licTable');
-  tbody.innerHTML = licenses.map(l => {
+  if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="10" class="empty">Nincs találat erre a szűrőre.</td></tr>'; return; }
+  tbody.innerHTML = filtered.map(l => {
     const expired = l.expiresAt && new Date(l.expiresAt) < now;
     const isTrial = l.note && l.note.startsWith('trial:');
-    let badge = '';
-    if (!l.active) badge = '<span class="badge inactive">Visszavont</span>';
-    else if (expired) badge = '<span class="badge expired">Lejárt</span>';
-    else if (isTrial) badge = '<span class="badge trial">Próba</span>';
-    else badge = '<span class="badge active">Aktív</span>';
+    const type = getLicenseType(l);
+    let typeBadge = '';
+    if (type === 'trial') typeBadge = '<span class="badge trial">Próba</span>';
+    else if (type === 'subscription') {
+      const planLabel = l.subscriptionPlan === 'monthly' ? ' havi' : l.subscriptionPlan === 'yearly' ? ' éves' : '';
+      typeBadge = '<span class="badge subscription">Előfizető' + planLabel + '</span>';
+    } else typeBadge = '<span class="badge manual">Manuális</span>';
+
+    let statusBadge = '';
+    if (!l.active) statusBadge = '<span class="badge inactive">Visszavont</span>';
+    else if (expired) statusBadge = '<span class="badge expired">Lejárt</span>';
+    else statusBadge = '<span class="badge active">Aktív</span>';
 
     const userName = l.note ? (isTrial ? l.note.replace('trial: ','').split('|')[0].trim() : l.note) : '-';
     const lastUsed = l.last_used ? new Date(l.last_used+'Z').toLocaleString('hu-HU') : '-';
@@ -454,8 +581,19 @@ function renderLicenses(licenses) {
       ? '<button class="btn-sm" style="margin-left:4px" onclick="resetTenantPassword(\\'' + l.boundSystemId + '\\',\\'' + esc(tenant.adminEmail||'') + '\\')" title="Új admin jelszó">🔑</button>'
       : '';
 
+    // Type-specific actions
+    let extendBtn = '';
+    let convertBtn = '';
+    if (type === 'subscription') {
+      extendBtn = '<button class="btn-sm green" onclick="openRenewModal(\\'' + l.key + '\\',\\'' + esc(userName) + '\\',\\'' + (l.expiresAt||'') + '\\',\\'' + (l.subscriptionPlan||'') + '\\')">Megújítás</button>';
+    } else {
+      extendBtn = '<button class="btn-sm" onclick="openExtendModal(\\'' + l.key + '\\',\\'' + esc(userName) + '\\',\\'' + (l.expiresAt||'') + '\\')">Próba +</button>';
+      convertBtn = '<button class="btn-sm green" onclick="openSubscribeModal(\\'' + l.key + '\\',\\'' + esc(userName) + '\\',\\'' + (l.expiresAt||'') + '\\')">Előfizetésre vált</button>';
+    }
+
     return '<tr>' +
-      '<td>' + badge + '</td>' +
+      '<td>' + typeBadge + '</td>' +
+      '<td>' + statusBadge + '</td>' +
       '<td>' + esc(userName) + roleBadge + '</td>' +
       '<td style="font-size:12px;color:var(--text2)">' + esc(l.email) + '</td>' +
       '<td class="key-cell" onclick="navigator.clipboard.writeText(\\'' + l.key + '\\');this.style.color=\\'#3dd68c\\';setTimeout(()=>this.style.color=\\'\\',1000)" title="Kattints a másoláshoz">' + esc(l.key) + '</td>' +
@@ -466,7 +604,7 @@ function renderLicenses(licenses) {
       '<td class="actions">' +
         '<button class="btn-sm" onclick="showDetail(\\'' + l.key + '\\',\\'' + esc(userName) + '\\')">Részletek</button>' +
         '<button class="btn-sm" onclick="openEditModal(\\'' + l.key + '\\',\\'' + esc(l.note||'') + '\\',\\'' + esc(l.email) + '\\',\\'' + (l.expiresAt||'') + '\\')">Szerk.</button>' +
-        '<button class="btn-sm green" onclick="openExtendModal(\\'' + l.key + '\\',\\'' + esc(userName) + '\\',\\'' + (l.expiresAt||'') + '\\')">Hosszabbítás</button>' +
+        extendBtn + convertBtn +
         (l.active ?
           '<button class="btn-sm danger" onclick="revokeLicense(\\'' + l.key + '\\')">Tiltás</button>' :
           '<button class="btn-sm green" onclick="reactivateLicense(\\'' + l.key + '\\')">Aktiválás</button>') +
@@ -598,6 +736,146 @@ async function saveExtend() {
   const data = await api('/licenses/' + key, { method:'PUT', body:JSON.stringify({ expiresAt: next.toISOString() }) });
   if (data.error) { alert('Hiba: ' + data.error); return; }
   closeModal('extendModal');
+  fetchLicenses();
+}
+
+// === Subscribe (trial → subscription) ===
+let _subPlan = null;
+
+function addMonths(d, n) { const x = new Date(d); x.setMonth(x.getMonth() + n); return x; }
+function addYears(d, n) { const x = new Date(d); x.setFullYear(x.getFullYear() + n); return x; }
+function todayDateStr() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
+
+function openSubscribeModal(key, userName, expiresAt) {
+  document.getElementById('subKey').value = key;
+  _subPlan = 'monthly';
+  document.getElementById('subInfo').innerHTML =
+    '<strong>' + esc(userName) + '</strong> próbából előfizetésre váltása.<br>' +
+    'Jelenlegi lejárat: <strong>' + (expiresAt ? new Date(expiresAt).toLocaleDateString('hu-HU') : 'nincs') + '</strong>';
+  document.getElementById('subStartDate').value = todayDateStr();
+  document.getElementById('subPaymentNote').value = '';
+  document.getElementById('subCustomDaysInput').value = '';
+  document.getElementById('subCustomDays').classList.add('hidden');
+  setSubPlan('monthly');
+  document.getElementById('subscribeModal').classList.add('open');
+  document.getElementById('subStartDate').oninput = updateSubPreview;
+  document.getElementById('subCustomDaysInput').oninput = updateSubPreview;
+}
+
+function setSubPlan(plan) {
+  _subPlan = plan;
+  document.getElementById('subPlanBadge').innerHTML =
+    'Választott: <strong style="color:var(--green)">' +
+    (plan === 'monthly' ? 'Havi (30 nap)' : plan === 'yearly' ? 'Éves (1 év)' : 'Egyedi') +
+    '</strong>';
+  document.getElementById('subCustomDays').classList.toggle('hidden', plan !== 'custom');
+  updateSubPreview();
+}
+
+function computeSubExpiry() {
+  const startStr = document.getElementById('subStartDate').value;
+  if (!startStr) return null;
+  const start = new Date(startStr + 'T00:00:00');
+  if (_subPlan === 'monthly') return addMonths(start, 1);
+  if (_subPlan === 'yearly') return addYears(start, 1);
+  if (_subPlan === 'custom') {
+    const days = parseInt(document.getElementById('subCustomDaysInput').value);
+    if (!days || days < 1) return null;
+    return new Date(start.getTime() + days * 86400000);
+  }
+  return null;
+}
+
+function updateSubPreview() {
+  const exp = computeSubExpiry();
+  const p = document.getElementById('subPreview');
+  if (!exp) { p.textContent = 'Új lejárat: -'; return; }
+  p.innerHTML = 'Új lejárat: <strong style="color:var(--green)">' + exp.toLocaleDateString('hu-HU') + '</strong>';
+}
+
+async function saveSubscribe() {
+  const key = document.getElementById('subKey').value;
+  const startStr = document.getElementById('subStartDate').value;
+  const exp = computeSubExpiry();
+  if (!exp) { alert('Add meg a csomag adatait (egyedinél a napok számát is).'); return; }
+  const body = {
+    type: 'subscription',
+    subscriptionPlan: _subPlan,
+    subscriptionStartedAt: new Date(startStr + 'T00:00:00').toISOString(),
+    expiresAt: exp.toISOString(),
+    paymentNote: document.getElementById('subPaymentNote').value.trim() || undefined,
+  };
+  const data = await api('/licenses/' + key, { method:'PUT', body: JSON.stringify(body) });
+  if (data.error) { alert('Hiba: ' + data.error); return; }
+  closeModal('subscribeModal');
+  fetchLicenses();
+}
+
+// === Renew (subscription renewal) ===
+let _renewBase = null;
+let _renewMode = { kind: 'month', n: 1 };
+let _renewCurrentExpiry = null;
+
+function openRenewModal(key, userName, expiresAt, currentPlan) {
+  document.getElementById('renewKey').value = key;
+  const now = new Date();
+  _renewCurrentExpiry = expiresAt ? new Date(expiresAt) : null;
+  _renewBase = (_renewCurrentExpiry && _renewCurrentExpiry > now) ? _renewCurrentExpiry : now;
+  const baseLabel = (_renewCurrentExpiry && _renewCurrentExpiry > now) ? 'jelenlegi lejárat' : 'mai nap (lejárt — innen)';
+  document.getElementById('renewInfo').innerHTML =
+    '<strong>' + esc(userName) + '</strong><br>' +
+    'Jelenlegi lejárat: <strong>' + (_renewCurrentExpiry ? _renewCurrentExpiry.toLocaleDateString('hu-HU') : 'nincs') + '</strong><br>' +
+    'Megújítás kezdete: <strong>' + _renewBase.toLocaleDateString('hu-HU') + '</strong> <span style="color:var(--dim)">(' + esc(baseLabel) + ')</span><br>' +
+    'Jelenlegi csomag: <strong>' + (currentPlan === 'monthly' ? 'Havi' : currentPlan === 'yearly' ? 'Éves' : currentPlan || '—') + '</strong>';
+  document.getElementById('renewCustom').classList.add('hidden');
+  document.getElementById('renewCustomDaysInput').value = '';
+  document.getElementById('renewPlanSelect').value = '';
+  document.getElementById('renewNote').value = '';
+  setRenewMode('month', 1);
+  document.getElementById('renewModal').classList.add('open');
+  document.getElementById('renewCustomDaysInput').oninput = updateRenewPreview;
+}
+
+function setRenewMode(kind, n) {
+  _renewMode = { kind, n };
+  document.getElementById('renewCustom').classList.toggle('hidden', kind !== 'day');
+  updateRenewPreview();
+}
+
+function computeRenewExpiry() {
+  if (!_renewBase) return null;
+  if (_renewMode.kind === 'month') return addMonths(_renewBase, _renewMode.n);
+  if (_renewMode.kind === 'year') return addYears(_renewBase, _renewMode.n);
+  if (_renewMode.kind === 'day') {
+    const days = parseInt(document.getElementById('renewCustomDaysInput').value);
+    if (!days || days < 1) return null;
+    return new Date(_renewBase.getTime() + days * 86400000);
+  }
+  return null;
+}
+
+function updateRenewPreview() {
+  const exp = computeRenewExpiry();
+  const p = document.getElementById('renewPreview');
+  if (!exp) { p.textContent = 'Új lejárat: -'; return; }
+  const label = _renewMode.kind === 'month' ? '+' + _renewMode.n + ' hónap'
+    : _renewMode.kind === 'year' ? '+' + _renewMode.n + ' év'
+    : '+' + (parseInt(document.getElementById('renewCustomDaysInput').value) || 0) + ' nap';
+  p.innerHTML = label + ' → <strong style="color:var(--green)">' + exp.toLocaleDateString('hu-HU') + '</strong>';
+}
+
+async function saveRenew() {
+  const key = document.getElementById('renewKey').value;
+  const exp = computeRenewExpiry();
+  if (!exp) { alert('Egyedi módnál add meg a napok számát.'); return; }
+  const body = { expiresAt: exp.toISOString() };
+  const newPlan = document.getElementById('renewPlanSelect').value;
+  if (newPlan) body.subscriptionPlan = newPlan;
+  const note = document.getElementById('renewNote').value.trim();
+  if (note) body.paymentNote = note;
+  const data = await api('/licenses/' + key, { method:'PUT', body: JSON.stringify(body) });
+  if (data.error) { alert('Hiba: ' + data.error); return; }
+  closeModal('renewModal');
   fetchLicenses();
 }
 
